@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EXOSHELL</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #080808;
+  --text: #f0ede6;
+  --accent: #c8f135;
+  --muted: #4a4a44;
+  --muted2: #2a2a26;
+  --border: rgba(240,237,230,0.08);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+  cursor: crosshair;
+}
+
+/* ── GRAIN OVERLAY ── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 1000;
+  opacity: 0.4;
+}
+
+/* ── HERO ── */
+#hero {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 80px 60px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Diagonal accent line */
+#hero::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 120px;
+  width: 1px;
+  height: 100%;
+  background: linear-gradient(180deg, transparent, rgba(200,241,53,0.15), transparent);
+  animation: lineReveal 2s ease forwards;
+}
+
+@keyframes lineReveal {
+  from { transform: scaleY(0); transform-origin: top; }
+  to { transform: scaleY(1); transform-origin: top; }
+}
+
+/* Corner markers */
+.corner {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  opacity: 0;
+  animation: cornerReveal 0.4s ease forwards;
+}
+
+.corner-tl { top: 30px; left: 30px; border-top: 1px solid rgba(200,241,53,0.4); border-left: 1px solid rgba(200,241,53,0.4); animation-delay: 1.2s; }
+.corner-tr { top: 30px; right: 30px; border-top: 1px solid rgba(200,241,53,0.4); border-right: 1px solid rgba(200,241,53,0.4); animation-delay: 1.3s; }
+.corner-bl { bottom: 30px; left: 30px; border-bottom: 1px solid rgba(200,241,53,0.4); border-left: 1px solid rgba(200,241,53,0.4); animation-delay: 1.4s; }
+.corner-br { bottom: 30px; right: 30px; border-bottom: 1px solid rgba(200,241,53,0.4); border-right: 1px solid rgba(200,241,53,0.4); animation-delay: 1.5s; }
+
+@keyframes cornerReveal { to { opacity: 1; } }
+
+/* Coordinate label */
+.coord {
+  position: absolute;
+  font-family: 'Space Mono', monospace;
+  font-size: 9px;
+  color: var(--muted);
+  letter-spacing: 2px;
+  opacity: 0;
+  animation: fadeUp 0.6s ease forwards;
+}
+
+.coord-tl { top: 56px; left: 30px; animation-delay: 1.6s; }
+.coord-br { bottom: 56px; right: 30px; animation-delay: 1.7s; }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Main wordmark */
+#wordmark {
+  opacity: 0;
+  animation: fadeUp 0.8s ease 0.2s forwards;
+}
+
+#exo {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(100px, 18vw, 220px);
+  letter-spacing: -4px;
+  line-height: 0.85;
+  color: var(--text);
+  display: block;
+}
+
+#shell {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(100px, 18vw, 220px);
+  letter-spacing: -4px;
+  line-height: 0.85;
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(240,237,230,0.25);
+  display: block;
+}
+
+/* Accent dot */
+#dot {
+  display: inline-block;
+  width: clamp(12px, 2vw, 20px);
+  height: clamp(12px, 2vw, 20px);
+  background: var(--accent);
+  border-radius: 50%;
+  margin-left: 8px;
+  vertical-align: middle;
+  animation: pulse 3s ease-in-out infinite;
+  animation-delay: 2s;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(0.85); }
+}
+
+/* Tagline */
+#tagline {
+  margin-top: 40px;
+  opacity: 0;
+  animation: fadeUp 0.8s ease 0.5s forwards;
+}
+
+#tagline-main {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(18px, 2.5vw, 28px);
+  font-weight: 300;
+  font-style: italic;
+  color: rgba(240,237,230,0.5);
+  letter-spacing: 0.02em;
+  line-height: 1.4;
+  max-width: 500px;
+}
+
+#tagline-main span {
+  color: var(--text);
+  font-style: normal;
+  font-weight: 400;
+}
+
+/* Status line */
+#status-line {
+  margin-top: 60px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  opacity: 0;
+  animation: fadeUp 0.8s ease 0.8s forwards;
+}
+
+.status-dot {
+  width: 6px;
+  height: 6px;
+  background: var(--accent);
+  border-radius: 50%;
+  animation: statusPulse 2s ease-in-out infinite;
+}
+
+@keyframes statusPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+#status-text {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  color: var(--muted);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+/* Right side floating element */
+#right-block {
+  position: absolute;
+  right: 60px;
+  bottom: 80px;
+  text-align: right;
+  opacity: 0;
+  animation: fadeUp 0.8s ease 1s forwards;
+}
+
+#right-block-label {
+  font-family: 'Space Mono', monospace;
+  font-size: 9px;
+  color: var(--muted);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+
+.venture-line {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 15px;
+  font-weight: 300;
+  color: rgba(240,237,230,0.35);
+  margin-bottom: 6px;
+  letter-spacing: 0.05em;
+  transition: color 0.2s;
+  cursor: default;
+}
+
+.venture-line:hover { color: rgba(240,237,230,0.7); }
+.venture-line.active { color: var(--accent); }
+
+/* ── DIVIDER ── */
+.divider {
+  width: 100%;
+  height: 1px;
+  background: var(--border);
+  position: relative;
+}
+
+.divider::after {
+  content: '';
+  position: absolute;
+  left: 60px;
+  top: 0;
+  width: 60px;
+  height: 1px;
+  background: var(--accent);
+}
+
+/* ── MANIFESTO SECTION ── */
+#manifesto {
+  padding: 120px 60px;
+  max-width: 900px;
+}
+
+.manifesto-label {
+  font-family: 'Space Mono', monospace;
+  font-size: 9px;
+  color: var(--muted);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin-bottom: 48px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.manifesto-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+  max-width: 80px;
+}
+
+.manifesto-line {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(28px, 4vw, 48px);
+  font-weight: 300;
+  line-height: 1.25;
+  color: rgba(240,237,230,0.25);
+  margin-bottom: 24px;
+  transition: color 0.3s;
+  cursor: default;
+}
+
+.manifesto-line:hover { color: rgba(240,237,230,0.8); }
+
+.manifesto-line.accent {
+  color: var(--text);
+  font-style: italic;
+}
+
+.manifesto-line .highlight {
+  color: var(--accent);
+  font-style: normal;
+}
+
+/* ── PILLARS SECTION ── */
+#pillars {
+  padding: 80px 60px 120px;
+  border-top: 1px solid var(--border);
+}
+
+.pillars-label {
+  font-family: 'Space Mono', monospace;
+  font-size: 9px;
+  color: var(--muted);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin-bottom: 60px;
+}
+
+.pillars-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1px;
+  background: var(--border);
+}
+
+.pillar {
+  background: var(--bg);
+  padding: 32px 28px;
+  transition: background 0.2s;
+  cursor: default;
+}
+
+.pillar:hover { background: rgba(200,241,53,0.03); }
+
+.pillar-num {
+  font-family: 'Space Mono', monospace;
+  font-size: 9px;
+  color: var(--muted);
+  letter-spacing: 2px;
+  margin-bottom: 16px;
+}
+
+.pillar-name {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 22px;
+  letter-spacing: 2px;
+  color: var(--text);
+  margin-bottom: 10px;
+}
+
+.pillar-desc {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 15px;
+  font-weight: 300;
+  color: rgba(240,237,230,0.4);
+  line-height: 1.6;
+}
+
+.pillar-status {
+  margin-top: 20px;
+  font-family: 'Space Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.pillar-status.live { color: var(--accent); }
+.pillar-status.testing { color: #f5c842; }
+.pillar-status.building { color: #5599ee; }
+.pillar-status.vault { color: var(--muted); }
+
+/* ── FOOTER ── */
+#footer {
+  border-top: 1px solid var(--border);
+  padding: 40px 60px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+#footer-left {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: 2px;
+}
+
+#footer-right {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 13px;
+  font-weight: 300;
+  font-style: italic;
+  color: var(--muted);
+}
+
+/* ── SCROLL INDICATOR ── */
+#scroll-indicator {
+  position: absolute;
+  bottom: 40px;
+  left: 60px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  opacity: 0;
+  animation: fadeUp 0.6s ease 1.8s forwards;
+}
+
+#scroll-line {
+  width: 40px;
+  height: 1px;
+  background: var(--muted);
+  position: relative;
+  overflow: hidden;
+}
+
+#scroll-line::after {
+  content: '';
+  position: absolute;
+  left: -100%;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--accent);
+  animation: scrollLine 2s ease-in-out infinite;
+  animation-delay: 2s;
+}
+
+@keyframes scrollLine {
+  0% { left: -100%; }
+  50% { left: 0; }
+  100% { left: 100%; }
+}
+
+#scroll-text {
+  font-family: 'Space Mono', monospace;
+  font-size: 9px;
+  color: var(--muted);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+/* ── MOBILE ── */
+@media (max-width: 768px) {
+  #hero { padding: 60px 24px; }
+  #manifesto { padding: 80px 24px; }
+  #pillars { padding: 60px 24px 80px; }
+  #footer { padding: 32px 24px; flex-direction: column; gap: 16px; text-align: center; }
+  #right-block { display: none; }
+  #scroll-indicator { left: 24px; }
+  .divider::after { left: 24px; }
+}
+
+/* ── CUSTOM CURSOR DOT ── */
+#cursor {
+  width: 4px;
+  height: 4px;
+  background: var(--accent);
+  border-radius: 50%;
+  position: fixed;
+  pointer-events: none;
+  z-index: 9999;
+  transition: transform 0.1s ease;
+  mix-blend-mode: difference;
+}
+</style>
+</head>
+<body>
+
+<div id="cursor"></div>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="corner corner-tl"></div>
+  <div class="corner corner-tr"></div>
+  <div class="corner corner-bl"></div>
+  <div class="corner corner-br"></div>
+
+  <div class="coord coord-tl">53.5461° N · 113.4938° W</div>
+  <div class="coord coord-br">EXOSHELL.SPACE · EST. 2026</div>
+
+  <div id="wordmark">
+    <span id="exo">EXO<span id="dot"></span></span>
+    <span id="shell">SHELL</span>
+  </div>
+
+  <div id="tagline">
+    <div id="tagline-main">
+      A system of ventures.<br>
+      Built to fund <span>missions that matter.</span>
+    </div>
+  </div>
+
+  <div id="status-line">
+    <div class="status-dot"></div>
+    <div id="status-text">Empire Active · Building Phase</div>
+  </div>
+
+  <div id="right-block">
+    <div id="right-block-label">Ventures</div>
+    <div class="venture-line active">Firemoto</div>
+    <div class="venture-line">StopTheCalls</div>
+    <div class="venture-line">Lonely Chapter</div>
+    <div class="venture-line">Veronium</div>
+    <div class="venture-line">Podzter</div>
+  </div>
+
+  <div id="scroll-indicator">
+    <div id="scroll-line"></div>
+    <div id="scroll-text">Scroll</div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- MANIFESTO -->
+<section id="manifesto">
+  <div class="manifesto-label">Manifesto</div>
+
+  <div class="manifesto-line">This is not a company.</div>
+  <div class="manifesto-line accent">It is an <span class="highlight">architecture.</span></div>
+  <div class="manifesto-line">A system designed so that no single collapse</div>
+  <div class="manifesto-line">can take everything down.</div>
+  <div class="manifesto-line" style="margin-top: 48px;">The money is not the point.</div>
+  <div class="manifesto-line accent">The money is <span class="highlight">the fuel.</span></div>
+  <div class="manifesto-line" style="margin-top: 48px;">Rainforests to protect.</div>
+  <div class="manifesto-line">Animals to free.</div>
+  <div class="manifesto-line">A free internet to build.</div>
+  <div class="manifesto-line accent">Pyramids that haven't given up <span class="highlight">their secrets yet.</span></div>
+</section>
+
+<div class="divider"></div>
+
+<!-- PILLARS -->
+<section id="pillars">
+  <div class="pillars-label">Current Ventures</div>
+
+  <div class="pillars-grid">
+    <div class="pillar">
+      <div class="pillar-num">01</div>
+      <div class="pillar-name">Firemoto</div>
+      <div class="pillar-desc">Motorcycle gear engineered from scratch. The funding engine.</div>
+      <div class="pillar-status live">● Live</div>
+    </div>
+    <div class="pillar">
+      <div class="pillar-num">02</div>
+      <div class="pillar-name">StopTheCalls</div>
+      <div class="pillar-desc">Legally stop debt collector harassment. Automated. Instant.</div>
+      <div class="pillar-status testing">● Validating</div>
+    </div>
+    <div class="pillar">
+      <div class="pillar-num">03</div>
+      <div class="pillar-name">Lonely Chapter</div>
+      <div class="pillar-desc">A vetted community for founders who are serious.</div>
+      <div class="pillar-status testing">● Validating</div>
+    </div>
+    <div class="pillar">
+      <div class="pillar-num">04</div>
+      <div class="pillar-name">Veronium</div>
+      <div class="pillar-desc">Turn your life into a game. Built for one. Released for many.</div>
+      <div class="pillar-status live">● Live</div>
+    </div>
+    <div class="pillar">
+      <div class="pillar-num">05</div>
+      <div class="pillar-name">Podzter</div>
+      <div class="pillar-desc">Podcast collaboration and strategic connection.</div>
+      <div class="pillar-status vault">○ Vault</div>
+    </div>
+    <div class="pillar">
+      <div class="pillar-num">∞</div>
+      <div class="pillar-name">What's Next</div>
+      <div class="pillar-desc">The market decides. The architect builds. Always testing.</div>
+      <div class="pillar-status vault">○ Always</div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer id="footer">
+  <div id="footer-left">EXOSHELL.SPACE · PRIVATE HOLDINGS</div>
+  <div id="footer-right">"This cannot be how the movie ends."</div>
+</footer>
+
+<script>
+// Custom cursor
+const cursor = document.getElementById('cursor');
+document.addEventListener('mousemove', e => {
+  cursor.style.left = e.clientX - 2 + 'px';
+  cursor.style.top = e.clientY - 2 + 'px';
+});
+
+// Intersection observer for manifesto lines
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.style.color = '';
+      entry.target.style.transition = 'color 0.6s ease';
+    }
+  });
+}, { threshold: 0.3 });
+
+document.querySelectorAll('.manifesto-line').forEach((line, i) => {
+  line.style.transitionDelay = (i * 0.08) + 's';
+  observer.observe(line);
+});
+
+// Venture lines cycle
+const ventureLines = document.querySelectorAll('.venture-line');
+let current = 0;
+setInterval(() => {
+  ventureLines[current].classList.remove('active');
+  current = (current + 1) % ventureLines.length;
+  ventureLines[current].classList.add('active');
+}, 2000);
+
+// Coordinates update
+function updateCoords() {
+  const now = new Date();
+  const time = now.toTimeString().slice(0,8);
+  const coordBr = document.querySelector('.coord-br');
+  if (coordBr) coordBr.textContent = `EXOSHELL.SPACE · ${time}`;
+}
+setInterval(updateCoords, 1000);
+updateCoords();
+</script>
+
+</body>
+</html>
