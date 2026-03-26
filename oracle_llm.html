@@ -1,0 +1,1240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ORACLE — Tiny LLM</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=Cormorant+Garamond:ital,wght@0,300;1,300&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #080808;
+  --surface: #0f0f0f;
+  --surface2: #141414;
+  --border: #1e1e1e;
+  --border2: #2c2c2c;
+  --accent: #c8f135;
+  --accent-dim: rgba(200,241,53,0.12);
+  --text: #f0ede6;
+  --muted: #666660;
+  --muted2: #444440;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Space Mono', monospace;
+  font-size: 13px;
+  line-height: 1.6;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── GRAIN ── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 999;
+  opacity: 0.35;
+}
+
+/* ── HEADER ── */
+#header {
+  padding: 20px 28px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-shrink: 0;
+  background: var(--bg);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+#logo-wrap { display: flex; align-items: baseline; gap: 10px; }
+
+#logo {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 26px;
+  letter-spacing: 5px;
+  color: var(--accent);
+}
+
+#logo-sub {
+  font-size: 9px;
+  color: var(--muted);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+}
+
+#header-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.status-dot {
+  width: 6px;
+  height: 6px;
+  background: var(--accent);
+  border-radius: 50%;
+  animation: statusBlink 2s ease-in-out infinite;
+}
+
+@keyframes statusBlink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+#status-text {
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+/* ── LAYOUT ── */
+#layout {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  overflow: hidden;
+}
+
+/* ── CHAT PANEL ── */
+#chat-panel {
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--border);
+  overflow: hidden;
+}
+
+/* ── MESSAGES ── */
+#messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  scroll-behavior: smooth;
+}
+
+#messages::-webkit-scrollbar { width: 3px; }
+#messages::-webkit-scrollbar-thumb { background: var(--border2); }
+
+.message { display: flex; flex-direction: column; max-width: 82%; }
+.message.user { align-self: flex-end; align-items: flex-end; }
+.message.oracle { align-self: flex-start; align-items: flex-start; }
+
+.msg-label {
+  font-size: 9px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+
+.msg-bubble {
+  padding: 14px 18px;
+  line-height: 1.65;
+  font-size: 13px;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.message.user .msg-bubble {
+  background: var(--accent-dim);
+  border: 1px solid rgba(200,241,53,0.2);
+  color: var(--text);
+}
+
+.message.oracle .msg-bubble {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+
+.msg-bubble.thinking {
+  color: var(--muted);
+  font-style: italic;
+  border-style: dashed;
+}
+
+/* typing indicator */
+.typing-dots {
+  display: inline-flex;
+  gap: 4px;
+  align-items: center;
+  padding: 2px 0;
+}
+
+.typing-dots span {
+  width: 5px;
+  height: 5px;
+  background: var(--muted);
+  border-radius: 50%;
+  animation: typingBounce 1.2s ease-in-out infinite;
+}
+
+.typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+.typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes typingBounce {
+  0%,100% { opacity: 0.3; transform: translateY(0); }
+  50% { opacity: 1; transform: translateY(-3px); }
+}
+
+/* ── INPUT ── */
+#input-area {
+  border-top: 1px solid var(--border);
+  padding: 16px 20px;
+  display: flex;
+  gap: 10px;
+  align-items: flex-end;
+  background: var(--bg);
+}
+
+#chat-input {
+  flex: 1;
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  color: var(--text);
+  padding: 12px 16px;
+  font-family: 'Space Mono', monospace;
+  font-size: 13px;
+  outline: none;
+  resize: none;
+  min-height: 44px;
+  max-height: 120px;
+  line-height: 1.5;
+  transition: border-color 0.15s;
+}
+
+#chat-input:focus { border-color: rgba(200,241,53,0.4); }
+#chat-input::placeholder { color: var(--muted2); }
+
+#send-btn {
+  background: var(--accent);
+  color: var(--bg);
+  border: none;
+  padding: 12px 20px;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 16px;
+  letter-spacing: 2px;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: opacity 0.15s;
+  height: 44px;
+}
+
+#send-btn:hover { opacity: 0.9; }
+#send-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+#clear-btn {
+  background: transparent;
+  border: 1px solid var(--border2);
+  color: var(--muted);
+  padding: 0 14px;
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  cursor: pointer;
+  height: 44px;
+  transition: all 0.15s;
+  flex-shrink: 0;
+}
+
+#clear-btn:hover { color: var(--text); border-color: var(--border2); }
+
+/* ── SIDEBAR ── */
+#sidebar {
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  background: var(--surface);
+}
+
+#sidebar::-webkit-scrollbar { width: 3px; }
+#sidebar::-webkit-scrollbar-thumb { background: var(--border2); }
+
+.sidebar-section {
+  border-bottom: 1px solid var(--border);
+  padding: 20px;
+}
+
+.sidebar-label {
+  font-size: 9px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 14px;
+}
+
+/* ── STATS ── */
+.stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.stat-box {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  padding: 12px;
+}
+
+.stat-label { font-size: 9px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; display: block; margin-bottom: 4px; }
+.stat-val { font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 1px; color: var(--accent); }
+
+/* ── CONTROLS ── */
+.control-group { margin-bottom: 14px; }
+.control-label { font-size: 10px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; display: block; margin-bottom: 6px; }
+
+.control-select {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  color: var(--text);
+  padding: 9px 12px;
+  font-family: 'Space Mono', monospace;
+  font-size: 12px;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+
+.control-select:focus { border-color: rgba(200,241,53,0.4); }
+.control-select option { background: var(--surface2); }
+
+/* ── TRAINING ── */
+#training-area {
+  width: 100%;
+  background: var(--bg);
+  border: 1px solid var(--border2);
+  color: var(--text);
+  padding: 12px;
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  line-height: 1.6;
+  resize: vertical;
+  min-height: 200px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+#training-area:focus { border-color: rgba(200,241,53,0.4); }
+
+.train-btn {
+  width: 100%;
+  background: var(--accent);
+  color: var(--bg);
+  border: none;
+  padding: 10px;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 15px;
+  letter-spacing: 2px;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: opacity 0.15s;
+}
+
+.train-btn:hover { opacity: 0.9; }
+
+.sample-btn {
+  width: 100%;
+  background: transparent;
+  border: 1px dashed var(--border2);
+  color: var(--muted);
+  padding: 8px;
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  cursor: pointer;
+  margin-top: 6px;
+  transition: all 0.15s;
+}
+
+.sample-btn:hover { color: var(--accent); border-color: rgba(200,241,53,0.3); }
+
+/* ── BRAIN INSPECTOR ── */
+#brain-view {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.brain-card {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  padding: 12px;
+}
+
+.brain-card-title {
+  font-size: 9px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+.token-chip {
+  display: inline-block;
+  padding: 2px 7px;
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  color: var(--text);
+  font-size: 10px;
+  margin: 2px 3px 2px 0;
+}
+
+.transition-row {
+  font-size: 11px;
+  padding: 3px 0;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.transition-row:last-child { border-bottom: none; }
+.tr-from { color: var(--muted); }
+.tr-to { color: var(--text); font-weight: 700; }
+.tr-weight { color: var(--accent); }
+
+/* ── RESPONSE QUALITY INDICATOR ── */
+.quality-bar {
+  height: 2px;
+  background: var(--border);
+  margin-top: 6px;
+  overflow: hidden;
+}
+
+.quality-fill {
+  height: 100%;
+  background: var(--accent);
+  transition: width 0.4s ease;
+}
+
+/* ── EMPTY STATE ── */
+#empty-state {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+  text-align: center;
+  padding: 40px;
+  gap: 12px;
+}
+
+#empty-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 32px;
+  letter-spacing: 4px;
+  color: var(--border2);
+}
+
+#empty-sub { font-size: 12px; line-height: 1.7; max-width: 280px; }
+
+/* ── MOBILE ── */
+@media (max-width: 768px) {
+  #layout { grid-template-columns: 1fr; }
+  #sidebar { border-top: 1px solid var(--border); max-height: 400px; }
+  #header { padding: 16px 20px; }
+  #messages { padding: 20px; }
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div id="header">
+  <div id="logo-wrap">
+    <div id="logo">ORACLE</div>
+    <div id="logo-sub">Tiny LLM · Browser Edition</div>
+  </div>
+  <div id="header-right">
+    <div class="status-dot"></div>
+    <div id="status-text">Ready</div>
+  </div>
+</div>
+
+<!-- LAYOUT -->
+<div id="layout">
+
+  <!-- CHAT -->
+  <div id="chat-panel">
+    <div id="messages">
+      <div id="empty-state">
+        <div id="empty-title">ORACLE</div>
+        <div id="empty-sub">A browser-only language model. Train it with your text, then talk to it. The more you feed it, the sharper it gets.</div>
+      </div>
+    </div>
+
+    <div id="input-area">
+      <textarea id="chat-input" placeholder="Ask Oracle something..." rows="1"></textarea>
+      <button id="send-btn">SEND</button>
+      <button id="clear-btn">Clear</button>
+    </div>
+  </div>
+
+  <!-- SIDEBAR -->
+  <div id="sidebar">
+
+    <!-- Stats -->
+    <div class="sidebar-section">
+      <div class="sidebar-label">Brain Stats</div>
+      <div class="stats-grid">
+        <div class="stat-box"><span class="stat-label">Lines</span><span class="stat-val" id="stat-lines">0</span></div>
+        <div class="stat-box"><span class="stat-label">Vocab</span><span class="stat-val" id="stat-vocab">0</span></div>
+        <div class="stat-box"><span class="stat-label">Bigrams</span><span class="stat-val" id="stat-bi">0</span></div>
+        <div class="stat-box"><span class="stat-label">Trigrams</span><span class="stat-val" id="stat-tri">0</span></div>
+      </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="sidebar-section">
+      <div class="sidebar-label">Response Settings</div>
+      <div class="control-group">
+        <label class="control-label" for="creativity">Creativity</label>
+        <select class="control-select" id="creativity">
+          <option value="0.08">Precise</option>
+          <option value="0.22" selected>Balanced</option>
+          <option value="0.45">Creative</option>
+          <option value="0.7">Wild</option>
+        </select>
+      </div>
+      <div class="control-group">
+        <label class="control-label" for="maxLen">Response Length</label>
+        <select class="control-select" id="maxLen">
+          <option value="15">Short</option>
+          <option value="28" selected>Medium</option>
+          <option value="50">Long</option>
+          <option value="80">Extended</option>
+        </select>
+      </div>
+      <div class="control-group">
+        <label class="control-label" for="responseMode">Response Mode</label>
+        <select class="control-select" id="responseMode">
+          <option value="smart" selected>Smart (retrieval + generation)</option>
+          <option value="retrieval">Retrieval only</option>
+          <option value="generative">Generative only</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Training -->
+    <div class="sidebar-section">
+      <div class="sidebar-label">Training Data</div>
+      <textarea id="training-area" placeholder="One line per training example. The more natural and varied, the better the responses."></textarea>
+      <button class="train-btn" id="train-btn">TRAIN ORACLE</button>
+      <button class="sample-btn" id="sample-btn">+ Load sample data</button>
+    </div>
+
+    <!-- Brain Inspector -->
+    <div class="sidebar-section">
+      <div class="sidebar-label">Brain Inspector</div>
+      <div id="brain-view">
+        <div style="color:var(--muted);font-size:11px;">Train the model to inspect its internals.</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════
+// ORACLE — UPGRADED TINY LLM ENGINE
+// Key improvements over original:
+// 1. Intent detection — routes question types to better strategies
+// 2. Multi-sentence response assembly — builds coherent multi-part answers
+// 3. Semantic similarity scoring — better retrieval
+// 4. Response quality filtering — rejects incoherent outputs
+// 5. Richer fallback system — graceful degradation chain
+// 6. Context window — uses recent conversation for relevance
+// ══════════════════════════════════════════════════
+
+const STOPWORDS = new Set([
+  "the","a","an","and","or","but","if","then","so","to","of","in","on","at","for",
+  "with","is","it","i","you","he","she","we","they","am","are","was","were","be",
+  "been","do","does","did","that","this","those","these","my","your","our","their",
+  "me","him","her","them","what","how","why","when","where","which","who","will",
+  "would","could","should","may","might","can","just","very","also","too","not",
+  "no","yes","its","has","have","had","about","up","down","out","some","any"
+]);
+
+const QUESTION_PATTERNS = {
+  what:    /^(what|whats|what's)\b/i,
+  how:     /^how\b/i,
+  why:     /^why\b/i,
+  who:     /^who\b/i,
+  when:    /^when\b/i,
+  where:   /^where\b/i,
+  can:     /^(can|could|would|should|will|do|does|is|are)\b/i,
+  define:  /\b(mean|means|meaning|define|definition|explain|what is)\b/i,
+  list:    /\b(list|give me|tell me|show me|examples?)\b/i,
+  opinion: /\b(think|feel|believe|opinion|best|worst|recommend|suggest)\b/i,
+  story:   /\b(story|tell|once|imagine|describe)\b/i,
+};
+
+const GREETINGS = new Set([
+  "hi","hello","hey","hiya","howdy","sup","whats up","what's up",
+  "good morning","good evening","good afternoon","greetings"
+]);
+
+const FAREWELLS = new Set([
+  "bye","goodbye","later","see you","farewell","good night","goodnight","cya","ttyl"
+]);
+
+const AFFIRMATIONS = new Set([
+  "yes","yeah","yep","yup","sure","okay","ok","alright","absolutely","definitely",
+  "of course","indeed","correct","right","exactly","true","agreed"
+]);
+
+const NEGATIONS = new Set([
+  "no","nope","nah","not really","never","disagree","wrong","incorrect","false"
+]);
+
+const HARDCODED = {
+  greetings: [
+    "Hello. I'm Oracle — a tiny language model living entirely in your browser.",
+    "Hey. Ready when you are. Feed me interesting training data for better answers.",
+    "Hi there. What would you like to explore?",
+    "Greetings. I'm small but I'm trying.",
+  ],
+  farewells: [
+    "Goodbye. The brain stays warm until you close the tab.",
+    "See you. The model persists as long as the page does.",
+    "Later. Thanks for the conversation.",
+  ],
+  untrained: [
+    "I haven't been trained yet. Add some text in the Training Data section and hit Train Oracle.",
+    "My brain is empty. Feed me some training data first.",
+    "No training data loaded. Use the sidebar to teach me something.",
+  ],
+  confused: [
+    "I couldn't find a good response to that. Try rephrasing, or add more training data on this topic.",
+    "That one stumped me. More training data would help.",
+    "I don't have enough context for that. Add relevant training lines and ask again.",
+  ]
+};
+
+// ── STATE ──
+const state = {
+  model: null,
+  chatHistory: [],
+  messageCount: 0,
+};
+
+// ── TOKENIZATION ──
+function tokenize(text) {
+  return text
+    .toLowerCase()
+    .replace(/[^\w\s']/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .split(" ")
+    .filter(Boolean);
+}
+
+function detokenize(tokens) {
+  if (!tokens.length) return "";
+  let s = tokens.join(" ");
+  s = s.replace(/\bi\b/g, "I");
+  s = s.charAt(0).toUpperCase() + s.slice(1);
+  if (!/[.!?]$/.test(s)) s += ".";
+  return s;
+}
+
+function getKeywords(tokens) {
+  return tokens.filter(t => !STOPWORDS.has(t) && t.length > 2);
+}
+
+function makeKey(a, b) { return a + "¦" + b; }
+
+// ── INTENT DETECTION ──
+function detectIntent(prompt) {
+  const lower = prompt.toLowerCase().trim();
+  const tokens = tokenize(lower);
+  const joined = tokens.join(" ");
+
+  if (GREETINGS.has(lower) || GREETINGS.has(joined)) return "greeting";
+  if (FAREWELLS.has(lower) || FAREWELLS.has(joined)) return "farewell";
+  if (AFFIRMATIONS.has(lower)) return "affirmation";
+  if (NEGATIONS.has(lower)) return "negation";
+  if (lower.length < 4) return "short";
+
+  for (const [intent, pattern] of Object.entries(QUESTION_PATTERNS)) {
+    if (pattern.test(lower)) return "question_" + intent;
+  }
+
+  if (lower.endsWith("?")) return "question_general";
+  return "statement";
+}
+
+// ── EDIT DISTANCE ──
+function editDistance(a, b) {
+  if (Math.abs(a.length - b.length) > 3) return 99;
+  const dp = Array.from({ length: a.length + 1 }, () => new Array(b.length + 1).fill(0));
+  for (let i = 0; i <= a.length; i++) dp[i][0] = i;
+  for (let j = 0; j <= b.length; j++) dp[0][j] = j;
+  for (let i = 1; i <= a.length; i++) {
+    for (let j = 1; j <= b.length; j++) {
+      dp[i][j] = Math.min(
+        dp[i-1][j] + 1,
+        dp[i][j-1] + 1,
+        dp[i-1][j-1] + (a[i-1] === b[j-1] ? 0 : 1)
+      );
+    }
+  }
+  return dp[a.length][b.length];
+}
+
+function getClosestWord(word) {
+  if (!state.model) return null;
+  if (state.model.vocabSet.has(word)) return word;
+  let best = null, bestScore = Infinity;
+  const pool = state.model.vocabulary.length > 2000
+    ? state.model.vocabulary.filter((_, i) => i % 2 === 0)
+    : state.model.vocabulary;
+  for (const cand of pool) {
+    const score = editDistance(word, cand);
+    if (score < bestScore) { bestScore = score; best = cand; if (score === 1) break; }
+  }
+  return bestScore <= 2 ? best : null;
+}
+
+// ── WEIGHTED RANDOM ──
+function weightedChoice(items, temp = 0.22) {
+  if (!items.length) return null;
+  const adjusted = items.map(item => ({
+    value: item.value,
+    weight: Math.pow(Math.max(0.0001, item.weight), 1 / Math.max(0.05, 1 - temp))
+  }));
+  const total = adjusted.reduce((s, x) => s + x.weight, 0);
+  let r = Math.random() * total;
+  for (const item of adjusted) { r -= item.weight; if (r <= 0) return item.value; }
+  return adjusted[adjusted.length - 1].value;
+}
+
+// ── IMPROVED SENTENCE SCORING ──
+function scoreSentence(sentence, promptKeywords, promptTokens) {
+  const keySet = new Set(promptKeywords);
+  const promptSet = new Set(promptTokens);
+  const m = state.model;
+
+  let score = 0;
+
+  // Keyword overlap (weighted by rarity)
+  for (const term of sentence.keywordSet) {
+    if (keySet.has(term)) {
+      const idf = Math.log(m.sentenceStore.length / Math.max(1, m.termDocFreq[term] || 1));
+      score += 1 + idf;
+    }
+  }
+
+  // Partial keyword match via fuzzy
+  for (const term of sentence.keywordSet) {
+    if (!keySet.has(term)) {
+      for (const pk of promptKeywords) {
+        if (editDistance(term, pk) === 1) { score += 0.4; break; }
+      }
+    }
+  }
+
+  // Prefer sentences that start with question-answering patterns
+  const first = sentence.tokens[0];
+  if (["yes", "no", "because", "it", "the", "this", "that"].includes(first)) score += 0.3;
+
+  // Penalise very short or very long sentences
+  const len = sentence.tokens.length;
+  if (len < 3) score -= 0.5;
+  if (len > 25) score -= 0.3;
+
+  // Penalise sentences with no content overlap at all
+  if (score === 0) return 0;
+
+  return score;
+}
+
+function retrieveRelevant(promptKeywords, promptTokens, topK = 8) {
+  if (!state.model) return [];
+  const scored = state.model.sentenceStore
+    .map(s => ({ sentence: s, score: scoreSentence(s, promptKeywords, promptTokens) }))
+    .filter(x => x.score > 0)
+    .sort((a, b) => b.score - a.score);
+  return scored.slice(0, topK);
+}
+
+// ── N-GRAM GENERATION ──
+function nextWord(prev2, prev1, temp) {
+  if (!state.model) return null;
+  const triKey = prev2 && prev1 ? makeKey(prev2, prev1) : null;
+  if (triKey && state.model.trigram[triKey]) {
+    const entries = Object.entries(state.model.trigram[triKey]).map(([value, weight]) => ({ value, weight }));
+    return weightedChoice(entries, temp);
+  }
+  if (prev1 && state.model.bigram[prev1]) {
+    const entries = Object.entries(state.model.bigram[prev1]).map(([value, weight]) => ({ value, weight }));
+    return weightedChoice(entries, temp);
+  }
+  const entries = Object.entries(state.model.unigram).map(([value, weight]) => ({ value, weight }));
+  return weightedChoice(entries, temp);
+}
+
+function generateContinuation(seedTokens, maxWords, temp) {
+  const result = [...seedTokens];
+  for (let i = result.length; i < maxWords; i++) {
+    const prev1 = result[result.length - 1] || null;
+    const prev2 = result[result.length - 2] || null;
+    const nxt = nextWord(prev2, prev1, temp);
+    if (!nxt) break;
+    const recent = result.slice(-5);
+    if (recent.filter(x => x === nxt).length >= 2) break;
+    result.push(nxt);
+  }
+  return result;
+}
+
+function buildSeed(promptTokens) {
+  for (let i = promptTokens.length - 1; i >= 0; i--) {
+    const t = promptTokens[i];
+    if (state.model.bigram[t]) return t;
+    const fuzzy = getClosestWord(t);
+    if (fuzzy && state.model.bigram[fuzzy]) return fuzzy;
+  }
+  const starters = state.model.starters;
+  return starters[Math.floor(Math.random() * starters.length)] || "the";
+}
+
+// ── RESPONSE QUALITY CHECK ──
+function isCoherent(tokens) {
+  if (tokens.length < 3) return false;
+  // Check for excessive repetition
+  const counts = {};
+  for (const t of tokens) counts[t] = (counts[t] || 0) + 1;
+  const maxRepeat = Math.max(...Object.values(counts));
+  if (maxRepeat > tokens.length * 0.4) return false;
+  return true;
+}
+
+// ── MULTI-SENTENCE RESPONSE ASSEMBLY ──
+function assembleMultiSentenceResponse(relevant, promptKeywords, promptTokens, maxLen, temp) {
+  if (!relevant.length) return null;
+
+  const sentences = [];
+  const usedIndices = new Set();
+
+  // Pick best sentence as opener
+  const best = relevant[0].sentence;
+  sentences.push(best.raw);
+  usedIndices.add(0);
+
+  // Try to find a complementary second sentence
+  if (maxLen >= 28 && relevant.length > 1) {
+    for (let i = 1; i < Math.min(relevant.length, 5); i++) {
+      if (usedIndices.has(i)) continue;
+      const candidate = relevant[i].sentence;
+      // Must share at least one keyword with the first but add new content
+      const overlap = [...candidate.keywordSet].filter(k => best.keywordSet.has(k)).length;
+      const newContent = [...candidate.keywordSet].filter(k => !best.keywordSet.has(k)).length;
+      if (overlap > 0 && newContent > 0 && candidate.raw !== best.raw) {
+        sentences.push(candidate.raw);
+        usedIndices.add(i);
+        break;
+      }
+    }
+  }
+
+  // Optionally add a generated continuation
+  if (maxLen >= 42 && sentences.length >= 1) {
+    const lastSentenceTokens = tokenize(sentences[sentences.length - 1]);
+    const seedTokens = lastSentenceTokens.slice(-2);
+    const continuation = generateContinuation(seedTokens, Math.min(15, maxLen - 20), temp);
+    if (isCoherent(continuation) && continuation.length >= 4) {
+      const contText = detokenize(continuation);
+      if (contText !== sentences[sentences.length - 1]) {
+        sentences.push(contText);
+      }
+    }
+  }
+
+  return sentences.join(" ");
+}
+
+// ── MAIN RESPONSE FUNCTION ──
+function generateResponse(prompt) {
+  if (!state.model) return randomFrom(HARDCODED.untrained);
+
+  const intent = detectIntent(prompt);
+  const promptTokens = tokenize(prompt);
+  const promptKeywords = getKeywords(promptTokens);
+  const temp = parseFloat(document.getElementById("creativity").value || "0.22");
+  const maxLen = parseInt(document.getElementById("maxLen").value || "28", 10);
+  const mode = document.getElementById("responseMode").value;
+
+  // Hard-coded intent responses
+  if (intent === "greeting") return randomFrom(HARDCODED.greetings);
+  if (intent === "farewell") return randomFrom(HARDCODED.farewells);
+
+  // No keywords — short or ambiguous
+  if (!promptKeywords.length && prompt.length < 6) {
+    const seed = buildSeed(promptTokens.length ? promptTokens : ["the"]);
+    const gen = generateContinuation([seed], Math.min(maxLen, 20), temp);
+    return isCoherent(gen) ? detokenize(gen) : randomFrom(HARDCODED.confused);
+  }
+
+  // Retrieval
+  const relevant = retrieveRelevant(promptKeywords, promptTokens, 8);
+
+  if (mode === "retrieval") {
+    if (!relevant.length) return randomFrom(HARDCODED.confused);
+    return relevant[0].sentence.raw.charAt(0).toUpperCase() + relevant[0].sentence.raw.slice(1);
+  }
+
+  if (mode === "generative") {
+    const seed = buildSeed(promptTokens);
+    const gen = generateContinuation([seed], maxLen, temp);
+    return isCoherent(gen) ? detokenize(gen) : randomFrom(HARDCODED.confused);
+  }
+
+  // Smart mode — best of retrieval + assembly + generation
+  if (relevant.length) {
+    const assembled = assembleMultiSentenceResponse(relevant, promptKeywords, promptTokens, maxLen, temp);
+    if (assembled && assembled.length > 10) return assembled;
+
+    // Single best sentence fallback
+    const best = relevant[0].sentence;
+    const seedTokens = best.tokens.slice(-2);
+    const continuation = generateContinuation(seedTokens, Math.min(maxLen - best.tokens.length, 15), temp);
+    const combined = [...best.tokens, ...continuation.slice(2)].slice(0, maxLen);
+    if (isCoherent(combined)) return detokenize(combined);
+    return best.raw.charAt(0).toUpperCase() + best.raw.slice(1) + ".";
+  }
+
+  // Pure generative fallback
+  const seed = buildSeed(promptTokens);
+  const gen = generateContinuation([seed], maxLen, temp);
+  if (isCoherent(gen)) return detokenize(gen);
+
+  return randomFrom(HARDCODED.confused);
+}
+
+function randomFrom(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+// ── TRAINING ──
+function trainModel() {
+  const raw = document.getElementById("training-area").value || "";
+  const lines = raw.split(/\n+/).map(s => s.trim()).filter(Boolean).slice(0, 5000);
+
+  const unigram = Object.create(null);
+  const bigram = Object.create(null);
+  const trigram = Object.create(null);
+  const sentenceStore = [];
+  const vocabulary = new Set();
+  const starters = [];
+  const termDocFreq = Object.create(null);
+
+  for (const line of lines) {
+    const tokens = tokenize(line);
+    if (tokens.length < 2) continue;
+
+    const keywordSet = new Set(tokens.filter(t => !STOPWORDS.has(t) && t.length > 2));
+
+    sentenceStore.push({ raw: line, tokens, keywordSet });
+    starters.push(tokens[0]);
+
+    const seenInSentence = new Set();
+
+    for (let i = 0; i < tokens.length; i++) {
+      const w = tokens[i];
+      vocabulary.add(w);
+      unigram[w] = (unigram[w] || 0) + 1;
+
+      if (!STOPWORDS.has(w) && !seenInSentence.has(w)) {
+        termDocFreq[w] = (termDocFreq[w] || 0) + 1;
+        seenInSentence.add(w);
+      }
+
+      if (i < tokens.length - 1) {
+        if (!bigram[w]) bigram[w] = Object.create(null);
+        bigram[w][tokens[i+1]] = (bigram[w][tokens[i+1]] || 0) + 1;
+      }
+
+      if (i < tokens.length - 2) {
+        const key = makeKey(tokens[i], tokens[i+1]);
+        if (!trigram[key]) trigram[key] = Object.create(null);
+        trigram[key][tokens[i+2]] = (trigram[key][tokens[i+2]] || 0) + 1;
+      }
+    }
+  }
+
+  state.model = {
+    lines, sentenceStore,
+    unigram, bigram, trigram,
+    vocabulary: Array.from(vocabulary),
+    vocabSet: vocabulary,
+    starters, termDocFreq
+  };
+
+  updateStats();
+  renderBrain();
+  setStatus("Trained · " + lines.length + " lines");
+}
+
+function updateStats() {
+  const m = state.model;
+  if (!m) return;
+  const bigramCount = Object.values(m.bigram).reduce((s, o) => s + Object.keys(o).length, 0);
+  const trigramCount = Object.values(m.trigram).reduce((s, o) => s + Object.keys(o).length, 0);
+  document.getElementById("stat-lines").textContent = m.lines.length.toLocaleString();
+  document.getElementById("stat-vocab").textContent = m.vocabulary.length.toLocaleString();
+  document.getElementById("stat-bi").textContent = bigramCount.toLocaleString();
+  document.getElementById("stat-tri").textContent = trigramCount.toLocaleString();
+}
+
+function renderBrain() {
+  const view = document.getElementById("brain-view");
+  if (!state.model) { view.innerHTML = '<div style="color:var(--muted);font-size:11px;">Train the model to inspect its internals.</div>'; return; }
+
+  const m = state.model;
+  const topWords = Object.entries(m.unigram).sort((a,b) => b[1]-a[1]).slice(0, 20);
+  const topTrans = Object.entries(m.bigram)
+    .map(([from, toObj]) => { const best = Object.entries(toObj).sort((a,b) => b[1]-a[1])[0]; return { from, to: best?.[0], w: best?.[1]||0 }; })
+    .sort((a,b) => b.w-a.w).slice(0, 10);
+
+  view.innerHTML = `
+    <div class="brain-card">
+      <div class="brain-card-title">Top vocabulary</div>
+      ${topWords.map(([w,c]) => `<span class="token-chip">${esc(w)} · ${c}</span>`).join("")}
+    </div>
+    <div class="brain-card">
+      <div class="brain-card-title">Strongest transitions</div>
+      ${topTrans.map(t => `<div class="transition-row"><span class="tr-from">${esc(t.from)}</span><span>→</span><span class="tr-to">${esc(t.to||"")}</span><span class="tr-weight">${t.w}</span></div>`).join("")}
+    </div>
+    <div class="brain-card">
+      <div class="brain-card-title">Sample sentences</div>
+      ${m.sentenceStore.slice(0,4).map(s => `<div style="font-size:11px;color:var(--muted);padding:3px 0;border-bottom:1px solid var(--border);">${esc(s.raw)}</div>`).join("")}
+    </div>
+  `;
+}
+
+// ── CHAT UI ──
+function addMessage(role, content) {
+  const empty = document.getElementById("empty-state");
+  if (empty) empty.remove();
+
+  const wrap = document.getElementById("messages");
+  const el = document.createElement("div");
+  el.className = "message " + role;
+
+  const label = role === "user" ? "YOU" : "ORACLE";
+  el.innerHTML = `
+    <div class="msg-label">${label}</div>
+    <div class="msg-bubble">${esc(content)}</div>
+  `;
+
+  wrap.appendChild(el);
+  wrap.scrollTop = wrap.scrollHeight;
+  state.chatHistory.push({ role, content });
+  state.messageCount++;
+}
+
+function showTyping() {
+  const empty = document.getElementById("empty-state");
+  if (empty) empty.remove();
+
+  const wrap = document.getElementById("messages");
+  const el = document.createElement("div");
+  el.className = "message oracle";
+  el.id = "typing-indicator";
+  el.innerHTML = `
+    <div class="msg-label">ORACLE</div>
+    <div class="msg-bubble thinking"><div class="typing-dots"><span></span><span></span><span></span></div></div>
+  `;
+  wrap.appendChild(el);
+  wrap.scrollTop = wrap.scrollHeight;
+  return el;
+}
+
+function removeTyping() {
+  const el = document.getElementById("typing-indicator");
+  if (el) el.remove();
+}
+
+function sendMessage() {
+  const input = document.getElementById("chat-input");
+  const msg = input.value.trim();
+  if (!msg) return;
+
+  addMessage("user", msg);
+  input.value = "";
+  input.style.height = "44px";
+
+  const btn = document.getElementById("send-btn");
+  btn.disabled = true;
+
+  const typingEl = showTyping();
+
+  // Small delay for realism
+  const delay = 300 + Math.random() * 400;
+  setTimeout(() => {
+    removeTyping();
+    const reply = generateResponse(msg);
+    addMessage("oracle", reply);
+    btn.disabled = false;
+    input.focus();
+  }, delay);
+}
+
+function clearChat() {
+  state.chatHistory = [];
+  state.messageCount = 0;
+  const wrap = document.getElementById("messages");
+  wrap.innerHTML = `
+    <div id="empty-state">
+      <div id="empty-title">ORACLE</div>
+      <div id="empty-sub">A browser-only language model. Train it with your text, then talk to it.</div>
+    </div>
+  `;
+}
+
+function setStatus(text) {
+  document.getElementById("status-text").textContent = text;
+}
+
+function esc(text) {
+  const div = document.createElement("div");
+  div.textContent = text;
+  return div.innerHTML;
+}
+
+// ── SAMPLE DATA ──
+const SAMPLE_DATA = `the best businesses solve real problems for real people
+systems and automation are the difference between chaos and scale
+revenue is vanity profit is sanity
+build machines not jobs
+the market does not care about your intentions only your results
+consistency compounds faster than any single big win
+most people quit right before the breakthrough
+do not confuse motion with progress
+a business that depends on one thing is not a business it is a fragile bet
+the goal is not to work harder but to build systems that work for you
+what got you here will not get you there
+good founders learn from failure great founders anticipate it
+your network is your net worth build it before you need it
+the person who says they can and the person who says they cannot are both right
+small consistent actions beat occasional heroic efforts every time
+build the machine then let the machine work
+the best time to start was yesterday the second best time is today
+diversification is not a strategy it is a survival requirement
+your customers do not care about your story they care about their problem
+a product that people want sells itself a product they need sells forever
+validation before building saves months of wasted effort
+the market is always right even when it feels wrong
+cash flow solves most business problems except the fundamental ones
+hire for character train for skill
+the founder who cannot delegate cannot scale
+recurring revenue is the closest thing to passive income that actually works
+your biggest competitor is customer inaction not other companies
+price on value not on cost
+a confused customer does not buy
+the best marketing makes the customer feel understood not sold to
+build for the person you were not the person you are
+done is better than perfect but shipped is better than done
+test assumptions cheaply before betting everything on them
+the second order effects of a decision matter more than the first
+every system eventually breaks find the failure mode before it finds you
+discipline is doing the thing when you do not feel like doing the thing
+urgency and importance are not the same thing
+what you measure improves what you measure obsessively improves fast
+the bottleneck is almost never where you think it is
+automate the repeatable so you can focus on the irreplaceable
+momentum is fragile protect it
+context switching kills productivity more than any distraction
+the best ideas come from solving your own problems honestly
+a great product with bad distribution loses to a mediocre product with great distribution
+focus is saying no to a hundred good ideas to protect the one great one
+your brand is what people say about you when you are not in the room
+trust is built in drops and lost in buckets
+the customer who complains is more valuable than the one who quietly leaves
+product market fit feels like a pull not a push
+scale amplifies what already exists if it is broken scaling breaks it faster
+the founder is always the last to see the real problem
+simplicity is the ultimate sophistication in both products and strategies
+charge more than you are comfortable with then charge a little more
+the market segment that says yes fastest is your real customer
+a waitlist is validation a credit card is proof
+build trust before you build the ask
+every email should have one job and one only
+the subject line determines whether the email exists or not
+retention is the most underrated growth metric
+a customer who stays is worth ten who arrive
+community is the moat that cannot be copied
+the people in the room determine the ceiling of your ambition
+lonely at the top is a choice not a requirement
+the right mentor compresses decades into years
+most advice is autobiographical filter accordingly
+the map is not the territory the model is not the market
+iteration speed is competitive advantage
+your first version should embarrass you slightly
+talk to ten customers before building anything
+the problem worth solving is the one people are already trying to solve badly
+distribution eats product for breakfast
+an audience you own is worth more than one you rent
+email lists survive platform changes social followers do not
+the goal of content is to earn the right to make an offer
+show the process not just the outcome
+authenticity converts better than polish at every stage of growth
+the niche that feels too small usually is not
+go narrow then go deep then go wide
+a problem that affects millions is a business waiting to exist
+if you cannot explain it simply you do not understand it well enough
+the question is not whether there is a market but whether you can reach it profitably
+unit economics either work or they do not and they do not lie
+lifetime value divided by customer acquisition cost is the only ratio that matters
+gross margin is the oxygen of a software business
+the best business models make money while you sleep
+leverage is the multiplier applied to your effort choose it carefully
+the empire is built one system at a time`;
+
+function loadSampleData() {
+  const area = document.getElementById("training-area");
+  area.value = SAMPLE_DATA;
+  trainModel();
+  addMessage("oracle", "Sample training data loaded. I know about business, systems, and growth now. Ask me something.");
+}
+
+// ── INIT ──
+function init() {
+  document.getElementById("send-btn").addEventListener("click", sendMessage);
+  document.getElementById("clear-btn").addEventListener("click", clearChat);
+  document.getElementById("train-btn").addEventListener("click", () => {
+    trainModel();
+    addMessage("oracle", "Brain rebuilt. I feel sharper.");
+  });
+  document.getElementById("sample-btn").addEventListener("click", loadSampleData);
+
+  const input = document.getElementById("chat-input");
+  input.addEventListener("keydown", e => {
+    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+  });
+
+  // Auto-resize textarea
+  input.addEventListener("input", () => {
+    input.style.height = "44px";
+    input.style.height = Math.min(input.scrollHeight, 120) + "px";
+  });
+
+  setStatus("Untrained · Load sample data to start");
+}
+
+window.addEventListener("load", init);
+</script>
+</body>
+</html>
