@@ -1,0 +1,1077 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Apply — Lonely Chapter</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:wght@300;400;500&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet" />
+
+<style>
+  :root {
+    --black: #0d0c0b;
+    --deep: #111009;
+    --ink: #1a1814;
+    --amber: #c8922a;
+    --gold: #e8b84b;
+    --warm-white: #f7f2ea;
+    --muted: #6b6458;
+    --faint: #3a3530;
+    --border: rgba(200, 146, 42, 0.2);
+    --border-focus: rgba(200, 146, 42, 0.6);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--black);
+    color: var(--warm-white);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    line-height: 1.7;
+    overflow-x: hidden;
+    min-height: 100vh;
+  }
+
+  /* Grain */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+    opacity: 0.028;
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  /* Ambient glow */
+  body::after {
+    content: '';
+    position: fixed;
+    top: 30%; left: 60%;
+    width: 700px; height: 700px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(200,146,42,0.05) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    padding: 24px 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: linear-gradient(to bottom, rgba(13,12,11,0.98) 0%, transparent 100%);
+  }
+
+  .nav-logo {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.15rem;
+    letter-spacing: 0.04em;
+    color: var(--warm-white);
+    text-decoration: none;
+  }
+  .nav-logo span { color: var(--amber); }
+
+  .nav-back {
+    font-size: 0.75rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: color 0.2s;
+  }
+  .nav-back:hover { color: var(--warm-white); }
+  .nav-back::before { content: '←'; font-size: 0.9rem; }
+
+  /* ── PROGRESS BAR ── */
+  .progress-wrap {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 200;
+    height: 2px;
+    background: rgba(255,255,255,0.06);
+  }
+
+  .progress-bar {
+    height: 100%;
+    background: linear-gradient(to right, var(--amber), var(--gold));
+    transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    width: 0%;
+  }
+
+  /* ── MAIN LAYOUT ── */
+  .form-shell {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 120px 24px 80px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ── STEP COUNTER ── */
+  .step-counter {
+    font-size: 0.68rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--amber);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+  }
+
+  .step-counter.visible { opacity: 1; }
+
+  .step-counter::before {
+    content: '';
+    display: block;
+    width: 24px;
+    height: 1px;
+    background: var(--amber);
+  }
+
+  /* ── QUESTION STAGE ── */
+  .stage {
+    width: 100%;
+    max-width: 680px;
+    position: relative;
+  }
+
+  .question-block {
+    display: none;
+    flex-direction: column;
+    animation: slideUp 0.45s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  }
+
+  .question-block.active {
+    display: flex;
+  }
+
+  .question-block.exit {
+    animation: slideDown 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(28px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes slideDown {
+    from { opacity: 1; transform: translateY(0); }
+    to   { opacity: 0; transform: translateY(-20px); }
+  }
+
+  .question-label {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.5rem, 4vw, 2.2rem);
+    font-weight: 600;
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+    margin-bottom: 12px;
+    color: var(--warm-white);
+  }
+
+  .question-label em {
+    font-style: italic;
+    color: var(--amber);
+  }
+
+  .question-hint {
+    font-size: 0.82rem;
+    color: var(--muted);
+    margin-bottom: 36px;
+    letter-spacing: 0.02em;
+  }
+
+  /* ── RADIO / CHOICE OPTIONS ── */
+  .choices {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 36px;
+  }
+
+  .choice-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 20px;
+    border: 1px solid rgba(255,255,255,0.07);
+    background: var(--ink);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+    user-select: none;
+  }
+
+  .choice-item:hover {
+    border-color: var(--border-focus);
+    background: rgba(200,146,42,0.05);
+  }
+
+  .choice-item.selected {
+    border-color: var(--amber);
+    background: rgba(200,146,42,0.08);
+  }
+
+  .choice-item input[type="radio"],
+  .choice-item input[type="checkbox"] {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .choice-indicator {
+    width: 18px;
+    height: 18px;
+    border: 1px solid var(--faint);
+    border-radius: 50%;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+  }
+
+  .choice-item.selected .choice-indicator {
+    border-color: var(--amber);
+    background: var(--amber);
+  }
+
+  .choice-item.selected .choice-indicator::after {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--black);
+  }
+
+  .choice-letter {
+    font-size: 0.68rem;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    font-weight: 500;
+    width: 16px;
+    flex-shrink: 0;
+  }
+
+  .choice-item.selected .choice-letter { color: var(--amber); }
+
+  .choice-text {
+    font-size: 0.95rem;
+    color: rgba(247,242,234,0.8);
+    line-height: 1.4;
+  }
+
+  .choice-item.selected .choice-text { color: var(--warm-white); }
+
+  /* ── TEXT INPUTS ── */
+  .text-input {
+    width: 100%;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid rgba(255,255,255,0.12);
+    color: var(--warm-white);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 300;
+    padding: 12px 0;
+    outline: none;
+    transition: border-color 0.25s;
+    margin-bottom: 36px;
+    caret-color: var(--amber);
+  }
+
+  .text-input::placeholder { color: var(--faint); }
+  .text-input:focus { border-bottom-color: var(--amber); }
+
+  textarea.text-input {
+    resize: none;
+    min-height: 120px;
+    line-height: 1.7;
+  }
+
+  /* Other specify input */
+  .other-input-wrap {
+    display: none;
+    margin-top: 10px;
+  }
+
+  .other-input-wrap.visible { display: block; }
+
+  .other-input {
+    width: 100%;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid rgba(255,255,255,0.12);
+    color: var(--warm-white);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 300;
+    padding: 10px 0;
+    outline: none;
+    transition: border-color 0.25s;
+    caret-color: var(--amber);
+  }
+
+  .other-input::placeholder { color: var(--faint); }
+  .other-input:focus { border-bottom-color: var(--amber); }
+
+  /* ── DROPDOWN ── */
+  .select-wrap {
+    position: relative;
+    margin-bottom: 36px;
+  }
+
+  .select-input {
+    width: 100%;
+    background: var(--ink);
+    border: 1px solid rgba(255,255,255,0.07);
+    color: var(--warm-white);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 300;
+    padding: 14px 44px 14px 16px;
+    outline: none;
+    appearance: none;
+    cursor: pointer;
+    transition: border-color 0.25s;
+  }
+
+  .select-input:focus { border-color: var(--amber); }
+
+  .select-arrow {
+    position: absolute;
+    right: 16px; top: 50%;
+    transform: translateY(-50%);
+    color: var(--muted);
+    pointer-events: none;
+    font-size: 0.7rem;
+  }
+
+  /* ── ACTIONS ── */
+  .question-actions {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .btn-next {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--amber);
+    color: var(--black);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    border: none;
+    padding: 14px 32px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn-next::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(255,255,255,0.12);
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  .btn-next:hover::after { opacity: 1; }
+  .btn-next:hover { transform: translateY(-1px); box-shadow: 0 8px 32px rgba(200,146,42,0.3); }
+  .btn-next:disabled { opacity: 0.35; cursor: not-allowed; transform: none; box-shadow: none; }
+  .btn-next:disabled::after { display: none; }
+
+  .btn-next-arrow { font-size: 1rem; }
+
+  .btn-back {
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.78rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+    padding: 8px 0;
+    transition: color 0.2s;
+  }
+
+  .btn-back:hover { color: var(--warm-white); }
+
+  .key-hint {
+    font-size: 0.7rem;
+    color: var(--faint);
+    letter-spacing: 0.06em;
+    margin-left: auto;
+  }
+
+  .key-hint kbd {
+    display: inline-block;
+    background: var(--faint);
+    color: var(--muted);
+    padding: 2px 7px;
+    font-size: 0.65rem;
+    font-family: inherit;
+    margin-right: 4px;
+  }
+
+  /* ── SUBMIT STATE ── */
+  .btn-submit {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--amber);
+    color: var(--black);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    border: none;
+    padding: 16px 40px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn-submit:hover { transform: translateY(-1px); box-shadow: 0 8px 32px rgba(200,146,42,0.3); }
+  .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* ── THANK YOU SCREEN ── */
+  .thankyou {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    max-width: 560px;
+    animation: slideUp 0.6s ease forwards;
+  }
+
+  .thankyou.active { display: flex; }
+
+  .thankyou-mark {
+    width: 64px;
+    height: 64px;
+    border: 1px solid var(--amber);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 36px;
+    font-size: 1.4rem;
+  }
+
+  .thankyou h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.8rem, 4vw, 2.8rem);
+    font-weight: 600;
+    line-height: 1.2;
+    margin-bottom: 20px;
+  }
+
+  .thankyou h2 em { font-style: italic; color: var(--amber); }
+
+  .thankyou p {
+    font-size: 0.95rem;
+    color: rgba(247,242,234,0.6);
+    line-height: 1.8;
+    margin-bottom: 12px;
+  }
+
+  .thankyou-note {
+    margin-top: 40px;
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--faint);
+  }
+
+  /* ── ERROR STATE ── */
+  .field-error {
+    font-size: 0.75rem;
+    color: #e07070;
+    margin-top: -28px;
+    margin-bottom: 20px;
+    letter-spacing: 0.04em;
+    display: none;
+  }
+
+  .field-error.visible { display: block; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 640px) {
+    nav { padding: 20px 20px; }
+    .form-shell { padding: 100px 20px 60px; }
+    .question-label { font-size: 1.4rem; }
+    .key-hint { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Progress bar -->
+<div class="progress-wrap">
+  <div class="progress-bar" id="progressBar"></div>
+</div>
+
+<!-- Nav -->
+<nav>
+  <a href="lonely-chapter.html" class="nav-logo">Lonely<span>.</span>Chapter</a>
+  <a href="lonely-chapter.html" class="nav-back">Back to home</a>
+</nav>
+
+<!-- Form shell -->
+<div class="form-shell">
+
+  <div class="step-counter" id="stepCounter">Question <span id="stepNum">1</span> of 10</div>
+
+  <div class="stage" id="stage">
+
+    <!-- Q1: Name + Email -->
+    <div class="question-block active" data-step="1">
+      <h2 class="question-label">Let's start with <em>who you are.</em></h2>
+      <p class="question-hint">We review every application personally. This is how we reach you.</p>
+      <input type="text" class="text-input" id="applicantName" placeholder="Your full name" autocomplete="name" />
+      <input type="email" class="text-input" id="applicantEmail" placeholder="Your email address" autocomplete="email" style="margin-top: -16px;" />
+      <p class="field-error" id="emailError">Please enter a valid email address.</p>
+      <div class="question-actions">
+        <button class="btn-next" onclick="next()" id="next1" disabled>Continue <span class="btn-next-arrow">→</span></button>
+        <span class="key-hint"><kbd>Enter</kbd> to continue</span>
+      </div>
+    </div>
+
+    <!-- Q2: Revenue -->
+    <div class="question-block" data-step="2">
+      <h2 class="question-label">What's your average monthly revenue <em>over the last 3 months?</em></h2>
+      <p class="question-hint">This room is built for $10K+/month operators. Be honest — it helps us place you right.</p>
+      <div class="choices" data-name="revenue">
+        <label class="choice-item">
+          <input type="radio" name="revenue" value="0–5K" />
+          <span class="choice-indicator"></span>
+          <span class="choice-letter">A</span>
+          <span class="choice-text">$0 – $5K / month</span>
+        </label>
+        <label class="choice-item">
+          <input type="radio" name="revenue" value="5–10K" />
+          <span class="choice-indicator"></span>
+          <span class="choice-letter">B</span>
+          <span class="choice-text">$5K – $10K / month</span>
+        </label>
+        <label class="choice-item">
+          <input type="radio" name="revenue" value="10–25K" />
+          <span class="choice-indicator"></span>
+          <span class="choice-letter">C</span>
+          <span class="choice-text">$10K – $25K / month</span>
+        </label>
+        <label class="choice-item">
+          <input type="radio" name="revenue" value="25–50K" />
+          <span class="choice-indicator"></span>
+          <span class="choice-letter">D</span>
+          <span class="choice-text">$25K – $50K / month</span>
+        </label>
+        <label class="choice-item">
+          <input type="radio" name="revenue" value="50K+" />
+          <span class="choice-indicator"></span>
+          <span class="choice-letter">E</span>
+          <span class="choice-text">$50K+ / month</span>
+        </label>
+      </div>
+      <div class="question-actions">
+        <button class="btn-back" onclick="back()">← Back</button>
+        <button class="btn-next" onclick="next()" id="next2" disabled>Continue <span class="btn-next-arrow">→</span></button>
+        <span class="key-hint"><kbd>Enter</kbd> to continue</span>
+      </div>
+    </div>
+
+    <!-- Q3: Business type -->
+    <div class="question-block" data-step="3">
+      <h2 class="question-label">What type of <em>business</em> do you run?</h2>
+      <p class="question-hint">Pick the one that fits best.</p>
+      <div class="choices" data-name="business_type">
+        <label class="choice-item">
+          <input type="radio" name="business_type" value="Ecommerce" />
+          <span class="choice-indicator"></span>
+          <span class="choice-letter">A</span>
+          <span class="choice-text">Ecommerce</span>
+        </label>
+        <label class="choice-item">
+          <input type="radio" name="business_type" value="Agency" />
+          <span class="choice-indicator"></span>
+          <span class="choice-letter">B</span>
+          <span class="choice-text">Agency</span>
+        </label>
+        <label class="choice-item">
+          <input type="radio" name="business_type" value="SaaS" />
+          <span class="choice-indicator"></span>
+          <span class="choice-letter">C</span>
+          <span class="choice-text">SaaS</span>
+        </label>
+        <label class="choice-item">
+          <input type="radio" name="business_type" value="Content / Personal brand" />
+          <span class="choice-indicator"></span>
+          <span class="choice-letter">D</span>
+          <span class="choice-text">Content / Personal brand</span>
+        </label>
+        <label class="choice-item">
+          <input type="radio" name="business_type" value="Local business" />
+          <span class="choice-indicator"></span>
+          <span class="choice-letter">E</span>
+          <span class="choice-text">Local business</span>
+        </label>
+        <label class="choice-item" id="otherLabel">
+          <input type="radio" name="business_type" value="Other" />
+          <span class="choice-indicator"></span>
+          <span class="choice-letter">F</span>
+          <span class="choice-text">Other</span>
+        </label>
+      </div>
+      <div class="other-input-wrap" id="otherWrap">
+        <input type="text" class="other-input" id="otherSpecify" placeholder="Please specify..." />
+      </div>
+      <div class="question-actions">
+        <button class="btn-back" onclick="back()">← Back</button>
+        <button class="btn-next" onclick="next()" id="next3" disabled>Continue <span class="btn-next-arrow">→</span></button>
+        <span class="key-hint"><kbd>Enter</kbd> to continue</span>
+      </div>
+    </div>
+
+    <!-- Q4: Business link -->
+    <div class="question-block" data-step="4">
+      <h2 class="question-label">Link to your <em>business,</em> store, or profile.</h2>
+      <p class="question-hint">Website, Shopify store, LinkedIn, Instagram — whatever best represents what you've built.</p>
+      <input type="url" class="text-input" id="businessLink" placeholder="https://" />
+      <p class="field-error" id="linkError">Please enter a valid URL starting with https://</p>
+      <div class="question-actions">
+        <button class="btn-back" onclick="back()">← Back</button>
+        <button class="btn-next" onclick="next()" id="next4">Continue <span class="btn-next-arrow">→</span></button>
+        <span class="key-hint"><kbd>Enter</kbd> to continue</span>
+      </div>
+    </div>
+
+    <!-- Q5: Time in business -->
+    <div class="question-block" data-step="5">
+      <h2 class="question-label">How long have you been <em>building this?</em></h2>
+      <p class="question-hint">Not your total entrepreneurship history — just this business.</p>
+      <div class="choices" data-name="time_in_business">
+        <label class="choice-item">
+          <input type="radio" name="time_in_business" value="Less than 6 months" />
+          <span class="choice-indicator"></span>
+          <span class="choice-letter">A</span>
+          <span class="choice-text">Less than 6 months</span>
+        </label>
+        <label class="choice-item">
+          <input type="radio" name="time_in_business" value="6–12 months" />
+          <span class="choice-indicator"></span>
+          <span class="choice-letter">B</span>
+          <span class="choice-text">6 – 12 months</span>
+        </label>
+        <label class="choice-item">
+          <input type="radio" name="time_in_business" value="1–2 years" />
+          <span class="choice-indicator"></span>
+          <span class="choice-letter">C</span>
+          <span class="choice-text">1 – 2 years</span>
+        </label>
+        <label class="choice-item">
+          <input type="radio" name="time_in_business" value="2+ years" />
+          <span class="choice-indicator"></span>
+          <span class="choice-letter">D</span>
+          <span class="choice-text">2+ years</span>
+        </label>
+      </div>
+      <div class="question-actions">
+        <button class="btn-back" onclick="back()">← Back</button>
+        <button class="btn-next" onclick="next()" id="next5" disabled>Continue <span class="btn-next-arrow">→</span></button>
+        <span class="key-hint"><kbd>Enter</kbd> to continue</span>
+      </div>
+    </div>
+
+    <!-- Q6: Stuck on -->
+    <div class="question-block" data-step="6">
+      <h2 class="question-label">What are you <em>currently stuck on?</em></h2>
+      <p class="question-hint">Be specific. The more honest you are here, the better we can assess fit — and the more the community can actually help.</p>
+      <textarea class="text-input" id="stuckOn" placeholder="E.g. I can't figure out how to hire my first operator without losing margin. My ads were working but they've stopped scaling past $300/day..." rows="5"></textarea>
+      <div class="question-actions">
+        <button class="btn-back" onclick="back()">← Back</button>
+        <button class="btn-next" onclick="next()" id="next6" disabled>Continue <span class="btn-next-arrow">→</span></button>
+        <span class="key-hint"><kbd>Shift+Enter</kbd> new line</span>
+      </div>
+    </div>
+
+    <!-- Q7: Next milestone -->
+    <div class="question-block" data-step="7">
+      <h2 class="question-label">What are you <em>trying to get to</em> next?</h2>
+      <p class="question-hint">Revenue goal, operational milestone, lifestyle change — whatever's driving you right now.</p>
+      <textarea class="text-input" id="nextGoal" placeholder="E.g. I want to get to $50K/month and replace myself in fulfillment so I can focus on growth..." rows="4"></textarea>
+      <div class="question-actions">
+        <button class="btn-back" onclick="back()">← Back</button>
+        <button class="btn-next" onclick="next()" id="next7" disabled>Continue <span class="btn-next-arrow">→</span></button>
+        <span class="key-hint"><kbd>Shift+Enter</kbd> new line</span>
+      </div>
+    </div>
+
+    <!-- Q8: Why join -->
+    <div class="question-block" data-step="8">
+      <h2 class="question-label">Why do you want to join <em>Lonely Chapter?</em></h2>
+      <p class="question-hint">Skip the generic answer. Tell us what's actually bringing you here.</p>
+      <textarea class="text-input" id="whyJoin" placeholder="E.g. I've been building alone for 2 years. My friends don't get it. I need a room of people who are in it at the same level..." rows="5"></textarea>
+      <div class="question-actions">
+        <button class="btn-back" onclick="back()">← Back</button>
+        <button class="btn-next" onclick="next()" id="next8" disabled>Continue <span class="btn-next-arrow">→</span></button>
+        <span class="key-hint"><kbd>Shift+Enter</kbd> new line</span>
+      </div>
+    </div>
+
+    <!-- Q9: Zoom likelihood -->
+    <div class="question-block" data-step="9">
+      <h2 class="question-label">How likely are you to attend <em>1–2 live Zoom calls</em> per month?</h2>
+      <p class="question-hint">The calls are a core part of the value. We need people who'll actually show up.</p>
+      <div class="choices" data-name="zoom_likelihood">
+        <label class="choice-item">
+          <input type="radio" name="zoom_likelihood" value="Very likely" />
+          <span class="choice-indicator"></span>
+          <span class="choice-letter">A</span>
+          <span class="choice-text">Very likely — I'll block it in my calendar</span>
+        </label>
+        <label class="choice-item">
+          <input type="radio" name="zoom_likelihood" value="Somewhat likely" />
+          <span class="choice-indicator"></span>
+          <span class="choice-letter">B</span>
+          <span class="choice-text">Somewhat likely — depends on timing</span>
+        </label>
+        <label class="choice-item">
+          <input type="radio" name="zoom_likelihood" value="Unlikely" />
+          <span class="choice-indicator"></span>
+          <span class="choice-letter">C</span>
+          <span class="choice-text">Unlikely — I'm mainly here for the community</span>
+        </label>
+      </div>
+      <div class="question-actions">
+        <button class="btn-back" onclick="back()">← Back</button>
+        <button class="btn-next" onclick="next()" id="next9" disabled>Continue <span class="btn-next-arrow">→</span></button>
+        <span class="key-hint"><kbd>Enter</kbd> to continue</span>
+      </div>
+    </div>
+
+    <!-- Q10: Timezone -->
+    <div class="question-block" data-step="10">
+      <h2 class="question-label">What's your <em>time zone?</em></h2>
+      <p class="question-hint">Helps us schedule calls that work for the room.</p>
+      <div class="select-wrap">
+        <select class="select-input" id="timezone">
+          <option value="" disabled selected>Select your time zone...</option>
+          <optgroup label="North America">
+            <option>Pacific Time (PT) — UTC-8/7</option>
+            <option>Mountain Time (MT) — UTC-7/6</option>
+            <option>Central Time (CT) — UTC-6/5</option>
+            <option>Eastern Time (ET) — UTC-5/4</option>
+          </optgroup>
+          <optgroup label="Europe">
+            <option>GMT / London (GMT) — UTC+0/1</option>
+            <option>Central European (CET) — UTC+1/2</option>
+            <option>Eastern European (EET) — UTC+2/3</option>
+          </optgroup>
+          <optgroup label="Middle East & Africa">
+            <option>Gulf Standard (GST) — UTC+4</option>
+            <option>East Africa (EAT) — UTC+3</option>
+            <option>South Africa (SAST) — UTC+2</option>
+          </optgroup>
+          <optgroup label="Asia & Pacific">
+            <option>India (IST) — UTC+5:30</option>
+            <option>Southeast Asia (ICT/SGT) — UTC+7/8</option>
+            <option>China / Hong Kong (CST) — UTC+8</option>
+            <option>Japan / Korea (JST/KST) — UTC+9</option>
+            <option>Australia Eastern (AEST) — UTC+10/11</option>
+            <option>New Zealand (NZST) — UTC+12/13</option>
+          </optgroup>
+          <optgroup label="Latin America">
+            <option>Brazil (BRT) — UTC-3</option>
+            <option>Argentina (ART) — UTC-3</option>
+            <option>Colombia / Peru (COT/PET) — UTC-5</option>
+            <option>Mexico Central — UTC-6</option>
+          </optgroup>
+          <option value="Other">Other</option>
+        </select>
+        <span class="select-arrow">▼</span>
+      </div>
+      <div class="question-actions">
+        <button class="btn-back" onclick="back()">← Back</button>
+        <button class="btn-submit" onclick="submitForm()" id="submitBtn">Submit application <span class="btn-next-arrow">→</span></button>
+      </div>
+    </div>
+
+  </div><!-- /stage -->
+
+  <!-- Thank you screen -->
+  <div class="thankyou" id="thankyou">
+    <div class="thankyou-mark">✓</div>
+    <h2>Application <em>received.</em></h2>
+    <p>We review every application personally. You'll hear back within 48 hours — either way.</p>
+    <p>If approved, you'll receive an invite link and onboarding details to get into the room.</p>
+    <p>In the meantime, keep building. You're in the chapter.</p>
+    <p class="thankyou-note">Lonely Chapter &nbsp;·&nbsp; Built on Skool</p>
+  </div>
+
+</div><!-- /form-shell -->
+
+<script>
+  const TOTAL = 10;
+  let current = 1;
+  let emailCaptured = false;
+
+  // Form data store
+  const formData = {};
+
+  // ── Early email capture ──
+  async function captureEmail() {
+    if (emailCaptured) return;
+    const name = document.getElementById('applicantName').value.trim();
+    const email = document.getElementById('applicantEmail').value.trim();
+    if (!name || !email) return;
+    emailCaptured = true;
+    try {
+      await fetch('https://formspree.io/f/xeepqoyo', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({ name, email, _status: 'partial — did not complete form' })
+      });
+    } catch(e) { /* silent fail */ }
+  }
+
+  // ── Progress ──
+  function updateProgress() {
+    const pct = ((current - 1) / TOTAL) * 100;
+    document.getElementById('progressBar').style.width = pct + '%';
+    document.getElementById('stepNum').textContent = current;
+    const counter = document.getElementById('stepCounter');
+    counter.classList.add('visible');
+  }
+
+  // ── Navigation ──
+  function getBlock(step) {
+    return document.querySelector(`.question-block[data-step="${step}"]`);
+  }
+
+  function next() {
+    if (!validateCurrent()) return;
+    collectCurrent();
+
+    // Capture email as soon as Q1 is passed
+    if (current === 1) captureEmail();
+
+    const currentBlock = getBlock(current);
+    currentBlock.classList.add('exit');
+
+    setTimeout(() => {
+      currentBlock.classList.remove('active', 'exit');
+      current++;
+      updateProgress();
+
+      if (current > TOTAL) return;
+      const nextBlock = getBlock(current);
+      nextBlock.classList.add('active');
+      focusFirst(nextBlock);
+    }, 280);
+  }
+
+  function back() {
+    if (current <= 1) return;
+    const currentBlock = getBlock(current);
+    currentBlock.classList.remove('active');
+    current--;
+    updateProgress();
+    const prevBlock = getBlock(current);
+    prevBlock.classList.add('active');
+  }
+
+  function focusFirst(block) {
+    const input = block.querySelector('input[type="text"], input[type="url"], input[type="email"], textarea, select');
+    if (input) setTimeout(() => input.focus(), 100);
+  }
+
+  // ── Validation ──
+  function validateCurrent() {
+    if (current === 1) {
+      const name = document.getElementById('applicantName').value.trim();
+      const email = document.getElementById('applicantEmail').value.trim();
+      const emailErr = document.getElementById('emailError');
+      if (!name || !email) return false;
+      const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+      if (!emailValid) { emailErr.classList.add('visible'); return false; }
+      emailErr.classList.remove('visible');
+      return true;
+    }
+    if (current === 4) {
+      const val = document.getElementById('businessLink').value.trim();
+      const err = document.getElementById('linkError');
+      if (!val || !val.match(/^https?:\/\/.+/)) { err.classList.add('visible'); return false; }
+      err.classList.remove('visible');
+    }
+    if (current === 6) {
+      const val = document.getElementById('stuckOn').value.trim();
+      if (val.length < 20) return false;
+    }
+    if (current === 7) {
+      const val = document.getElementById('nextGoal').value.trim();
+      if (val.length < 10) return false;
+    }
+    if (current === 8) {
+      const val = document.getElementById('whyJoin').value.trim();
+      if (val.length < 20) return false;
+    }
+    return true;
+  }
+
+  // ── Collect data ──
+  function collectCurrent() {
+    switch(current) {
+      case 1:
+        formData.name = document.getElementById('applicantName').value.trim();
+        formData.email = document.getElementById('applicantEmail').value.trim();
+        break;
+      case 2: formData.revenue = document.querySelector('input[name="revenue"]:checked')?.value; break;
+      case 3:
+        const bizType = document.querySelector('input[name="business_type"]:checked')?.value;
+        const other = document.getElementById('otherSpecify').value.trim();
+        formData.business_type = bizType === 'Other' && other ? `Other: ${other}` : bizType;
+        break;
+      case 4: formData.business_link = document.getElementById('businessLink').value.trim(); break;
+      case 5: formData.time_in_business = document.querySelector('input[name="time_in_business"]:checked')?.value; break;
+      case 6: formData.stuck_on = document.getElementById('stuckOn').value.trim(); break;
+      case 7: formData.next_goal = document.getElementById('nextGoal').value.trim(); break;
+      case 8: formData.why_join = document.getElementById('whyJoin').value.trim(); break;
+      case 9: formData.zoom_likelihood = document.querySelector('input[name="zoom_likelihood"]:checked')?.value; break;
+      case 10: formData.timezone = document.getElementById('timezone').value; break;
+    }
+  }
+
+  // ── Submit ──
+  async function submitForm() {
+    collectCurrent();
+
+    const btn = document.getElementById('submitBtn');
+    btn.disabled = true;
+    btn.textContent = 'Sending...';
+
+    try {
+      const response = await fetch('https://formspree.io/f/xeepqoyo', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify(formData)
+      });
+
+      if (response.ok) {
+        document.getElementById('stepCounter').style.opacity = '0';
+        document.getElementById('progressBar').style.width = '100%';
+        document.getElementById('stage').style.display = 'none';
+        document.getElementById('thankyou').classList.add('active');
+      } else {
+        btn.disabled = false;
+        btn.textContent = 'Try again →';
+      }
+    } catch(e) {
+      btn.disabled = false;
+      btn.textContent = 'Try again →';
+    }
+  }
+
+  // ── Radio choice interactivity ──
+  document.querySelectorAll('.choices').forEach(group => {
+    const name = group.dataset.name;
+    const items = group.querySelectorAll('.choice-item');
+    const step = group.closest('.question-block').dataset.step;
+    const nextBtn = document.getElementById(`next${step}`);
+
+    items.forEach(item => {
+      item.addEventListener('click', () => {
+        items.forEach(i => i.classList.remove('selected'));
+        item.classList.add('selected');
+        item.querySelector('input').checked = true;
+
+        if (name === 'business_type') {
+          const val = item.querySelector('input').value;
+          document.getElementById('otherWrap').classList.toggle('visible', val === 'Other');
+        }
+
+        if (nextBtn) nextBtn.disabled = false;
+      });
+    });
+  });
+
+  // ── Q1 name+email live enable ──
+  function checkQ1() {
+    const name = document.getElementById('applicantName').value.trim();
+    const email = document.getElementById('applicantEmail').value.trim();
+    document.getElementById('next1').disabled = !(name && email);
+  }
+  document.getElementById('applicantName').addEventListener('input', checkQ1);
+  document.getElementById('applicantEmail').addEventListener('input', () => {
+    document.getElementById('emailError').classList.remove('visible');
+    checkQ1();
+  });
+
+  // ── Text field live enable ──
+  ['stuckOn','nextGoal','whyJoin'].forEach(id => {
+    const el = document.getElementById(id);
+    const step = el.closest('.question-block').dataset.step;
+    const btn = document.getElementById(`next${step}`);
+    el.addEventListener('input', () => {
+      btn.disabled = el.value.trim().length < 10;
+    });
+  });
+
+  document.getElementById('businessLink').addEventListener('input', function() {
+    document.getElementById('linkError').classList.remove('visible');
+  });
+
+  document.getElementById('timezone').addEventListener('change', function() {
+    document.getElementById('submitBtn').disabled = !this.value;
+  });
+
+  // ── Keyboard: Enter to advance ──
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      const activeBlock = document.querySelector('.question-block.active');
+      if (!activeBlock) return;
+      const step = parseInt(activeBlock.dataset.step);
+      const isTextarea = document.activeElement.tagName === 'TEXTAREA';
+      if (isTextarea) return;
+
+      if (step < TOTAL) {
+        const btn = document.getElementById(`next${step}`);
+        if (btn && !btn.disabled) next();
+      } else {
+        const btn = document.getElementById('submitBtn');
+        if (btn && !btn.disabled) submitForm();
+      }
+    }
+  });
+
+  // Init
+  updateProgress();
+</script>
+</body>
+</html>
