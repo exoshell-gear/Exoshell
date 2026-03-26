@@ -1,0 +1,1388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>EMPIRE WAR ROOM</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap');
+
+:root {
+  --bg: #0a0a0a;
+  --surface: #141414;
+  --surface2: #1a1a1a;
+  --border: #2a2a2a;
+  --border2: #383838;
+  --accent: #c8f135;
+  --accent2: #ff5555;
+  --gold: #f5c842;
+  --blue: #5599ee;
+  --purple: #bb77ff;
+  --text: #f0f0e8;
+  --muted: #888882;
+  --muted2: #444440;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Space Mono', monospace;
+  font-size: 14px;
+  line-height: 1.7;
+  min-height: 100vh;
+}
+
+/* ── LAYOUT ── */
+#app { max-width: 900px; margin: 0 auto; padding: 0 0 60px; }
+
+/* ── HEADER ── */
+#header {
+  padding: 18px 20px 14px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  position: sticky;
+  top: 0;
+  background: var(--bg);
+  z-index: 50;
+}
+
+#logo {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 28px;
+  letter-spacing: 4px;
+  color: var(--accent);
+}
+
+#logo-sub { font-size: 11px; color: var(--muted); letter-spacing: 2px; margin-top: 2px; }
+
+#header-stats { display: flex; gap: 20px; }
+
+.hstat { text-align: right; }
+.hstat-label { font-size: 10px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; display: block; }
+.hstat-value { font-family: 'Bebas Neue', sans-serif; font-size: 22px; color: var(--accent); letter-spacing: 1px; }
+.hstat-value.gold { color: var(--gold); }
+
+/* ── TABS ── */
+#tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  overflow-x: auto;
+}
+
+.tab {
+  padding: 14px 20px;
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--muted);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+  transition: all 0.15s;
+  flex-shrink: 0;
+}
+
+.tab:hover { color: var(--text); }
+.tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+/* ── PAGES ── */
+.page { display: none; padding: 20px; }
+.page.active { display: block; }
+
+/* ── SECTION TITLE ── */
+.section-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 18px;
+  letter-spacing: 3px;
+  color: var(--text);
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.section-title::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* ── EMPIRE MAP ── */
+#empire-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.empire-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 14px;
+  cursor: pointer;
+  transition: all 0.15s;
+  position: relative;
+  overflow: hidden;
+}
+
+.empire-card:hover { border-color: var(--border2); }
+.empire-card.active-test { border-color: var(--gold); }
+.empire-card.active-test::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: var(--gold); }
+.empire-card.winner { border-color: var(--accent); }
+.empire-card.winner::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: var(--accent); }
+.empire-card.vault { opacity: 0.5; }
+
+.ec-status {
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.ec-status.testing { color: var(--gold); }
+.ec-status.winner { color: var(--accent); }
+.ec-status.vault { color: var(--muted); }
+.ec-status.building { color: var(--blue); }
+.ec-status.live { color: var(--accent); }
+
+.ec-name {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 22px;
+  letter-spacing: 2px;
+  color: var(--text);
+  margin-bottom: 6px;
+}
+
+.ec-desc { font-size: 12px; color: var(--muted); line-height: 1.6; }
+
+.ec-metric {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+}
+
+.ec-metric-item { text-align: center; }
+.ec-metric-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; display: block; }
+.ec-metric-val { font-size: 15px; font-weight: 700; color: var(--text); }
+.ec-metric-val.good { color: var(--accent); }
+.ec-metric-val.bad { color: var(--accent2); }
+.ec-metric-val.neutral { color: var(--gold); }
+
+/* ── IDEA CARDS ── */
+.idea-list { display: flex; flex-direction: column; gap: 10px; }
+
+.idea-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.idea-card:hover { border-color: var(--border2); }
+
+.idea-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 8px;
+}
+
+.idea-name {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 20px;
+  letter-spacing: 2px;
+  color: var(--text);
+}
+
+.status-pill {
+  font-size: 10px;
+  padding: 4px 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  font-weight: 700;
+  border: 1px solid;
+  flex-shrink: 0;
+}
+
+.status-pill.vault { color: var(--muted); border-color: var(--muted2); }
+.status-pill.queued { color: var(--blue); border-color: rgba(68,136,221,0.3); background: rgba(68,136,221,0.05); }
+.status-pill.testing { color: var(--gold); border-color: rgba(245,200,66,0.3); background: rgba(245,200,66,0.05); }
+.status-pill.winner { color: var(--accent); border-color: rgba(200,241,53,0.3); background: rgba(200,241,53,0.05); }
+.status-pill.building { color: var(--blue); border-color: rgba(68,136,221,0.3); background: rgba(68,136,221,0.05); }
+.status-pill.live { color: var(--accent); border-color: rgba(200,241,53,0.3); background: rgba(200,241,53,0.05); }
+.status-pill.retired { color: var(--accent2); border-color: rgba(255,68,68,0.3); background: rgba(255,68,68,0.05); }
+
+.idea-desc { font-size: 13px; color: var(--muted); line-height: 1.6; margin-bottom: 10px; }
+
+.idea-meta {
+  display: flex;
+  gap: 16px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+
+.idea-meta-item { font-size: 12px; }
+.idea-meta-label { color: var(--muted); }
+.idea-meta-val { color: var(--text); font-weight: 700; }
+
+/* ── AD TESTS ── */
+.test-list { display: flex; flex-direction: column; gap: 10px; }
+
+.test-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 14px;
+}
+
+.test-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.test-idea-tag {
+  font-size: 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+
+.test-angle {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+
+.test-metrics {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+  padding: 12px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+}
+
+.tm-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 2px; }
+.tm-val { font-size: 15px; font-weight: 700; }
+.tm-val.good { color: var(--accent); }
+.tm-val.bad { color: var(--accent2); }
+.tm-val.neutral { color: var(--gold); }
+
+.test-verdict {
+  margin-top: 8px;
+  font-size: 12px;
+  padding: 8px 12px;
+  border-left: 2px solid var(--border);
+  color: var(--muted);
+  font-style: italic;
+}
+
+.test-verdict.win { border-color: var(--accent); color: #888; }
+.test-verdict.loss { border-color: var(--accent2); color: #888; }
+.test-verdict.running { border-color: var(--gold); color: #888; }
+
+/* ── FORMS ── */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.85);
+  z-index: 100;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.modal-overlay.show { display: flex; }
+
+.modal {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-top: 2px solid var(--accent);
+  padding: 20px;
+  width: 100%;
+  max-width: 500px;
+  margin: auto;
+}
+
+.modal-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 18px;
+  letter-spacing: 3px;
+  color: var(--accent);
+  margin-bottom: 16px;
+}
+
+.form-group { margin-bottom: 14px; }
+.form-label { font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); display: block; margin-bottom: 5px; }
+
+.form-input, .form-select, .form-textarea {
+  width: 100%;
+  background: var(--bg);
+  border: 1px solid var(--border2);
+  color: var(--text);
+  padding: 11px 12px;
+  font-family: 'Space Mono', monospace;
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--accent); }
+.form-textarea { resize: vertical; min-height: 80px; }
+.form-select option { background: var(--surface); }
+
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+.form-actions { display: flex; gap: 8px; margin-top: 16px; }
+
+.btn-primary {
+  background: var(--accent);
+  color: var(--bg);
+  border: none;
+  padding: 10px 20px;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 14px;
+  letter-spacing: 2px;
+  cursor: pointer;
+  flex: 1;
+  transition: all 0.15s;
+}
+
+.btn-primary:active { opacity: 0.85; }
+
+.btn-secondary {
+  background: transparent;
+  color: var(--muted);
+  border: 1px solid var(--border2);
+  padding: 10px 16px;
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.btn-secondary:hover { color: var(--text); border-color: var(--border2); }
+
+/* ── ADD BUTTONS ── */
+.add-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: transparent;
+  border: 1px dashed var(--border2);
+  color: var(--muted);
+  cursor: pointer;
+  font-family: 'Space Mono', monospace;
+  font-size: 12px;
+  transition: all 0.15s;
+  width: 100%;
+  margin-top: 10px;
+}
+
+.add-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ── LEADERBOARD ── */
+.leaderboard { display: flex; flex-direction: column; gap: 6px; }
+
+.lb-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+
+.lb-rank {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 22px;
+  color: var(--muted);
+  width: 28px;
+  flex-shrink: 0;
+}
+
+.lb-rank.top { color: var(--accent); }
+
+.lb-name {
+  font-weight: 700;
+  font-size: 13px;
+  flex: 1;
+}
+
+.lb-cpl {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 18px;
+  text-align: right;
+}
+
+.lb-cpl.best { color: var(--accent); }
+.lb-cpl.worst { color: var(--accent2); }
+
+/* ── NOTES ── */
+.notes-area {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 14px;
+  font-family: 'Space Mono', monospace;
+  font-size: 12px;
+  line-height: 1.7;
+  resize: vertical;
+  min-height: 200px;
+  outline: none;
+}
+
+.notes-area:focus { border-color: var(--accent); }
+
+.save-indicator {
+  font-size: 10px;
+  color: var(--muted);
+  margin-top: 6px;
+  transition: color 0.3s;
+}
+
+.save-indicator.saved { color: var(--accent); }
+
+/* ── VERDICT BADGE ── */
+.verdict-badge {
+  display: inline-block;
+  font-size: 10px;
+  padding: 3px 7px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.verdict-badge.winner { background: rgba(200,241,53,0.1); color: var(--accent); border: 1px solid rgba(200,241,53,0.2); }
+.verdict-badge.loser  { background: rgba(255,68,68,0.1);  color: var(--accent2);border: 1px solid rgba(255,68,68,0.2); }
+.verdict-badge.running{ background: rgba(245,200,66,0.1); color: var(--gold);   border: 1px solid rgba(245,200,66,0.2); }
+
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--muted);
+  border: 1px dashed var(--border2);
+}
+
+.empty-state-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 18px;
+  letter-spacing: 2px;
+  margin-bottom: 6px;
+  color: var(--border2);
+}
+
+.relic-chip {
+  font-size: 11px;
+  padding: 4px 10px;
+  background: rgba(187,119,255,0.08);
+  border: 1px solid rgba(187,119,255,0.2);
+  color: var(--purple);
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.relic-chip.empty {
+  color: var(--muted);
+  background: transparent;
+  border-color: var(--border);
+}
+
+.notes-area {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 16px;
+  font-family: 'Space Mono', monospace;
+  font-size: 14px;
+  line-height: 1.8;
+  resize: vertical;
+  min-height: 200px;
+  outline: none;
+}
+
+.save-indicator {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 6px;
+  transition: color 0.3s;
+}
+
+/* ── DETAIL VIEW ── */
+.detail-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  z-index: 80;
+  overflow-y: auto;
+}
+
+.detail-overlay.show { display: block; }
+
+.detail-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  position: sticky;
+  top: 0;
+  background: var(--bg);
+  z-index: 10;
+}
+
+.back-btn {
+  background: transparent;
+  border: 1px solid var(--border2);
+  color: var(--muted);
+  padding: 6px 12px;
+  cursor: pointer;
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  transition: all 0.15s;
+}
+
+.back-btn:hover { color: var(--text); }
+
+.detail-body { padding: 20px; max-width: 700px; margin: 0 auto; }
+
+.detail-name {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 32px;
+  letter-spacing: 3px;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+
+.detail-desc { color: var(--muted); font-size: 13px; line-height: 1.7; margin-bottom: 20px; }
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.detail-stat {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 12px;
+}
+
+.ds-label { font-size: 10px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 4px; }
+.ds-val { font-family: 'Bebas Neue', sans-serif; font-size: 22px; color: var(--text); letter-spacing: 1px; }
+.ds-val.good { color: var(--accent); }
+
+.action-row { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+
+.action-btn {
+  padding: 9px 16px;
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  cursor: pointer;
+  border: 1px solid var(--border2);
+  background: transparent;
+  color: var(--muted);
+  transition: all 0.15s;
+  letter-spacing: 1px;
+}
+
+.action-btn:hover { color: var(--accent); border-color: var(--accent); }
+.action-btn.danger:hover { color: var(--accent2); border-color: var(--accent2); }
+
+/* scrollbar */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border2); }
+</style>
+</head>
+<body>
+
+<div id="app">
+  <!-- HEADER -->
+  <div id="header">
+    <div>
+      <div id="logo">EMPIRE WAR ROOM</div>
+      <div id="logo-sub">VALIDATION · TRACKING · DOMINANCE</div>
+    </div>
+    <div id="header-stats">
+      <div class="hstat">
+        <span class="hstat-label">Ideas</span>
+        <span class="hstat-value" id="hs-ideas">0</span>
+      </div>
+      <div class="hstat">
+        <span class="hstat-label">Testing</span>
+        <span class="hstat-value gold" id="hs-testing">0</span>
+      </div>
+      <div class="hstat">
+        <span class="hstat-label">Winners</span>
+        <span class="hstat-value" id="hs-winners">0</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- TABS -->
+  <div id="tabs">
+    <div class="tab active" onclick="switchTab('empire')">Empire Map</div>
+    <div class="tab" onclick="switchTab('ideas')">Idea Vault</div>
+    <div class="tab" onclick="switchTab('tests')">Ad Tests</div>
+    <div class="tab" onclick="switchTab('leaderboard')">Leaderboard</div>
+    <div class="tab" onclick="switchTab('notes')">War Notes</div>
+  </div>
+
+  <!-- EMPIRE MAP -->
+  <div class="page active" id="page-empire">
+    <div class="section-title">Active Empire</div>
+    <div id="empire-grid"></div>
+    <div class="section-title">Pipeline</div>
+    <div id="pipeline-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;"></div>
+  </div>
+
+  <!-- IDEA VAULT -->
+  <div class="page" id="page-ideas">
+    <div class="section-title">All Ideas</div>
+    <div class="idea-list" id="idea-list"></div>
+    <button class="add-btn" onclick="openIdeaModal()">+ ADD IDEA TO VAULT</button>
+  </div>
+
+  <!-- AD TESTS -->
+  <div class="page" id="page-tests">
+    <div class="section-title">Ad Test Log</div>
+    <div class="test-list" id="test-list"></div>
+    <button class="add-btn" onclick="openTestModal()">+ LOG AD TEST</button>
+  </div>
+
+  <!-- LEADERBOARD -->
+  <div class="page" id="page-leaderboard">
+    <div class="section-title">Ideas Ranked By CPL</div>
+    <div class="leaderboard" id="leaderboard"></div>
+    <div style="margin-top:20px;">
+      <div class="section-title">Ideas Ranked By Leads</div>
+      <div class="leaderboard" id="leaderboard-leads"></div>
+    </div>
+  </div>
+
+  <!-- WAR NOTES -->
+  <div class="page" id="page-notes">
+    <div class="section-title">Strategic Notes</div>
+    <textarea class="notes-area" id="war-notes" placeholder="Strategy, observations, decisions, patterns you're noticing across tests..."></textarea>
+    <div class="save-indicator" id="save-indicator">Auto-saves as you type</div>
+  </div>
+</div>
+
+<!-- IDEA MODAL -->
+<div class="modal-overlay" id="idea-modal">
+  <div class="modal">
+    <div class="modal-title" id="idea-modal-title">ADD IDEA</div>
+    <input type="hidden" id="idea-edit-id">
+    <div class="form-group">
+      <label class="form-label">Idea Name</label>
+      <input class="form-input" id="idea-name" placeholder="e.g. DNC / StopTheCalls">
+    </div>
+    <div class="form-group">
+      <label class="form-label">One-line description</label>
+      <input class="form-input" id="idea-tagline" placeholder="What problem does it solve?">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Full description</label>
+      <textarea class="form-textarea" id="idea-desc" placeholder="How it works, target market, revenue model..."></textarea>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Status</label>
+        <select class="form-select" id="idea-status">
+          <option value="vault">Vault</option>
+          <option value="queued">Queued for Testing</option>
+          <option value="testing">Active Test</option>
+          <option value="winner">Winner</option>
+          <option value="building">Building</option>
+          <option value="live">Live</option>
+          <option value="retired">Retired</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Category</label>
+        <select class="form-select" id="idea-category">
+          <option value="software">Software / SaaS</option>
+          <option value="community">Community</option>
+          <option value="ecommerce">Ecommerce</option>
+          <option value="service">Service</option>
+          <option value="content">Content</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Est. Monthly Revenue Potential</label>
+        <input class="form-input" id="idea-revenue" placeholder="e.g. $5K-20K/mo">
+      </div>
+      <div class="form-group">
+        <label class="form-label">COGS</label>
+        <select class="form-select" id="idea-cogs">
+          <option value="zero">Zero (Digital)</option>
+          <option value="low">Low</option>
+          <option value="medium">Medium</option>
+          <option value="high">High</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Notes / Why it could work</label>
+      <textarea class="form-textarea" id="idea-notes" placeholder="Market observations, validation signals, concerns..."></textarea>
+    </div>
+    <div class="form-actions">
+      <button class="btn-secondary" onclick="closeIdeaModal()">Cancel</button>
+      <button class="btn-primary" onclick="saveIdea()">SAVE IDEA</button>
+    </div>
+  </div>
+</div>
+
+<!-- TEST MODAL -->
+<div class="modal-overlay" id="test-modal">
+  <div class="modal">
+    <div class="modal-title" id="test-modal-title">LOG AD TEST</div>
+    <input type="hidden" id="test-edit-id">
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Idea</label>
+        <select class="form-select" id="test-idea"></select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Platform</label>
+        <select class="form-select" id="test-platform">
+          <option value="meta-leadform">Meta — Lead Form</option>
+          <option value="meta-conversion">Meta — Conversion</option>
+          <option value="meta-engagement">Meta — Engagement</option>
+          <option value="google">Google Ads</option>
+          <option value="tiktok">TikTok</option>
+          <option value="organic">Organic</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Ad Angle / Hook</label>
+      <input class="form-input" id="test-angle" placeholder="e.g. Pain — They call you 10x/day. Here's how to legally make them stop.">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Target Audience</label>
+      <input class="form-input" id="test-audience" placeholder="e.g. US, 25-54, debt, collections interest">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Budget Spent ($)</label>
+        <input class="form-input" type="number" id="test-spend" placeholder="0">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Leads / Signups</label>
+        <input class="form-input" type="number" id="test-leads" placeholder="0">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Clicks</label>
+        <input class="form-input" type="number" id="test-clicks" placeholder="0">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Conversions / Sales</label>
+        <input class="form-input" type="number" id="test-conversions" placeholder="0">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Status</label>
+        <select class="form-select" id="test-status">
+          <option value="running">Running</option>
+          <option value="completed">Completed</option>
+          <option value="paused">Paused</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Verdict</label>
+        <select class="form-select" id="test-verdict">
+          <option value="running">Still Running</option>
+          <option value="winner">Winner — Scale</option>
+          <option value="loser">Loser — Kill</option>
+          <option value="pivot">Pivot Angle</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Notes / Learnings</label>
+      <textarea class="form-textarea" id="test-notes" placeholder="What worked, what didn't, what to try next..."></textarea>
+    </div>
+    <div class="form-actions">
+      <button class="btn-secondary" onclick="closeTestModal()">Cancel</button>
+      <button class="btn-primary" onclick="saveTest()">SAVE TEST</button>
+    </div>
+  </div>
+</div>
+
+<!-- IDEA DETAIL -->
+<div class="detail-overlay" id="idea-detail">
+  <div class="detail-header">
+    <button class="back-btn" onclick="closeDetail()">← BACK</button>
+    <div id="detail-status-pill"></div>
+  </div>
+  <div class="detail-body">
+    <div class="detail-name" id="detail-name"></div>
+    <div id="detail-tagline" style="font-size:12px;color:var(--muted);margin-bottom:12px;"></div>
+    <div class="action-row" id="detail-actions"></div>
+    <div class="detail-desc" id="detail-desc"></div>
+    <div class="detail-grid" id="detail-grid"></div>
+    <div class="section-title" style="margin-top:4px;">Ad Tests For This Idea</div>
+    <div id="detail-tests"></div>
+    <div class="section-title" style="margin-top:16px;">Notes</div>
+    <div id="detail-notes" style="font-size:12px;color:var(--muted);line-height:1.7;white-space:pre-wrap;padding:12px;background:var(--surface);border:1px solid var(--border);"></div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════
+// DATA LAYER
+// ══════════════════════════════════
+function load(key, def) {
+  try { return JSON.parse(localStorage.getItem(key)) || def; } catch { return def; }
+}
+function save(key, val) { localStorage.setItem(key, JSON.stringify(val)); }
+
+let IDEAS = load('ewr_ideas', []);
+let TESTS = load('ewr_tests', []);
+let NOTES = load('ewr_notes', '');
+
+// Pre-load Reesh's top 2 ideas if empty
+if (IDEAS.length === 0) {
+  IDEAS = [
+    {
+      id: uid(), name: 'DNC / StopTheCalls',
+      tagline: 'Stop debt collector harassment legally — automated cease & desist letters via certified mail.',
+      desc: 'Uses Click2Mail API to send AI-customized cease & desist letters to collection agencies based on user-provided info. FDCPA-based legal right. $39.99 one-time fee. Landing page live. Stripe integrated. Zero COGS per letter beyond API cost.',
+      status: 'queued', category: 'software',
+      revenue: '$10K-50K/mo', cogs: 'low',
+      notes: 'Landing page already built and live. Meta pixel firing. Pain-driven market — debt harassment is brutal and widespread. Direct response play. Clear hook. Strong candidate for lead form validation.',
+      created: Date.now()
+    },
+    {
+      id: uid(), name: 'Lonely Chapter',
+      tagline: 'Vetted entrepreneur community for serious founders — no beginners, no noise.',
+      desc: 'Paid community on Skool for founders doing real revenue. Vetted entry — application + interview. Positioned around the loneliness of building at a serious level. High signal, low noise. Monthly or annual subscription.',
+      status: 'queued', category: 'community',
+      revenue: '$5K-30K/mo', cogs: 'zero',
+      notes: 'Deep personal alignment — Reesh lives this problem daily. The market for quality founder community is real. Differentiated by vetting. Needs credibility to launch properly — better as Pillar 2 or 3 once Firemoto or DNC establishes track record.',
+      created: Date.now() - 1000
+    },
+    {
+      id: uid(), name: 'Firemoto',
+      tagline: 'Motorcycle gear brand — engineered armor, original designs, lifestyle positioning.',
+      desc: 'Armored shirts, hoodies, pants, jackets. Original designs, engineered from scratch. Not Alibaba. Supplier: MIRS. Currently relaunching as profit-first funding engine for empire.',
+      status: 'live', category: 'ecommerce',
+      revenue: '$2K-5K/mo profit target', cogs: 'medium',
+      notes: 'Phase 2 relaunch underway. Zero credit supplier model. Email campaign sent. 63% open rate. Riding season Q1-Q2 2026. Goal: stable profit engine to fund software plays.',
+      created: Date.now() - 2000
+    },
+    {
+      id: uid(), name: 'Veronium',
+      tagline: 'Gamified life & goal tracking — RPG mechanics applied to real missions.',
+      desc: 'Turn real life goals into a game. Quests, maps, dragons, milestones, progression. Deep personal alignment with how Reesh thinks. Could be desktop, web, or mobile.',
+      status: 'vault', category: 'software',
+      revenue: '$3K-20K/mo', cogs: 'zero',
+      notes: 'High personal alignment. Complex to build. Better positioned after DNC or Lonely Chapter validates the software path. Vault for now.',
+      created: Date.now() - 3000
+    },
+    {
+      id: uid(), name: 'Podzter',
+      tagline: 'Podcast guesting marketplace — connect hosts and guests for strategic collaboration.',
+      desc: 'Platform for podcast guesting, collaboration, and audience cross-pollination. Network effects play.',
+      status: 'vault', category: 'software',
+      revenue: '$2K-15K/mo', cogs: 'zero',
+      notes: 'Interesting distribution play. Lower urgency than DNC or Lonely Chapter. Vault.',
+      created: Date.now() - 4000
+    },
+  ];
+  save('ewr_ideas', IDEAS);
+}
+
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2); }
+
+// ══════════════════════════════════
+// TABS
+// ══════════════════════════════════
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('page-' + tab).classList.add('active');
+  render();
+}
+
+// ══════════════════════════════════
+// RENDER
+// ══════════════════════════════════
+function render() {
+  renderHeader();
+  renderEmpire();
+  renderIdeas();
+  renderTests();
+  renderLeaderboard();
+  renderNotes();
+}
+
+function renderHeader() {
+  document.getElementById('hs-ideas').textContent = IDEAS.length;
+  document.getElementById('hs-testing').textContent = IDEAS.filter(i => i.status === 'testing').length;
+  document.getElementById('hs-winners').textContent = IDEAS.filter(i => i.status === 'winner' || i.status === 'live').length;
+}
+
+function renderEmpire() {
+  const active = IDEAS.filter(i => ['live','winner','building'].includes(i.status));
+  const pipeline = IDEAS.filter(i => ['testing','queued'].includes(i.status));
+
+  const empireGrid = document.getElementById('empire-grid');
+  const pipelineGrid = document.getElementById('pipeline-grid');
+
+  empireGrid.innerHTML = '';
+  pipelineGrid.innerHTML = '';
+
+  if (active.length === 0) {
+    empireGrid.innerHTML = '<div class="empty-state"><div class="empty-state-title">No live branches yet</div><div>Winners and live businesses appear here</div></div>';
+  }
+
+  active.forEach(idea => {
+    const tests = TESTS.filter(t => t.ideaId === idea.id);
+    const bestCPL = getBestCPL(tests);
+    empireGrid.appendChild(makeEmpireCard(idea, tests, bestCPL));
+  });
+
+  if (pipeline.length === 0) {
+    pipelineGrid.innerHTML = '<div class="empty-state"><div class="empty-state-title">Queue is empty</div><div>Move ideas to Queued or Testing to see them here</div></div>';
+  }
+
+  pipeline.forEach(idea => {
+    const tests = TESTS.filter(t => t.ideaId === idea.id);
+    const bestCPL = getBestCPL(tests);
+    pipelineGrid.appendChild(makeEmpireCard(idea, tests, bestCPL));
+  });
+}
+
+function makeEmpireCard(idea, tests, bestCPL) {
+  const card = document.createElement('div');
+  card.className = 'empire-card ' + (idea.status === 'testing' ? 'active-test' : idea.status === 'winner' || idea.status === 'live' ? 'winner' : idea.status === 'vault' ? 'vault' : '');
+  card.onclick = () => openDetail(idea.id);
+
+  const totalLeads = tests.reduce((a, t) => a + (t.leads || 0), 0);
+  const totalSpend = tests.reduce((a, t) => a + (t.spend || 0), 0);
+
+  card.innerHTML = `
+    <div class="ec-status ${idea.status}">${idea.status.toUpperCase()}</div>
+    <div class="ec-name">${idea.name}</div>
+    <div class="ec-desc">${idea.tagline}</div>
+    ${tests.length > 0 ? `
+    <div class="ec-metric">
+      <div class="ec-metric-item">
+        <span class="ec-metric-label">Tests</span>
+        <span class="ec-metric-val">${tests.length}</span>
+      </div>
+      <div class="ec-metric-item">
+        <span class="ec-metric-label">Leads</span>
+        <span class="ec-metric-val ${totalLeads > 0 ? 'good' : 'neutral'}">${totalLeads}</span>
+      </div>
+      <div class="ec-metric-item">
+        <span class="ec-metric-label">Best CPL</span>
+        <span class="ec-metric-val ${bestCPL !== '—' && parseFloat(bestCPL) < 10 ? 'good' : 'neutral'}">${bestCPL !== '—' ? '$'+bestCPL : '—'}</span>
+      </div>
+    </div>` : ''}
+  `;
+  return card;
+}
+
+function getBestCPL(tests) {
+  const cpls = tests.filter(t => t.leads > 0 && t.spend > 0).map(t => t.spend / t.leads);
+  if (!cpls.length) return '—';
+  return Math.min(...cpls).toFixed(2);
+}
+
+function renderIdeas() {
+  const list = document.getElementById('idea-list');
+  list.innerHTML = '';
+
+  const sorted = [...IDEAS].sort((a, b) => {
+    const order = ['testing','queued','winner','live','building','vault','retired'];
+    return order.indexOf(a.status) - order.indexOf(b.status);
+  });
+
+  sorted.forEach(idea => {
+    const tests = TESTS.filter(t => t.ideaId === idea.id);
+    const card = document.createElement('div');
+    card.className = 'idea-card';
+    card.onclick = () => openDetail(idea.id);
+
+    card.innerHTML = `
+      <div class="idea-header">
+        <div class="idea-name">${idea.name}</div>
+        <div class="status-pill ${idea.status}">${idea.status}</div>
+      </div>
+      <div class="idea-desc">${idea.tagline}</div>
+      <div class="idea-meta">
+        <div class="idea-meta-item"><span class="idea-meta-label">Category: </span><span class="idea-meta-val">${idea.category}</span></div>
+        <div class="idea-meta-item"><span class="idea-meta-label">Revenue: </span><span class="idea-meta-val">${idea.revenue || '—'}</span></div>
+        <div class="idea-meta-item"><span class="idea-meta-label">COGS: </span><span class="idea-meta-val">${idea.cogs || '—'}</span></div>
+        <div class="idea-meta-item"><span class="idea-meta-label">Tests: </span><span class="idea-meta-val">${tests.length}</span></div>
+      </div>
+    `;
+    list.appendChild(card);
+  });
+
+  if (IDEAS.length === 0) {
+    list.innerHTML = '<div class="empty-state"><div class="empty-state-title">Vault is empty</div><div>Add your first idea below</div></div>';
+  }
+}
+
+function renderTests() {
+  const list = document.getElementById('test-list');
+  list.innerHTML = '';
+
+  const sorted = [...TESTS].sort((a, b) => b.created - a.created);
+
+  sorted.forEach(test => {
+    const idea = IDEAS.find(i => i.id === test.ideaId);
+    const cpl = test.leads > 0 && test.spend > 0 ? (test.spend / test.leads).toFixed(2) : null;
+    const ctr = test.clicks > 0 && test.spend > 0 ? ((test.clicks / (test.spend * 10)) * 100).toFixed(1) : null;
+
+    const card = document.createElement('div');
+    card.className = 'test-card';
+    card.innerHTML = `
+      <div class="test-idea-tag">${idea ? idea.name : 'Unknown Idea'}</div>
+      <div class="test-angle">"${test.angle}"</div>
+      <div class="test-metrics">
+        <div>
+          <span class="tm-label">Spent</span>
+          <span class="tm-val">$${test.spend || 0}</span>
+        </div>
+        <div>
+          <span class="tm-label">Leads</span>
+          <span class="tm-val ${(test.leads||0) > 0 ? 'good' : 'neutral'}">${test.leads || 0}</span>
+        </div>
+        <div>
+          <span class="tm-label">CPL</span>
+          <span class="tm-val ${cpl && parseFloat(cpl) < 10 ? 'good' : cpl ? 'neutral' : ''}">${cpl ? '$'+cpl : '—'}</span>
+        </div>
+        <div>
+          <span class="tm-label">Conv.</span>
+          <span class="tm-val ${(test.conversions||0) > 0 ? 'good' : 'neutral'}">${test.conversions || 0}</span>
+        </div>
+        <div>
+          <span class="tm-label">Verdict</span>
+          <span class="tm-val"><span class="verdict-badge ${test.verdict}">${test.verdict}</span></span>
+        </div>
+      </div>
+      ${test.notes ? `<div class="test-verdict ${test.verdict}">${test.notes}</div>` : ''}
+    `;
+
+    card.addEventListener('dblclick', () => openTestEdit(test.id));
+    list.appendChild(card);
+  });
+
+  if (TESTS.length === 0) {
+    list.innerHTML = '<div class="empty-state"><div class="empty-state-title">No tests logged yet</div><div>Log your first ad test below</div></div>';
+  }
+}
+
+function renderLeaderboard() {
+  const lb = document.getElementById('leaderboard');
+  const lbLeads = document.getElementById('leaderboard-leads');
+  lb.innerHTML = '';
+  lbLeads.innerHTML = '';
+
+  // Rank by best CPL
+  const ideaStats = IDEAS.map(idea => {
+    const tests = TESTS.filter(t => t.ideaId === idea.id && t.leads > 0 && t.spend > 0);
+    const cpls = tests.map(t => t.spend / t.leads);
+    const bestCPL = cpls.length ? Math.min(...cpls) : null;
+    const totalLeads = TESTS.filter(t => t.ideaId === idea.id).reduce((a, t) => a + (t.leads || 0), 0);
+    return { idea, bestCPL, totalLeads };
+  });
+
+  const byCPL = [...ideaStats].filter(s => s.bestCPL !== null).sort((a, b) => a.bestCPL - b.bestCPL);
+  const byLeads = [...ideaStats].filter(s => s.totalLeads > 0).sort((a, b) => b.totalLeads - a.totalLeads);
+
+  if (byCPL.length === 0) {
+    lb.innerHTML = '<div class="empty-state"><div class="empty-state-title">No CPL data yet</div><div>Log ad tests with spend and leads to see rankings</div></div>';
+  }
+
+  byCPL.forEach((s, i) => {
+    const row = document.createElement('div');
+    row.className = 'lb-row';
+    row.innerHTML = `
+      <div class="lb-rank ${i === 0 ? 'top' : ''}">${i + 1}</div>
+      <div class="lb-name">${s.idea.name}<br><span style="font-size:9px;color:var(--muted);font-weight:400;">${s.idea.tagline}</span></div>
+      <div class="lb-cpl ${i === 0 ? 'best' : i === byCPL.length - 1 ? 'worst' : ''}">$${s.bestCPL.toFixed(2)}<br><span style="font-size:9px;color:var(--muted);">best CPL</span></div>
+    `;
+    lb.appendChild(row);
+  });
+
+  if (byLeads.length === 0) {
+    lbLeads.innerHTML = '<div class="empty-state"><div class="empty-state-title">No lead data yet</div></div>';
+  }
+
+  byLeads.forEach((s, i) => {
+    const row = document.createElement('div');
+    row.className = 'lb-row';
+    row.innerHTML = `
+      <div class="lb-rank ${i === 0 ? 'top' : ''}">${i + 1}</div>
+      <div class="lb-name">${s.idea.name}</div>
+      <div class="lb-cpl ${i === 0 ? 'best' : ''}">${s.totalLeads}<br><span style="font-size:9px;color:var(--muted);">total leads</span></div>
+    `;
+    lbLeads.appendChild(row);
+  });
+}
+
+function renderNotes() {
+  const el = document.getElementById('war-notes');
+  if (el && !el._loaded) {
+    el.value = NOTES;
+    el._loaded = true;
+    el.addEventListener('input', () => {
+      NOTES = el.value;
+      save('ewr_notes', NOTES);
+      const ind = document.getElementById('save-indicator');
+      ind.textContent = 'Saved';
+      ind.classList.add('saved');
+      setTimeout(() => { ind.textContent = 'Auto-saves as you type'; ind.classList.remove('saved'); }, 1500);
+    });
+  }
+}
+
+// ══════════════════════════════════
+// DETAIL VIEW
+// ══════════════════════════════════
+function openDetail(id) {
+  const idea = IDEAS.find(i => i.id === id);
+  if (!idea) return;
+
+  document.getElementById('detail-name').textContent = idea.name;
+  document.getElementById('detail-tagline').textContent = idea.tagline;
+  document.getElementById('detail-desc').textContent = idea.desc;
+  document.getElementById('detail-notes').textContent = idea.notes || 'No notes yet.';
+
+  const pill = document.getElementById('detail-status-pill');
+  pill.innerHTML = `<div class="status-pill ${idea.status}">${idea.status}</div>`;
+
+  const grid = document.getElementById('detail-grid');
+  grid.innerHTML = `
+    <div class="detail-stat"><div class="ds-label">Category</div><div class="ds-val">${idea.category}</div></div>
+    <div class="detail-stat"><div class="ds-label">COGS</div><div class="ds-val">${idea.cogs}</div></div>
+    <div class="detail-stat"><div class="ds-label">Revenue Potential</div><div class="ds-val" style="font-size:13px">${idea.revenue || '—'}</div></div>
+    <div class="detail-stat"><div class="ds-label">Tests Run</div><div class="ds-val good">${TESTS.filter(t => t.ideaId === id).length}</div></div>
+  `;
+
+  const actions = document.getElementById('detail-actions');
+  actions.innerHTML = `
+    <button class="action-btn" onclick="openIdeaEdit('${id}')">Edit Idea</button>
+    <button class="action-btn" onclick="quickStatus('${id}','testing')">→ Testing</button>
+    <button class="action-btn" onclick="quickStatus('${id}','winner')">→ Winner</button>
+    <button class="action-btn" onclick="quickStatus('${id}','vault')">→ Vault</button>
+    <button class="action-btn" onclick="openTestForIdea('${id}')">+ Log Test</button>
+    <button class="action-btn danger" onclick="deleteIdea('${id}')">Delete</button>
+  `;
+
+  const testList = document.getElementById('detail-tests');
+  testList.innerHTML = '';
+  const ideaTests = TESTS.filter(t => t.ideaId === id).sort((a,b) => b.created - a.created);
+
+  if (ideaTests.length === 0) {
+    testList.innerHTML = '<div style="color:var(--muted);font-size:11px;padding:10px 0;">No tests yet. Log your first ad test for this idea.</div>';
+  }
+
+  ideaTests.forEach(test => {
+    const cpl = test.leads > 0 && test.spend > 0 ? '$'+(test.spend/test.leads).toFixed(2) : '—';
+    const div = document.createElement('div');
+    div.className = 'test-card';
+    div.style.marginBottom = '8px';
+    div.innerHTML = `
+      <div class="test-angle">"${test.angle}"</div>
+      <div class="test-metrics">
+        <div><span class="tm-label">Spent</span><span class="tm-val">$${test.spend||0}</span></div>
+        <div><span class="tm-label">Leads</span><span class="tm-val ${(test.leads||0)>0?'good':'neutral'}">${test.leads||0}</span></div>
+        <div><span class="tm-label">CPL</span><span class="tm-val">${cpl}</span></div>
+        <div><span class="tm-label">Sales</span><span class="tm-val ${(test.conversions||0)>0?'good':'neutral'}">${test.conversions||0}</span></div>
+        <div><span class="tm-label">Verdict</span><span class="tm-val"><span class="verdict-badge ${test.verdict}">${test.verdict}</span></span></div>
+      </div>
+      ${test.notes ? `<div class="test-verdict ${test.verdict}">${test.notes}</div>` : ''}
+    `;
+    testList.appendChild(div);
+  });
+
+  document.getElementById('idea-detail').classList.add('show');
+}
+
+function closeDetail() {
+  document.getElementById('idea-detail').classList.remove('show');
+  render();
+}
+
+function quickStatus(id, status) {
+  const idea = IDEAS.find(i => i.id === id);
+  if (idea) { idea.status = status; save('ewr_ideas', IDEAS); }
+  closeDetail();
+}
+
+function deleteIdea(id) {
+  if (!confirm('Delete this idea? This cannot be undone.')) return;
+  IDEAS = IDEAS.filter(i => i.id !== id);
+  TESTS = TESTS.filter(t => t.ideaId !== id);
+  save('ewr_ideas', IDEAS);
+  save('ewr_tests', TESTS);
+  closeDetail();
+}
+
+// ══════════════════════════════════
+// IDEA MODAL
+// ══════════════════════════════════
+function openIdeaModal() {
+  document.getElementById('idea-modal-title').textContent = 'ADD IDEA';
+  document.getElementById('idea-edit-id').value = '';
+  ['idea-name','idea-tagline','idea-desc','idea-revenue','idea-notes'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('idea-status').value = 'vault';
+  document.getElementById('idea-category').value = 'software';
+  document.getElementById('idea-cogs').value = 'zero';
+  document.getElementById('idea-modal').classList.add('show');
+}
+
+function openIdeaEdit(id) {
+  const idea = IDEAS.find(i => i.id === id);
+  if (!idea) return;
+  document.getElementById('idea-modal-title').textContent = 'EDIT IDEA';
+  document.getElementById('idea-edit-id').value = id;
+  document.getElementById('idea-name').value = idea.name;
+  document.getElementById('idea-tagline').value = idea.tagline;
+  document.getElementById('idea-desc').value = idea.desc;
+  document.getElementById('idea-status').value = idea.status;
+  document.getElementById('idea-category').value = idea.category;
+  document.getElementById('idea-revenue').value = idea.revenue || '';
+  document.getElementById('idea-cogs').value = idea.cogs || 'zero';
+  document.getElementById('idea-notes').value = idea.notes || '';
+  document.getElementById('idea-modal').classList.add('show');
+}
+
+function closeIdeaModal() { document.getElementById('idea-modal').classList.remove('show'); }
+
+function saveIdea() {
+  const editId = document.getElementById('idea-edit-id').value;
+  const data = {
+    id: editId || uid(),
+    name: document.getElementById('idea-name').value.trim(),
+    tagline: document.getElementById('idea-tagline').value.trim(),
+    desc: document.getElementById('idea-desc').value.trim(),
+    status: document.getElementById('idea-status').value,
+    category: document.getElementById('idea-category').value,
+    revenue: document.getElementById('idea-revenue').value.trim(),
+    cogs: document.getElementById('idea-cogs').value,
+    notes: document.getElementById('idea-notes').value.trim(),
+    created: editId ? (IDEAS.find(i=>i.id===editId)||{}).created || Date.now() : Date.now(),
+  };
+  if (!data.name) return;
+  if (editId) { IDEAS = IDEAS.map(i => i.id === editId ? data : i); }
+  else { IDEAS.push(data); }
+  save('ewr_ideas', IDEAS);
+  closeIdeaModal();
+  render();
+}
+
+// ══════════════════════════════════
+// TEST MODAL
+// ══════════════════════════════════
+function openTestModal(presetIdeaId) {
+  document.getElementById('test-modal-title').textContent = 'LOG AD TEST';
+  document.getElementById('test-edit-id').value = '';
+  ['test-angle','test-audience','test-notes'].forEach(id => document.getElementById(id).value = '');
+  ['test-spend','test-leads','test-clicks','test-conversions'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('test-status').value = 'running';
+  document.getElementById('test-verdict').value = 'running';
+
+  // Populate idea select
+  const sel = document.getElementById('test-idea');
+  sel.innerHTML = IDEAS.map(i => `<option value="${i.id}" ${i.id === presetIdeaId ? 'selected' : ''}>${i.name}</option>`).join('');
+  document.getElementById('test-modal').classList.add('show');
+}
+
+function openTestForIdea(id) {
+  closeDetail();
+  setTimeout(() => openTestModal(id), 100);
+}
+
+function openTestEdit(id) {
+  const test = TESTS.find(t => t.id === id);
+  if (!test) return;
+  document.getElementById('test-modal-title').textContent = 'EDIT TEST';
+  document.getElementById('test-edit-id').value = id;
+
+  const sel = document.getElementById('test-idea');
+  sel.innerHTML = IDEAS.map(i => `<option value="${i.id}" ${i.id === test.ideaId ? 'selected' : ''}>${i.name}</option>`).join('');
+
+  document.getElementById('test-platform').value = test.platform || 'meta-leadform';
+  document.getElementById('test-angle').value = test.angle || '';
+  document.getElementById('test-audience').value = test.audience || '';
+  document.getElementById('test-spend').value = test.spend || '';
+  document.getElementById('test-leads').value = test.leads || '';
+  document.getElementById('test-clicks').value = test.clicks || '';
+  document.getElementById('test-conversions').value = test.conversions || '';
+  document.getElementById('test-status').value = test.status || 'running';
+  document.getElementById('test-verdict').value = test.verdict || 'running';
+  document.getElementById('test-notes').value = test.notes || '';
+  document.getElementById('test-modal').classList.add('show');
+}
+
+function closeTestModal() { document.getElementById('test-modal').classList.remove('show'); }
+
+function saveTest() {
+  const editId = document.getElementById('test-edit-id').value;
+  const data = {
+    id: editId || uid(),
+    ideaId: document.getElementById('test-idea').value,
+    platform: document.getElementById('test-platform').value,
+    angle: document.getElementById('test-angle').value.trim(),
+    audience: document.getElementById('test-audience').value.trim(),
+    spend: parseFloat(document.getElementById('test-spend').value) || 0,
+    leads: parseInt(document.getElementById('test-leads').value) || 0,
+    clicks: parseInt(document.getElementById('test-clicks').value) || 0,
+    conversions: parseInt(document.getElementById('test-conversions').value) || 0,
+    status: document.getElementById('test-status').value,
+    verdict: document.getElementById('test-verdict').value,
+    notes: document.getElementById('test-notes').value.trim(),
+    created: editId ? (TESTS.find(t=>t.id===editId)||{}).created || Date.now() : Date.now(),
+  };
+  if (!data.angle) return;
+  if (editId) { TESTS = TESTS.map(t => t.id === editId ? data : t); }
+  else { TESTS.push(data); }
+  save('ewr_tests', TESTS);
+  closeTestModal();
+  render();
+}
+
+// ══════════════════════════════════
+// BOOT
+// ══════════════════════════════════
+render();
+</script>
+</body>
+</html>

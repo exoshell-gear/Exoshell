@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>EMPIRE ARCHITECT</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap');
+
+  :root {
+    --bg: #0a0a0a;
+    --surface: #111111;
+    --border: #222222;
+    --accent: #c8f135;
+    --accent2: #ff4444;
+    --text: #e8e8e0;
+    --muted: #555550;
+    --gold: #f5c842;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    line-height: 1.6;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  #game {
+    max-width: 480px;
+    margin: 0 auto;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Header */
+  #header {
+    padding: 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    background: var(--bg);
+    z-index: 10;
+  }
+
+  #title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 3px;
+    color: var(--accent);
+  }
+
+  #stats {
+    display: flex;
+    gap: 12px;
+    font-size: 11px;
+  }
+
+  .stat {
+    text-align: right;
+  }
+
+  .stat-label {
+    color: var(--muted);
+    font-size: 9px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .stat-value {
+    color: var(--accent);
+    font-weight: 700;
+  }
+
+  .stat-value.danger { color: var(--accent2); }
+  .stat-value.gold { color: var(--gold); }
+
+  /* Empire map */
+  #empire-bar {
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+  }
+
+  .empire-label {
+    font-size: 9px;
+    color: var(--muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  #branches {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .branch {
+    font-size: 10px;
+    padding: 3px 8px;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    border-radius: 2px;
+    transition: all 0.3s;
+  }
+
+  .branch.active {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(200, 241, 53, 0.05);
+  }
+
+  .branch.building {
+    border-color: var(--gold);
+    color: var(--gold);
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+
+  /* Main content */
+  #main {
+    flex: 1;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  /* Scenario */
+  #scenario-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    padding: 16px;
+  }
+
+  #scenario-tag {
+    font-size: 9px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+
+  #scenario-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    letter-spacing: 1px;
+    color: var(--text);
+    margin-bottom: 10px;
+    line-height: 1.2;
+  }
+
+  #scenario-text {
+    color: #aaa;
+    font-size: 12px;
+    line-height: 1.7;
+  }
+
+  /* Choices */
+  #choices {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .choice-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 14px 16px;
+    text-align: left;
+    cursor: pointer;
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    line-height: 1.5;
+    transition: all 0.15s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .choice-btn:active {
+    transform: scale(0.98);
+    background: #1a1a1a;
+  }
+
+  .choice-btn:hover {
+    border-color: var(--accent);
+    background: rgba(200, 241, 53, 0.03);
+  }
+
+  .choice-label {
+    font-size: 9px;
+    color: var(--muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  /* Outcome */
+  #outcome-box {
+    display: none;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 16px;
+  }
+
+  #outcome-box.show { display: block; }
+
+  #outcome-tag {
+    font-size: 9px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  #outcome-tag.good { color: var(--accent); }
+  #outcome-tag.bad { color: var(--accent2); }
+  #outcome-tag.neutral { color: var(--gold); }
+
+  #outcome-text {
+    font-size: 12px;
+    color: #aaa;
+    line-height: 1.7;
+    margin-bottom: 12px;
+  }
+
+  #stat-changes {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+  }
+
+  .stat-change {
+    font-size: 11px;
+    padding: 3px 8px;
+    border-radius: 2px;
+  }
+
+  .stat-change.up {
+    background: rgba(200, 241, 53, 0.1);
+    color: var(--accent);
+    border: 1px solid rgba(200, 241, 53, 0.2);
+  }
+
+  .stat-change.down {
+    background: rgba(255, 68, 68, 0.1);
+    color: var(--accent2);
+    border: 1px solid rgba(255, 68, 68, 0.2);
+  }
+
+  #next-btn {
+    background: var(--accent);
+    color: var(--bg);
+    border: none;
+    padding: 12px 20px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 16px;
+    letter-spacing: 2px;
+    cursor: pointer;
+    width: 100%;
+    transition: all 0.15s;
+  }
+
+  #next-btn:active { transform: scale(0.98); opacity: 0.9; }
+
+  /* Log */
+  #log-section {
+    border-top: 1px solid var(--border);
+    padding: 12px 16px;
+  }
+
+  .log-label {
+    font-size: 9px;
+    color: var(--muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  #log {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    max-height: 80px;
+    overflow-y: auto;
+  }
+
+  .log-entry {
+    font-size: 10px;
+    color: var(--muted);
+    border-left: 2px solid var(--border);
+    padding-left: 8px;
+  }
+
+  .log-entry.good { border-color: var(--accent); color: #888; }
+  .log-entry.bad { border-color: var(--accent2); color: #888; }
+
+  /* Game over / win screens */
+  #overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: var(--bg);
+    z-index: 100;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 32px;
+    text-align: center;
+  }
+
+  #overlay.show { display: flex; }
+
+  #overlay-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 48px;
+    letter-spacing: 4px;
+    margin-bottom: 16px;
+    line-height: 1;
+  }
+
+  #overlay-title.win { color: var(--accent); }
+  #overlay-title.lose { color: var(--accent2); }
+
+  #overlay-text {
+    color: #888;
+    font-size: 12px;
+    line-height: 1.8;
+    max-width: 320px;
+    margin-bottom: 24px;
+  }
+
+  #overlay-stats {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 16px 24px;
+    margin-bottom: 24px;
+    width: 100%;
+    max-width: 320px;
+  }
+
+  .final-stat {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    padding: 4px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .final-stat:last-child { border-bottom: none; }
+  .final-stat-label { color: var(--muted); }
+  .final-stat-value { color: var(--accent); font-weight: 700; }
+
+  #restart-btn {
+    background: transparent;
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    padding: 14px 32px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px;
+    letter-spacing: 3px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  #restart-btn:active { background: var(--accent); color: var(--bg); }
+
+  /* Intro screen */
+  #intro {
+    display: flex;
+    position: fixed;
+    inset: 0;
+    background: var(--bg);
+    z-index: 200;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 32px;
+    text-align: center;
+  }
+
+  #intro-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 52px;
+    letter-spacing: 6px;
+    color: var(--accent);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  #intro-sub {
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 32px;
+  }
+
+  #intro-text {
+    color: #777;
+    font-size: 12px;
+    line-height: 1.8;
+    max-width: 320px;
+    margin-bottom: 32px;
+  }
+
+  #intro-text span { color: var(--accent); }
+
+  #start-btn {
+    background: var(--accent);
+    color: var(--bg);
+    border: none;
+    padding: 16px 40px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    letter-spacing: 4px;
+    cursor: pointer;
+    transition: all 0.15s;
+    margin-bottom: 16px;
+  }
+
+  #start-btn:active { transform: scale(0.97); }
+
+  #intro-warning {
+    font-size: 10px;
+    color: var(--muted);
+    max-width: 280px;
+    line-height: 1.6;
+  }
+
+  .blink {
+    animation: blink 1.2s step-end infinite;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+
+  #week-badge {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 4px 10px;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 1px;
+  }
+</style>
+</head>
+<body>
+
+<!-- Intro -->
+<div id="intro">
+  <div id="intro-title">EMPIRE<br>ARCHITECT</div>
+  <div id="intro-sub">A game built for one person</div>
+  <div id="intro-text">
+    You start with <span>$16</span>.<br>
+    One brand. One supplier. One payment processor.<br>
+    Every single point of failure.<br><br>
+    Your mission: build an antifragile empire.<br>
+    Multiple branches. No single collapse can take it down.<br><br>
+    The market is ruthless. So are the decisions.
+  </div>
+  <button id="start-btn" onclick="startGame()">BEGIN</button>
+  <div id="intro-warning">This game will not flatter you. Wrong decisions have real consequences. Some correct-feeling decisions will destroy you.</div>
+</div>
+
+<!-- Game UI -->
+<div id="game">
+  <div id="header">
+    <div>
+      <div id="title">EMPIRE</div>
+      <div id="week-badge">WEEK <span id="week-num">1</span></div>
+    </div>
+    <div id="stats">
+      <div class="stat">
+        <div class="stat-label">CASH</div>
+        <div class="stat-value" id="stat-cash">$16</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">PROFIT/MO</div>
+        <div class="stat-value" id="stat-profit">$0</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">STABILITY</div>
+        <div class="stat-value" id="stat-stability">12%</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="empire-bar">
+    <div class="empire-label">Empire Branches</div>
+    <div id="branches">
+      <div class="branch building" id="branch-fm">FIREMOTO</div>
+      <div class="branch" id="branch-dnc">DNC</div>
+      <div class="branch" id="branch-lc">LONELY CHAPTER</div>
+      <div class="branch" id="branch-ver">VERONIUM</div>
+      <div class="branch" id="branch-pod">PODZTER</div>
+    </div>
+  </div>
+
+  <div id="main">
+    <div id="scenario-box">
+      <div id="scenario-tag">SCENARIO</div>
+      <div id="scenario-title"></div>
+      <div id="scenario-text"></div>
+    </div>
+
+    <div id="choices"></div>
+
+    <div id="outcome-box">
+      <div id="outcome-tag"></div>
+      <div id="outcome-text"></div>
+      <div id="stat-changes"></div>
+      <button id="next-btn" onclick="nextScenario()">NEXT MOVE ▶</button>
+    </div>
+  </div>
+
+  <div id="log-section">
+    <div class="log-label">Empire Log</div>
+    <div id="log"></div>
+  </div>
+</div>
+
+<!-- Game Over / Win -->
+<div id="overlay">
+  <div id="overlay-title"></div>
+  <div id="overlay-text"></div>
+  <div id="overlay-stats">
+    <div class="final-stat"><span class="final-stat-label">Weeks Survived</span><span class="final-stat-value" id="final-weeks">0</span></div>
+    <div class="final-stat"><span class="final-stat-label">Peak Cash</span><span class="final-stat-value" id="final-cash">$0</span></div>
+    <div class="final-stat"><span class="final-stat-label">Branches Built</span><span class="final-stat-value" id="final-branches">0</span></div>
+    <div class="final-stat"><span class="final-stat-label">Monthly Profit</span><span class="final-stat-value" id="final-profit">$0</span></div>
+  </div>
+  <button id="restart-btn" onclick="restartGame()">REBUILD ↺</button>
+</div>
+
+<script>
+// Game State
+let state = {};
+
+function initState() {
+  state = {
+    cash: 16,
+    monthlyProfit: 0,
+    stability: 12,
+    week: 1,
+    scenarioIndex: 0,
+    peakCash: 16,
+    branches: { fm: 'building', dnc: false, lc: false, ver: false, pod: false },
+    flags: {},
+    log: []
+  };
+}
+
+// All scenarios
+const scenarios = [
+  {
+    tag: 'SUPPLIER',
+    title: 'Kashif Is Back From Eid',
+    text: 'Kashif responds. He can fulfill your top 3 products immediately. He offers $2,000 credit to get you started faster, or you can wait for your first Shopify payouts before ordering.',
+    choices: [
+      {
+        label: 'Take the credit. Move faster.',
+        text: 'Use $1,500 credit to fulfill first orders immediately. Ship in 3-5 days instead of 7-14.',
+        outcome: { type: 'neutral', title: 'CALCULATED RISK', text: 'Smart move — but you\'re back on credit. The cycle that broke you before starts here. You ship fast, get good reviews, cash starts moving. Pay it back the moment Shopify pays you. Don\'t wait.', cash: 800, profit: 200, stability: 5, log: 'Took supplier credit. Clock is ticking.', logType: 'neutral' }
+      },
+      {
+        label: 'Zero credit. Wait for payouts.',
+        text: 'Stick to your principles. Customers wait 7-14 days. You sleep at night.',
+        outcome: { type: 'good', title: 'DISCIPLINE WINS', text: 'Slower start. A few customers email asking where their order is. But your PPF handles it. Payout clears in 7 days. You pay Kashif. He ships. The cycle works exactly as designed. No debt. Clean.', cash: 400, profit: 150, stability: 12, log: 'Zero credit model confirmed. Cycle working.', logType: 'good' }
+      }
+    ]
+  },
+  {
+    tag: 'MARKETING',
+    title: 'The Email Campaign Landed',
+    text: '64 opens. 19 clicks. 3 orders in the first 48 hours. Small but real. You\'re about to send Email 2 — the offer. A friend suggests running a 20% off sale to drive more conversions.',
+    choices: [
+      {
+        label: 'Send the sale. Need the orders.',
+        text: 'Discount gets more conversions but trains your list to wait for sales.',
+        outcome: { type: 'bad', title: 'SHORT TERM THINKING', text: 'You get 8 orders instead of 3. Feels good. But you just taught 242 people that Firemoto goes on sale. Next full-price campaign converts at half the rate. Margin takes a hit. Old habits die hard.', cash: 600, profit: -30, stability: -5, log: 'Ran discount. List trained to wait for sales.', logType: 'bad' }
+      },
+      {
+        label: 'Full price. Value-first email.',
+        text: 'Send Email 2 as planned. No discount. Let the product speak.',
+        outcome: { type: 'good', title: 'BRAND INTEGRITY', text: '5 more orders at full margin. Not explosive, but every dollar is clean profit. Your list learns Firemoto doesn\'t beg. That builds something discounts can\'t buy.', cash: 900, profit: 250, stability: 8, log: 'Full price held. Brand integrity intact.', logType: 'good' }
+      }
+    ]
+  },
+  {
+    tag: 'OPERATIONS',
+    title: 'Shopify Sends A Warning',
+    text: 'You get an email. Shopify\'s risk team has flagged your new store as potentially linked to a previous account with chargeback history. They\'re giving you 72 hours to respond before review.',
+    choices: [
+      {
+        label: 'Ignore it. Keep selling.',
+        text: 'It\'s probably automated. Nothing will happen.',
+        outcome: { type: 'bad', title: 'MISTAKE', text: 'Store gets frozen on day 4. $1,200 in pending payouts locked. You know this feeling. It never gets easier. Should have responded.', cash: -1200, profit: -200, stability: -20, log: 'Store frozen. Ignored Shopify warning.', logType: 'bad' }
+      },
+      {
+        label: 'Respond immediately. Be transparent.',
+        text: 'Write a clear response. Explain the new business model. Show the zero-credit cycle.',
+        outcome: { type: 'good', title: 'HANDLED', text: 'Shopify reviews and approves. They note your account for monitoring but no freeze. You stay live. Crisis managed through honesty and speed — same way you should run everything.', cash: 0, profit: 0, stability: 15, log: 'Shopify warning handled. Store stays live.', logType: 'good' }
+      }
+    ]
+  },
+  {
+    tag: 'DISTRACTION',
+    title: 'A New Idea Hits Hard',
+    text: 'You\'re on a walk with Poley. A business idea hits you so hard you stop walking. It\'s not Firemoto, DNC, or anything on the diagram. It\'s something completely new. You\'re certain it\'s a million dollar idea.',
+    choices: [
+      {
+        label: 'Drop everything. This is the one.',
+        text: 'The feeling is too strong. Start building immediately.',
+        outcome: { type: 'bad', title: 'SHINY OBJECT', text: 'You spend 3 weeks building something new. Firemoto loses momentum. The idea turns out to be a distraction. You\'ve been here before. The idea wasn\'t bad — the timing was. Back to zero on Firemoto traction.', cash: -300, profit: -100, stability: -15, log: 'Chased new idea. Lost Firemoto momentum.', logType: 'bad' }
+      },
+      {
+        label: 'Write it down. Vault it. Stay focused.',
+        text: 'The vault exists for a reason. Trust the system.',
+        outcome: { type: 'good', title: 'DISCIPLINE', text: 'You write three pages about the idea. It\'s good. Maybe great. But Firemoto isn\'t a tree yet. The vault holds it safely. You return to building. The idea will still be there when you\'re ready.', cash: 0, profit: 50, stability: 10, log: 'New idea vaulted. Focus maintained.', logType: 'good' }
+      }
+    ]
+  },
+  {
+    tag: 'CASH FLOW',
+    title: 'Orders Are Coming In',
+    text: 'Week 3. You have 14 orders. Shopify payout of $1,800 is 3 days away. Kashif needs payment now to start production. Your personal bills are also due.',
+    choices: [
+      {
+        label: 'Pay yourself first. Bills are urgent.',
+        text: 'Cover your living costs. Pay Kashif when the next payout comes.',
+        outcome: { type: 'bad', title: 'WRONG ORDER', text: 'Kashif waits. Production delays. Customers start asking where their orders are. Two chargebacks filed. The spiral you know too well starts spinning again. Pay the machine before you pay yourself.', cash: -200, profit: -150, stability: -18, log: 'Paid self before supplier. Chargebacks incoming.', logType: 'bad' }
+      },
+      {
+        label: 'Pay Kashif first. Machine before operator.',
+        text: 'The empire feeds itself before it feeds you.',
+        outcome: { type: 'good', title: 'RIGHT ORDER', text: 'Kashif ships. Orders arrive within window. Zero chargebacks. Your bills are 3 days late but paid when the payout clears. Uncomfortable but correct. The machine runs.', cash: 600, profit: 300, stability: 12, log: 'Machine paid first. Cycle clean.', logType: 'good' }
+      }
+    ]
+  },
+  {
+    tag: 'PEOPLE',
+    title: 'Old Employee Reaches Out',
+    text: 'One of your former VAs messages you. They heard Firemoto is back. They want to come back. They were good. They were also expensive at the time.',
+    choices: [
+      {
+        label: 'Hire them back immediately.',
+        text: 'You know their work. Skip the VA search.',
+        outcome: { type: 'neutral', title: 'TRUST COSTS MONEY', text: 'They\'re as good as you remembered. But $1,000/month overhead before you\'re profitable is the same mistake from before. Empire needs to be generating consistent profit before adding payroll. Good person, wrong time.', cash: -1000, profit: -80, stability: -5, log: 'Rehired VA early. Overhead increased.', logType: 'neutral' }
+      },
+      {
+        label: 'Tell them you\'ll reach out when ready.',
+        text: 'Keep the door open. Wait until the machine can support it.',
+        outcome: { type: 'good', title: 'PATIENCE', text: 'They understand. You handle customer service manually for now with canned templates. Lean is survivable. You make a note: this person gets first call when profit is consistent. Relationships preserved, overhead controlled.', cash: 0, profit: 80, stability: 8, log: 'VA offer deferred. Overhead controlled.', logType: 'good' }
+      }
+    ]
+  },
+  {
+    tag: 'AFFILIATE',
+    title: 'One Of Your Affiliates Goes Viral',
+    text: 'An affiliate posts a Reel wearing the Shiny Side Up hoodie. It hits 200K views overnight. Your store gets 800 visitors in 24 hours. You have limited inventory capacity right now.',
+    choices: [
+      {
+        label: 'Take all orders. Figure out fulfillment later.',
+        text: 'You can\'t turn away this opportunity.',
+        outcome: { type: 'bad', title: 'OVERPROMISED', text: 'You take 60 orders. Kashif can only handle 20 per week at current capacity. Customers wait 4-5 weeks. Chargebacks flood in. The viral moment becomes a reputation crisis. Scaling without infrastructure breaks things.', cash: -800, profit: -200, stability: -22, log: 'Viral spike. Over-committed. Chargebacks.', logType: 'bad' }
+      },
+      {
+        label: 'Cap orders. Add waitlist. Communicate clearly.',
+        text: 'Underpromise, overdeliver. Scarcity is real anyway.',
+        outcome: { type: 'good', title: 'CONTROLLED GROWTH', text: 'You take 20 orders. Put 40 more on a waitlist. The waitlist email gets a 60% open rate. You contact Kashif about scaling capacity. The viral moment becomes a pipeline, not a crisis. Elegant.', cash: 1800, profit: 400, stability: 15, log: 'Viral spike handled. Waitlist built. No over-commitment.', logType: 'good' }
+      }
+    ]
+  },
+  {
+    tag: 'EMPIRE',
+    title: 'Firemoto Is Generating Profit',
+    text: 'Month 2. Firemoto is clearing $800/month in actual profit after all costs. Small but real. You have $3,200 saved. You feel the pull to test DNC. But Firemoto still has no backup supplier and no backup payment processor.',
+    choices: [
+      {
+        label: 'Start testing DNC now. Time to build.',
+        text: 'Firemoto is working. Time to plant the next seed.',
+        outcome: { type: 'neutral', title: 'EMPIRE THINKING BUT EARLY', text: 'DNC validation starts. But 2 weeks later Firemoto\'s Stripe account gets flagged for a routine review. You have no backup processor. Revenue stops for 9 days. The empire can\'t grow on a single pillar that still has single points of failure.', cash: -600, profit: -100, stability: -10, log: 'Started DNC too early. FM still fragile.', logType: 'neutral' }
+      },
+      {
+        label: 'Fortify Firemoto first. Then expand.',
+        text: 'Add backup processor. Find backup supplier. Then plant seeds.',
+        outcome: { type: 'good', title: 'ARCHITECT THINKING', text: 'You spend 2 weeks adding PayPal as backup processor and identifying a second supplier. Costs $200. When Stripe reviews your account, PayPal keeps revenue flowing. Firemoto survives its first real test as an antifragile branch. Now you can build.', cash: -200, profit: 100, stability: 25, log: 'FM fortified. Backup systems added. Ready to expand.', logType: 'good', unlockBranch: 'dnc' }
+      }
+    ]
+  },
+  {
+    tag: 'IDENTITY',
+    title: 'A "Guru" Offers Partnership',
+    text: 'A motorcycle influencer with 80K followers wants to collab. He wants 30% revenue share, his name on a product, and creative control over the campaign. His audience is perfect.',
+    choices: [
+      {
+        label: 'Take the deal. 80K followers is huge.',
+        text: 'The exposure could change everything.',
+        outcome: { type: 'bad', title: 'WRONG TERMS', text: '30% revenue share on already thin margins means you\'re working for him. Creative control means your brand voice gets diluted. After 2 months the collab ends. You\'ve made $400 and lost something harder to measure — brand clarity.', cash: 400, profit: -60, stability: -8, log: 'Bad partnership deal. Margins and brand both took hits.', logType: 'bad' }
+      },
+      {
+        label: 'Counter: 15% affiliate, you keep creative control.',
+        text: 'Your brand, your terms. He earns when you earn.',
+        outcome: { type: 'good', title: 'SOVEREIGN TERMS', text: 'He thinks about it. Comes back and agrees. The campaign runs in your voice. Converts well. He makes $600 in commissions. You make $2,400 in profit. He becomes one of your top 5 affiliates. This is how partnerships should work.', cash: 2400, profit: 350, stability: 10, log: 'Partnership on own terms. 15% affiliate deal.', logType: 'good' }
+      }
+    ]
+  },
+  {
+    tag: 'SCALE',
+    title: 'DNC Gets Its First Paying Users',
+    text: 'DNC validation ads worked. You have 40 people on a waitlist and 8 paying beta users at $29/month. That\'s $232 MRR. Tiny — but it\'s recurring revenue with zero COGS. You could scale ads now or build the product more before scaling.',
+    choices: [
+      {
+        label: 'Scale ads immediately. Capture the market.',
+        text: 'Strike while the iron is hot.',
+        outcome: { type: 'bad', title: 'SCALING BROKE THINGS', text: 'You scale to $800/month ad spend. Signups come. But the product has gaps — customer support gets overwhelmed, refunds start coming in. Scaling an imperfect product burns money and reputation simultaneously. You\'ve seen this before with FM.', cash: -1200, profit: -100, stability: -12, log: 'Scaled DNC too fast. Product gaps exposed.', logType: 'bad' }
+      },
+      {
+        label: 'Build with the 8 users. Scale when tight.',
+        text: 'Let them break it. Fix it. Then scale.',
+        outcome: { type: 'good', title: 'PRODUCT FIRST', text: '6 weeks of building with real users. NPS goes from 6 to 9. Churn drops to near zero. You now have a product you can confidently scale. 8 users becomes 40. MRR hits $1,160. The empire grows a real branch.', cash: 800, profit: 500, stability: 18, log: 'DNC product tightened. MRR growing cleanly.', logType: 'good', unlockBranch: 'dnc' }
+      }
+    ]
+  },
+  {
+    tag: 'MILESTONE',
+    title: 'The Quiet Moment',
+    text: 'It\'s a Tuesday. Firemoto cleared $1,400 profit last month. DNC is at $1,160 MRR. Combined you made $2,560 in profit. Nothing went catastrophically wrong. You paid yourself for the first time in months. Poley is asleep on your desk.',
+    choices: [
+      {
+        label: 'This is just the beginning. More. Faster.',
+        text: 'No time to appreciate it. Next branch now.',
+        outcome: { type: 'neutral', title: 'THE HAMSTER WHEEL', text: 'You start Lonely Chapter immediately. Too much at once. Quality on all fronts dips. You\'re back in chaos mode. The empire grows but the operator is fraying again. Sound familiar?', cash: 500, profit: 100, stability: -10, log: 'Moved too fast. Quality dipping.', logType: 'neutral' }
+      },
+      {
+        label: 'Sit with it. Just for a moment.',
+        text: 'The version of you who already has the empire doesn\'t chase. He builds.',
+        outcome: { type: 'good', title: 'THE ARRIVAL', text: 'You spend a week making both operations airtight before adding anything new. You write in your journal. You take Poley on a longer walk. You feel, for the first time in a long time, like you\'re building from solid ground instead of running from quicksand. This is what stability feels like.', cash: 200, profit: 200, stability: 20, log: 'Consolidated before expanding. Stable ground.', logType: 'good', unlockBranch: 'lc' }
+      }
+    ]
+  },
+  {
+    tag: 'LEGACY',
+    title: 'The Empire Is Taking Shape',
+    text: 'Month 6. Firemoto: $1,800/mo profit. DNC: $2,400 MRR. Lonely Chapter just launched with 12 founding members. Three branches. Multiple payment processors. Two suppliers. No single point of failure left. You look at the diagram you drew. It\'s happening.',
+    choices: [
+      {
+        label: 'Time to buy a Porsche.',
+        text: 'You earned it.',
+        outcome: { type: 'bad', title: 'NOT YET', text: 'The Porsche payment drains $18K from your war chest. Three weeks later DNC has a bad month and FM needs a supplier advance. The war chest was your safety net. The empire doesn\'t need you in a Porsche. It needs you thinking clearly.', cash: -18000, profit: -200, stability: -20, log: 'War chest drained on lifestyle. Vulnerable again.', logType: 'bad' }
+      },
+      {
+        label: 'Reinvest everything. Build the next branch.',
+        text: 'Veronium has been in the vault long enough.',
+        outcome: { type: 'good', title: 'THE ARCHITECT PLAYS THE LONG GAME', text: 'You allocate $5K to Veronium validation. The rest stays in the war chest. The empire grows another branch. You\'re not yet the man at the bar in the fancy outfit feeling like a king. You\'re something quieter and more powerful — an architect watching his blueprint become real.', cash: -5000, profit: 600, stability: 15, log: 'War chest protected. Veronium validation started.', logType: 'good', unlockBranch: 'ver' }
+      }
+    ]
+  }
+];
+
+let currentScenario = null;
+let choicesMade = 0;
+
+function startGame() {
+  document.getElementById('intro').style.display = 'none';
+  initState();
+  updateUI();
+  loadScenario(0);
+}
+
+function loadScenario(index) {
+  if (index >= scenarios.length) {
+    triggerWin();
+    return;
+  }
+  currentScenario = scenarios[index];
+  state.scenarioIndex = index;
+
+  document.getElementById('scenario-tag').textContent = currentScenario.tag;
+  document.getElementById('scenario-title').textContent = currentScenario.title;
+  document.getElementById('scenario-text').textContent = currentScenario.text;
+
+  const choicesEl = document.getElementById('choices');
+  choicesEl.innerHTML = '';
+
+  currentScenario.choices.forEach((choice, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn';
+    btn.innerHTML = `<div class="choice-label">OPTION ${i + 1}</div>${choice.text}`;
+    btn.onclick = () => makeChoice(i);
+    choicesEl.appendChild(btn);
+  });
+
+  document.getElementById('outcome-box').classList.remove('show');
+  document.getElementById('choices').style.display = 'flex';
+}
+
+function makeChoice(choiceIndex) {
+  const choice = currentScenario.choices[choiceIndex];
+  const outcome = choice.outcome;
+
+  // Apply stat changes
+  state.cash += outcome.cash || 0;
+  state.monthlyProfit += outcome.profit || 0;
+  state.stability += outcome.stability || 0;
+  state.stability = Math.max(0, Math.min(100, state.stability));
+
+  if (state.cash > state.peakCash) state.peakCash = state.cash;
+
+  // Unlock branches
+  if (outcome.unlockBranch) {
+    state.branches[outcome.unlockBranch] = true;
+  }
+
+  // Add to log
+  addLog(outcome.log, outcome.logType);
+
+  // Show outcome
+  const outcomeBox = document.getElementById('outcome-box');
+  const outcomeTag = document.getElementById('outcome-tag');
+  const outcomeText = document.getElementById('outcome-text');
+  const statChanges = document.getElementById('stat-changes');
+
+  outcomeTag.textContent = outcome.title;
+  outcomeTag.className = 'outcome-tag ' + (outcome.type === 'good' ? 'good' : outcome.type === 'bad' ? 'bad' : 'neutral');
+  outcomeText.textContent = outcome.text;
+
+  statChanges.innerHTML = '';
+  if (outcome.cash !== 0) {
+    const el = document.createElement('div');
+    el.className = 'stat-change ' + (outcome.cash > 0 ? 'up' : 'down');
+    el.textContent = (outcome.cash > 0 ? '+' : '') + '$' + Math.abs(outcome.cash) + ' CASH';
+    statChanges.appendChild(el);
+  }
+  if (outcome.profit !== 0) {
+    const el = document.createElement('div');
+    el.className = 'stat-change ' + (outcome.profit > 0 ? 'up' : 'down');
+    el.textContent = (outcome.profit > 0 ? '+' : '') + '$' + Math.abs(outcome.profit) + ' PROFIT';
+    statChanges.appendChild(el);
+  }
+  if (outcome.stability !== 0) {
+    const el = document.createElement('div');
+    el.className = 'stat-change ' + (outcome.stability > 0 ? 'up' : 'down');
+    el.textContent = (outcome.stability > 0 ? '+' : '') + outcome.stability + '% STABILITY';
+    statChanges.appendChild(el);
+  }
+
+  document.getElementById('choices').style.display = 'none';
+  outcomeBox.classList.add('show');
+
+  updateUI();
+  choicesMade++;
+
+  // Check game over
+  if (state.cash < -5000 || state.stability <= 0) {
+    setTimeout(triggerGameOver, 1500);
+  }
+}
+
+function nextScenario() {
+  state.week += 2;
+  loadScenario(state.scenarioIndex + 1);
+  updateUI();
+  window.scrollTo(0, 0);
+}
+
+function updateUI() {
+  document.getElementById('week-num').textContent = state.week;
+  document.getElementById('stat-cash').textContent = '$' + state.cash.toLocaleString();
+  document.getElementById('stat-cash').className = 'stat-value' + (state.cash < 0 ? ' danger' : state.cash > 5000 ? ' gold' : '');
+  document.getElementById('stat-profit').textContent = '$' + state.monthlyProfit.toLocaleString();
+  document.getElementById('stat-profit').className = 'stat-value' + (state.monthlyProfit < 0 ? ' danger' : state.monthlyProfit > 500 ? ' gold' : '');
+  document.getElementById('stat-stability').textContent = state.stability + '%';
+  document.getElementById('stat-stability').className = 'stat-value' + (state.stability < 20 ? ' danger' : state.stability > 60 ? ' gold' : '');
+
+  // Update branches
+  Object.keys(state.branches).forEach(key => {
+    const el = document.getElementById('branch-' + key);
+    if (!el) return;
+    el.className = 'branch';
+    if (state.branches[key] === 'building') el.classList.add('building');
+    else if (state.branches[key] === true) el.classList.add('active');
+  });
+}
+
+function addLog(text, type) {
+  state.log.unshift({ text, type });
+  if (state.log.length > 8) state.log.pop();
+
+  const logEl = document.getElementById('log');
+  logEl.innerHTML = '';
+  state.log.forEach(entry => {
+    const el = document.createElement('div');
+    el.className = 'log-entry ' + (entry.type || '');
+    el.textContent = '→ ' + entry.text;
+    logEl.appendChild(el);
+  });
+}
+
+function triggerGameOver() {
+  const overlay = document.getElementById('overlay');
+  document.getElementById('overlay-title').textContent = 'COLLAPSED';
+  document.getElementById('overlay-title').className = 'lose';
+  document.getElementById('overlay-text').textContent = 'The empire fell. Not because you weren\'t capable — you clearly are. But somewhere a single point of failure wasn\'t addressed, or survival mode crept back in. You know what broke it. You always do. Rebuild. This time, armed with that knowledge.';
+  document.getElementById('final-weeks').textContent = state.week;
+  document.getElementById('final-cash').textContent = '$' + state.peakCash.toLocaleString();
+  document.getElementById('final-branches').textContent = Object.values(state.branches).filter(v => v === true).length;
+  document.getElementById('final-profit').textContent = '$' + state.monthlyProfit.toLocaleString() + '/mo';
+  overlay.classList.add('show');
+}
+
+function triggerWin() {
+  const overlay = document.getElementById('overlay');
+  document.getElementById('overlay-title').textContent = 'EMPIRE BUILT';
+  document.getElementById('overlay-title').className = 'win';
+  document.getElementById('overlay-text').textContent = 'Multiple branches. Multiple processors. No single point of failure. The diagram on the notebook is real now. This wasn\'t luck. This was architecture. The missions — the rainforests, the dolphins, the pyramids, the free internet — they\'re now funded by something that can\'t be taken down overnight. You built it. You always could.';
+  document.getElementById('final-weeks').textContent = state.week;
+  document.getElementById('final-cash').textContent = '$' + state.peakCash.toLocaleString();
+  document.getElementById('final-branches').textContent = Object.values(state.branches).filter(v => v === true).length;
+  document.getElementById('final-profit').textContent = '$' + state.monthlyProfit.toLocaleString() + '/mo';
+  overlay.classList.add('show');
+}
+
+function restartGame() {
+  document.getElementById('overlay').classList.remove('show');
+  initState();
+  updateUI();
+  loadScenario(0);
+  document.getElementById('log').innerHTML = '';
+}
+</script>
+</body>
+</html>
