@@ -891,6 +891,42 @@
     transform: none;
   }
 
+  /* VIDEO SECTION */
+.video-section {
+  padding: 0 48px 60px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.container-video {
+  width: 100%;
+}
+
+.video-wrapper {
+  position: relative;
+  background: var(--ink);
+  border: 1px solid var(--border);
+}
+
+video {
+  display: block;
+  outline: none;
+}
+
+.video-caption {
+  font-size: 0.75rem;
+  text-align: center;
+  margin-top: 16px;
+  color: var(--muted);
+  letter-spacing: 0.04em;
+}
+
+@media (max-width: 900px) {
+  .video-section {
+    padding: 0 24px 40px;
+  }
+}
+
   /* ── RESPONSIVE ── */
   @media (max-width: 900px) {
     nav { padding: 20px 24px; }
@@ -936,6 +972,24 @@
     <p class="hero-note">Vetted applications only &mdash; $10K+/mo revenue</p>
   </div>
   <span class="hero-scroll-hint">Scroll</span>
+</section>
+
+  <!-- VIDEO SECTION -->
+<section class="video-section reveal">
+  <div class="container-video">
+    <div class="video-wrapper">
+      <video 
+        poster="https://exoshell.space/lonelychapter-poster.jpg" 
+        controls 
+        playsinline 
+        preload="metadata"
+        style="width:100%; height:auto; border-radius:0; border:1px solid var(--border);">
+        <source src="LC-Stage1-Video3.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+      </video>
+    </div>
+    <p class="video-caption">The lonely chapter — named by Alex Hormozi</p>
+  </div>
 </section>
 
 <section class="tweet-section">
