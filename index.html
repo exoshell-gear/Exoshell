@@ -1,628 +1,885 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>EXOSHELL</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Lonely Chapter — The Private Community for Mid-Stage Founders</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:wght@300;400;500&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet" />
 <style>
-:root {
-  --bg: #080808;
-  --text: #f0ede6;
-  --accent: #c8f135;
-  --muted: #4a4a44;
-  --muted2: #2a2a26;
-  --border: rgba(240,237,230,0.08);
-}
+  :root {
+    --black: #0d0c0b;
+    --ink: #1a1814;
+    --amber: #c8922a;
+    --gold: #e8b84b;
+    --warm-white: #f7f2ea;
+    --muted: #6b6458;
+    --faint: #3a3530;
+    --border: rgba(200, 146, 42, 0.2);
+  }
 
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
 
-html { scroll-behavior: smooth; }
+  body {
+    background: var(--black);
+    color: var(--warm-white);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
 
-body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: 'Cormorant Garamond', Georgia, serif;
-  min-height: 100vh;
-  overflow-x: hidden;
-  cursor: crosshair;
-}
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+    opacity: 0.028;
+    pointer-events: none;
+    z-index: 9999;
+  }
 
-/* ── GRAIN OVERLAY ── */
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E");
-  pointer-events: none;
-  z-index: 1000;
-  opacity: 0.4;
-}
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    padding: 22px 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: linear-gradient(to bottom, rgba(13,12,11,0.97) 0%, transparent 100%);
+  }
+  .nav-logo {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.1rem;
+    letter-spacing: 0.04em;
+    color: var(--warm-white);
+    text-decoration: none;
+  }
+  .nav-logo span { color: var(--amber); }
+  .nav-cta {
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--amber);
+    text-decoration: none;
+    border: 1px solid var(--amber);
+    padding: 8px 20px;
+    transition: all 0.2s ease;
+  }
+  .nav-cta:hover { background: var(--amber); color: var(--black); }
 
-/* ── HERO ── */
-#hero {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: flex-start;
-  padding: 80px 60px;
-  position: relative;
-  overflow: hidden;
-}
+  /* BUTTONS */
+  .btn-primary {
+    display: inline-block;
+    background: var(--amber);
+    color: var(--black);
+    font-size: 0.82rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-decoration: none;
+    padding: 15px 36px;
+    transition: all 0.2s ease;
+  }
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 8px 32px rgba(200,146,42,0.3); }
 
-/* Diagonal accent line */
-#hero::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  right: 120px;
-  width: 1px;
-  height: 100%;
-  background: linear-gradient(180deg, transparent, rgba(200,241,53,0.15), transparent);
-  animation: lineReveal 2s ease forwards;
-}
+  .btn-outline {
+    display: inline-block;
+    background: transparent;
+    color: var(--amber);
+    font-size: 0.82rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-decoration: none;
+    padding: 14px 36px;
+    border: 1px solid var(--amber);
+    transition: all 0.2s ease;
+  }
+  .btn-outline:hover { background: var(--amber); color: var(--black); }
 
-@keyframes lineReveal {
-  from { transform: scaleY(0); transform-origin: top; }
-  to { transform: scaleY(1); transform-origin: top; }
-}
+  .section-cta {
+    text-align: center;
+    padding: 40px 24px 0;
+  }
+  .section-cta .sub-note {
+    display: block;
+    margin-top: 12px;
+    font-size: 0.73rem;
+    color: var(--muted);
+    letter-spacing: 0.04em;
+  }
 
-/* Corner markers */
-.corner {
-  position: absolute;
-  width: 20px;
-  height: 20px;
-  opacity: 0;
-  animation: cornerReveal 0.4s ease forwards;
-}
+  .section-divider {
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--border), transparent);
+  }
 
-.corner-tl { top: 30px; left: 30px; border-top: 1px solid rgba(200,241,53,0.4); border-left: 1px solid rgba(200,241,53,0.4); animation-delay: 1.2s; }
-.corner-tr { top: 30px; right: 30px; border-top: 1px solid rgba(200,241,53,0.4); border-right: 1px solid rgba(200,241,53,0.4); animation-delay: 1.3s; }
-.corner-bl { bottom: 30px; left: 30px; border-bottom: 1px solid rgba(200,241,53,0.4); border-left: 1px solid rgba(200,241,53,0.4); animation-delay: 1.4s; }
-.corner-br { bottom: 30px; right: 30px; border-bottom: 1px solid rgba(200,241,53,0.4); border-right: 1px solid rgba(200,241,53,0.4); animation-delay: 1.5s; }
+  .section-label {
+    font-size: 0.68rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--amber);
+    margin-bottom: 12px;
+    display: block;
+  }
 
-@keyframes cornerReveal { to { opacity: 1; } }
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 140px 48px 80px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::after {
+    content: '';
+    position: absolute;
+    bottom: -100px; right: -80px;
+    width: 500px; height: 500px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(200,146,42,0.07) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-eyebrow {
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--amber);
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    opacity: 0;
+    animation: fadeUp 0.7s ease forwards 0.1s;
+  }
+  .hero-eyebrow::before {
+    content: '';
+    display: block;
+    width: 28px; height: 1px;
+    background: var(--amber);
+    flex-shrink: 0;
+  }
+  .hero-headline {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.8rem, 5.5vw, 5.2rem);
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    max-width: 820px;
+    margin-bottom: 28px;
+    opacity: 0;
+    animation: fadeUp 0.8s ease forwards 0.25s;
+  }
+  .hero-headline em { font-style: italic; color: var(--amber); }
+  .hero-sub {
+    font-size: 1rem;
+    color: rgba(247,242,234,0.6);
+    max-width: 540px;
+    line-height: 1.75;
+    margin-bottom: 40px;
+    opacity: 0;
+    animation: fadeUp 0.8s ease forwards 0.4s;
+  }
+  .hero-actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    opacity: 0;
+    animation: fadeUp 0.8s ease forwards 0.55s;
+  }
+  .hero-note {
+    font-size: 0.76rem;
+    color: var(--muted);
+  }
 
-/* Coordinate label */
-.coord {
-  position: absolute;
-  font-family: 'Space Mono', monospace;
-  font-size: 9px;
-  color: var(--muted);
-  letter-spacing: 2px;
-  opacity: 0;
-  animation: fadeUp 0.6s ease forwards;
-}
+  /* VIDEO */
+  .video-section {
+    padding: 0 48px 64px;
+    max-width: 860px;
+    margin: 0 auto;
+  }
+  .video-wrapper {
+    background: var(--ink);
+    border: 1px solid var(--border);
+  }
+  video { display: block; width: 100%; height: auto; outline: none; }
+  .video-caption {
+    font-size: 0.7rem;
+    text-align: center;
+    margin-top: 12px;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
 
-.coord-tl { top: 56px; left: 30px; animation-delay: 1.6s; }
-.coord-br { bottom: 56px; right: 30px; animation-delay: 1.7s; }
+  /* HORMOZI */
+  .hormozi {
+    padding: 64px 48px;
+    max-width: 860px;
+    margin: 0 auto;
+  }
+  .hormozi-card {
+    border: 1px solid var(--border);
+    background: var(--ink);
+    padding: 40px 48px;
+    position: relative;
+  }
+  .hormozi-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(to right, var(--amber), transparent);
+  }
+  .hormozi-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+  }
+  .hormozi-author { display: flex; align-items: center; gap: 12px; }
+  .hormozi-avatar {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--amber), #8b5e1a);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem;
+    color: var(--black);
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .hormozi-author-info strong {
+    display: block;
+    font-size: 0.88rem;
+    font-weight: 500;
+    color: var(--warm-white);
+  }
+  .hormozi-author-info span { font-size: 0.72rem; color: var(--muted); }
+  .hormozi-x { opacity: 0.2; font-size: 1rem; color: var(--warm-white); }
+  .hormozi-body {
+    font-size: 1rem;
+    line-height: 1.8;
+    color: rgba(247,242,234,0.78);
+    font-weight: 300;
+  }
+  .hormozi-body p { margin-bottom: 14px; }
+  .hormozi-body p:last-child { margin-bottom: 0; }
+  .h-gold { color: var(--gold); font-style: italic; }
+  .h-white { color: var(--warm-white); font-weight: 400; }
+  .hormozi-footer {
+    margin-top: 24px;
+    padding-top: 18px;
+    border-top: 1px solid rgba(255,255,255,0.05);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .hormozi-source {
+    font-size: 0.67rem;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+  .hormozi-skool {
+    font-size: 0.67rem;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+  .hormozi-skool strong { color: var(--amber); font-weight: 500; }
 
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(4px); }
-  to { opacity: 1; transform: translateY(0); }
-}
+  .jay-pullquote {
+    margin-top: 2px;
+    border-left: 2px solid var(--faint);
+    padding: 18px 0 18px 28px;
+  }
+  .jay-pullquote p {
+    font-size: 0.92rem;
+    color: rgba(247,242,234,0.48);
+    font-style: italic;
+    line-height: 1.7;
+    margin-bottom: 8px;
+  }
+  .jay-pullquote p em { color: rgba(247,242,234,0.72); }
+  .jay-pullquote cite {
+    font-size: 0.67rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--faint);
+    font-style: normal;
+  }
 
-/* Main wordmark */
-#wordmark {
-  opacity: 0;
-  animation: fadeUp 0.8s ease 0.2s forwards;
-}
+  /* BENEFITS */
+  .benefits {
+    padding: 64px 48px;
+    max-width: 860px;
+    margin: 0 auto;
+  }
+  .benefits-header {
+    margin-bottom: 32px;
+  }
+  .benefits-header h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+    font-weight: 600;
+    line-height: 1.2;
+  }
+  .benefits-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: rgba(255,255,255,0.05);
+  }
+  .benefit-item {
+    background: var(--black);
+    padding: 18px 22px;
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    transition: background 0.2s;
+  }
+  .benefit-item:hover { background: var(--ink); }
+  .benefit-dot {
+    width: 6px; height: 6px;
+    background: var(--amber);
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 8px;
+  }
+  .benefit-text {
+    font-size: 0.92rem;
+    color: rgba(247,242,234,0.8);
+    line-height: 1.5;
+    font-weight: 400;
+  }
 
-#exo {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: clamp(100px, 18vw, 220px);
-  letter-spacing: -4px;
-  line-height: 0.85;
-  color: var(--text);
-  display: block;
-}
+  /* WHO */
+  .who {
+    padding: 64px 48px;
+    background: var(--ink);
+  }
+  .who-inner { max-width: 860px; margin: 0 auto; }
+  .who-header { margin-bottom: 32px; }
+  .who-header h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+    font-weight: 600;
+    line-height: 1.2;
+    margin-bottom: 8px;
+  }
+  .who-header h2 em { font-style: italic; color: var(--amber); }
+  .who-header p { font-size: 0.88rem; color: var(--muted); }
 
-#shell {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: clamp(100px, 18vw, 220px);
-  letter-spacing: -4px;
-  line-height: 0.85;
-  color: transparent;
-  -webkit-text-stroke: 1px rgba(240,237,230,0.25);
-  display: block;
-}
+  .who-list {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: rgba(255,255,255,0.04);
+  }
+  .who-item {
+    background: var(--ink);
+    padding: 18px 22px;
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+  }
+  .who-check {
+    width: 18px; height: 18px;
+    border: 1px solid var(--amber);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .who-check::after {
+    content: '';
+    width: 5px; height: 5px;
+    background: var(--amber);
+    border-radius: 50%;
+  }
+  .who-text {
+    font-size: 0.9rem;
+    color: rgba(247,242,234,0.72);
+    line-height: 1.5;
+  }
+  .who-text strong {
+    display: block;
+    color: var(--warm-white);
+    font-weight: 500;
+    margin-bottom: 2px;
+    font-size: 0.92rem;
+  }
 
-/* Accent dot */
-#dot {
-  display: inline-block;
-  width: clamp(12px, 2vw, 20px);
-  height: clamp(12px, 2vw, 20px);
-  background: var(--accent);
-  border-radius: 50%;
-  margin-left: 8px;
-  vertical-align: middle;
-  animation: pulse 3s ease-in-out infinite;
-  animation-delay: 2s;
-}
+  /* PRICING */
+  .pricing {
+    padding: 64px 48px;
+    max-width: 860px;
+    margin: 0 auto;
+  }
+  .pricing-header { margin-bottom: 36px; }
+  .pricing-header h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+    font-weight: 600;
+    line-height: 1.2;
+    margin-bottom: 8px;
+  }
+  .pricing-header p { font-size: 0.88rem; color: var(--muted); }
 
-@keyframes pulse {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.6; transform: scale(0.85); }
-}
+  .pricing-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: rgba(255,255,255,0.05);
+  }
+  .pricing-card {
+    background: var(--black);
+    padding: 36px 28px;
+    position: relative;
+    text-align: center;
+  }
+  .pricing-card.featured {
+    background: var(--ink);
+    border-top: 2px solid var(--amber);
+  }
+  .pricing-card.featured::before {
+    content: 'NOW OPEN';
+    position: absolute;
+    top: -11px; left: 50%; transform: translateX(-50%);
+    background: var(--amber);
+    color: var(--black);
+    font-size: 0.58rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    padding: 3px 12px;
+  }
+  .pricing-tier {
+    font-size: 0.65rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 20px;
+  }
+  .pricing-card.featured .pricing-tier { color: var(--amber); }
+  .pricing-price {
+    font-family: 'Playfair Display', serif;
+    font-size: 3rem;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .pricing-price sup {
+    font-size: 1.1rem;
+    font-weight: 400;
+    vertical-align: top;
+    margin-top: 8px;
+    display: inline-block;
+  }
+  .pricing-period { font-size: 0.73rem; color: var(--muted); margin-bottom: 22px; }
+  .pricing-divider { width: 28px; height: 1px; background: var(--border); margin: 0 auto 18px; }
+  .pricing-feature { font-size: 0.8rem; color: rgba(247,242,234,0.5); margin-bottom: 8px; }
+  .pricing-note {
+    font-size: 0.73rem;
+    color: var(--muted);
+    margin-top: 18px;
+    padding-top: 18px;
+    border-top: 1px solid rgba(255,255,255,0.05);
+    line-height: 1.5;
+  }
+  .pricing-note strong { color: var(--amber); font-weight: 500; }
+  .pricing-badge {
+    display: inline-block;
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    color: var(--amber);
+    border: 1px solid var(--border);
+    padding: 3px 10px;
+    margin-top: 14px;
+    text-transform: uppercase;
+  }
 
-/* Tagline */
-#tagline {
-  margin-top: 40px;
-  opacity: 0;
-  animation: fadeUp 0.8s ease 0.5s forwards;
-}
+  /* FINAL CTA */
+  .final-cta {
+    padding: 96px 48px 80px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    background: var(--ink);
+    border-top: 1px solid var(--border);
+  }
+  .final-cta::before {
+    content: '';
+    position: absolute;
+    top: 50%; left: 50%; transform: translate(-50%,-50%);
+    width: 600px; height: 600px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(200,146,42,0.05) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .final-cta h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 5vw, 4rem);
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    margin-bottom: 18px;
+    max-width: 640px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .final-cta h2 em { font-style: italic; color: var(--amber); }
+  .final-cta p {
+    font-size: 0.95rem;
+    color: rgba(247,242,234,0.55);
+    margin: 0 auto 32px;
+    max-width: 400px;
+    line-height: 1.7;
+  }
+  .final-cta-note {
+    display: block;
+    margin-top: 16px;
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+  }
 
-#tagline-main {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: clamp(18px, 2.5vw, 28px);
-  font-weight: 300;
-  font-style: italic;
-  color: rgba(240,237,230,0.5);
-  letter-spacing: 0.02em;
-  line-height: 1.4;
-  max-width: 500px;
-}
+  /* FOOTER */
+  footer {
+    padding: 28px 48px;
+    border-top: 1px solid rgba(255,255,255,0.05);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .footer-logo { font-family: 'DM Serif Display', serif; font-size: 0.95rem; color: var(--muted); }
+  .footer-logo span { color: var(--amber); }
+  .footer-copy { font-size: 0.7rem; color: var(--faint); letter-spacing: 0.04em; }
 
-#tagline-main span {
-  color: var(--text);
-  font-style: normal;
-  font-weight: 400;
-}
+  /* ANIMATIONS */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .reveal {
+    opacity: 0;
+    transform: translateY(22px);
+    transition: opacity 0.65s ease, transform 0.65s ease;
+  }
+  .reveal.visible { opacity: 1; transform: none; }
 
-/* Status line */
-#status-line {
-  margin-top: 60px;
-  display: flex;
-  align-items: center;
-  gap: 24px;
-  opacity: 0;
-  animation: fadeUp 0.8s ease 0.8s forwards;
-}
-
-.status-dot {
-  width: 6px;
-  height: 6px;
-  background: var(--accent);
-  border-radius: 50%;
-  animation: statusPulse 2s ease-in-out infinite;
-}
-
-@keyframes statusPulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.3; }
-}
-
-#status-text {
-  font-family: 'Space Mono', monospace;
-  font-size: 11px;
-  color: var(--muted);
-  letter-spacing: 2px;
-  text-transform: uppercase;
-}
-
-/* Right side floating element */
-#right-block {
-  position: absolute;
-  right: 60px;
-  bottom: 80px;
-  text-align: right;
-  opacity: 0;
-  animation: fadeUp 0.8s ease 1s forwards;
-}
-
-#right-block-label {
-  font-family: 'Space Mono', monospace;
-  font-size: 9px;
-  color: var(--muted);
-  letter-spacing: 3px;
-  text-transform: uppercase;
-  margin-bottom: 16px;
-}
-
-.venture-line {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 15px;
-  font-weight: 300;
-  color: rgba(240,237,230,0.35);
-  margin-bottom: 6px;
-  letter-spacing: 0.05em;
-  transition: color 0.2s;
-  cursor: default;
-}
-
-.venture-line:hover { color: rgba(240,237,230,0.7); }
-.venture-line.active { color: var(--accent); }
-
-/* ── DIVIDER ── */
-.divider {
-  width: 100%;
-  height: 1px;
-  background: var(--border);
-  position: relative;
-}
-
-.divider::after {
-  content: '';
-  position: absolute;
-  left: 60px;
-  top: 0;
-  width: 60px;
-  height: 1px;
-  background: var(--accent);
-}
-
-/* ── MANIFESTO SECTION ── */
-#manifesto {
-  padding: 120px 60px;
-  max-width: 900px;
-}
-
-.manifesto-label {
-  font-family: 'Space Mono', monospace;
-  font-size: 9px;
-  color: var(--muted);
-  letter-spacing: 3px;
-  text-transform: uppercase;
-  margin-bottom: 48px;
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
-.manifesto-label::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-  background: var(--border);
-  max-width: 80px;
-}
-
-.manifesto-line {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: clamp(28px, 4vw, 48px);
-  font-weight: 300;
-  line-height: 1.25;
-  color: rgba(240,237,230,0.25);
-  margin-bottom: 24px;
-  transition: color 0.3s;
-  cursor: default;
-}
-
-.manifesto-line:hover { color: rgba(240,237,230,0.8); }
-
-.manifesto-line.accent {
-  color: var(--text);
-  font-style: italic;
-}
-
-.manifesto-line .highlight {
-  color: var(--accent);
-  font-style: normal;
-}
-
-/* ── PILLARS SECTION ── */
-#pillars {
-  padding: 80px 60px 120px;
-  border-top: 1px solid var(--border);
-}
-
-.pillars-label {
-  font-family: 'Space Mono', monospace;
-  font-size: 9px;
-  color: var(--muted);
-  letter-spacing: 3px;
-  text-transform: uppercase;
-  margin-bottom: 60px;
-}
-
-.pillars-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 1px;
-  background: var(--border);
-}
-
-.pillar {
-  background: var(--bg);
-  padding: 32px 28px;
-  transition: background 0.2s;
-  cursor: default;
-}
-
-.pillar:hover { background: rgba(200,241,53,0.03); }
-
-.pillar-num {
-  font-family: 'Space Mono', monospace;
-  font-size: 9px;
-  color: var(--muted);
-  letter-spacing: 2px;
-  margin-bottom: 16px;
-}
-
-.pillar-name {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 22px;
-  letter-spacing: 2px;
-  color: var(--text);
-  margin-bottom: 10px;
-}
-
-.pillar-desc {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 15px;
-  font-weight: 300;
-  color: rgba(240,237,230,0.4);
-  line-height: 1.6;
-}
-
-.pillar-status {
-  margin-top: 20px;
-  font-family: 'Space Mono', monospace;
-  font-size: 9px;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-}
-
-.pillar-status.live { color: var(--accent); }
-.pillar-status.testing { color: #f5c842; }
-.pillar-status.building { color: #5599ee; }
-.pillar-status.vault { color: var(--muted); }
-
-/* ── FOOTER ── */
-#footer {
-  border-top: 1px solid var(--border);
-  padding: 40px 60px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-#footer-left {
-  font-family: 'Space Mono', monospace;
-  font-size: 10px;
-  color: var(--muted);
-  letter-spacing: 2px;
-}
-
-#footer-right {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 13px;
-  font-weight: 300;
-  font-style: italic;
-  color: var(--muted);
-}
-
-/* ── SCROLL INDICATOR ── */
-#scroll-indicator {
-  position: absolute;
-  bottom: 40px;
-  left: 60px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  opacity: 0;
-  animation: fadeUp 0.6s ease 1.8s forwards;
-}
-
-#scroll-line {
-  width: 40px;
-  height: 1px;
-  background: var(--muted);
-  position: relative;
-  overflow: hidden;
-}
-
-#scroll-line::after {
-  content: '';
-  position: absolute;
-  left: -100%;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  background: var(--accent);
-  animation: scrollLine 2s ease-in-out infinite;
-  animation-delay: 2s;
-}
-
-@keyframes scrollLine {
-  0% { left: -100%; }
-  50% { left: 0; }
-  100% { left: 100%; }
-}
-
-#scroll-text {
-  font-family: 'Space Mono', monospace;
-  font-size: 9px;
-  color: var(--muted);
-  letter-spacing: 2px;
-  text-transform: uppercase;
-}
-
-/* ── MOBILE ── */
-@media (max-width: 768px) {
-  #hero { padding: 60px 24px; }
-  #manifesto { padding: 80px 24px; }
-  #pillars { padding: 60px 24px 80px; }
-  #footer { padding: 32px 24px; flex-direction: column; gap: 16px; text-align: center; }
-  #right-block { display: none; }
-  #scroll-indicator { left: 24px; }
-  .divider::after { left: 24px; }
-}
-
-/* ── CUSTOM CURSOR DOT ── */
-#cursor {
-  width: 4px;
-  height: 4px;
-  background: var(--accent);
-  border-radius: 50%;
-  position: fixed;
-  pointer-events: none;
-  z-index: 9999;
-  transition: transform 0.1s ease;
-  mix-blend-mode: difference;
-}
+  /* RESPONSIVE */
+  @media (max-width: 768px) {
+    nav { padding: 18px 20px; }
+    .hero { padding: 110px 20px 60px; }
+    .video-section { padding: 0 20px 48px; }
+    .hormozi { padding: 48px 20px; }
+    .hormozi-card { padding: 28px 22px; }
+    .hormozi-footer { flex-direction: column; gap: 8px; align-items: flex-start; }
+    .benefits { padding: 48px 20px; }
+    .benefits-grid { grid-template-columns: 1fr; }
+    .who { padding: 48px 20px; }
+    .who-list { grid-template-columns: 1fr; }
+    .pricing { padding: 48px 20px; }
+    .pricing-cards { grid-template-columns: 1fr; }
+    .final-cta { padding: 64px 20px 52px; }
+    footer { padding: 24px 20px; flex-direction: column; gap: 8px; text-align: center; }
+  }
 </style>
 </head>
 <body>
 
-<div id="cursor"></div>
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo">Lonely<span>.</span>Chapter</a>
+  <a href="lc-apply.html" class="nav-cta">Apply Now</a>
+</nav>
 
 <!-- HERO -->
-<section id="hero">
-  <div class="corner corner-tl"></div>
-  <div class="corner corner-tr"></div>
-  <div class="corner corner-bl"></div>
-  <div class="corner corner-br"></div>
-
-  <div class="coord coord-tl">53.5461° N · 113.4938° W</div>
-  <div class="coord coord-br">EXOSHELL.SPACE · EST. 2026</div>
-
-  <div id="wordmark">
-    <span id="exo">EXO<span id="dot"></span></span>
-    <span id="shell">SHELL</span>
-  </div>
-
-  <div id="tagline">
-    <div id="tagline-main">
-      A system of ventures.<br>
-      Built to fund <span>missions that matter.</span>
-    </div>
-  </div>
-
-  <div id="status-line">
-    <div class="status-dot"></div>
-    <div id="status-text">Empire Active · Building Phase</div>
-  </div>
-
-  <div id="right-block">
-    <div id="right-block-label">Ventures</div>
-    <div class="venture-line active">Firemoto</div>
-    <div class="venture-line">StopTheCalls</div>
-    <div class="venture-line">Lonely Chapter</div>
-    <div class="venture-line">Veronium</div>
-    <div class="venture-line">Podzter</div>
-  </div>
-
-  <div id="scroll-indicator">
-    <div id="scroll-line"></div>
-    <div id="scroll-text">Scroll</div>
+<section class="hero">
+  <p class="hero-eyebrow">Private community · Vetted members</p>
+  <h1 class="hero-headline">
+    The private community<br />for founders <em>stuck between</em><br />$10K and $100K/month.
+  </h1>
+  <p class="hero-sub">
+    You don't fit in with your old friends anymore. You're not ready for the new group yet. That's the lonely chapter — and we built a room for it.
+  </p>
+  <div class="hero-actions">
+    <a href="lc-apply.html" class="btn-primary">Apply for founding access</a>
+    <span class="hero-note">Vetted applications only &mdash; 15–20 founding spots at $79/mo</span>
   </div>
 </section>
 
-<div class="divider"></div>
+<div class="section-divider"></div>
 
-<!-- MANIFESTO -->
-<section id="manifesto">
-  <div class="manifesto-label">Manifesto</div>
-
-  <div class="manifesto-line">This is not a company.</div>
-  <div class="manifesto-line accent">It is an <span class="highlight">architecture.</span></div>
-  <div class="manifesto-line">A system designed so that no single collapse</div>
-  <div class="manifesto-line">can take everything down.</div>
-  <div class="manifesto-line" style="margin-top: 48px;">The money is not the point.</div>
-  <div class="manifesto-line accent">The money is <span class="highlight">the fuel.</span></div>
-  <div class="manifesto-line" style="margin-top: 48px;">Rainforests to protect.</div>
-  <div class="manifesto-line">Animals to free.</div>
-  <div class="manifesto-line">A free internet to build.</div>
-  <div class="manifesto-line accent">Pyramids that haven't given up <span class="highlight">their secrets yet.</span></div>
+<!-- VIDEO -->
+<section class="video-section reveal">
+  <div class="video-wrapper">
+    <video poster="homepage-video-tn.jpeg" controls playsinline preload="metadata">
+      <source src="LC-Video Ads/LC-Stage1-Video3.mp4" type="video/mp4">
+    </video>
+  </div>
+  <p class="video-caption">The lonely chapter — named by Alex Hormozi</p>
 </section>
 
-<div class="divider"></div>
+<div class="section-divider"></div>
 
-<!-- PILLARS -->
-<section id="pillars">
-  <div class="pillars-label">Current Ventures</div>
-
-  <div class="pillars-grid">
-    <div class="pillar">
-      <div class="pillar-num">01</div>
-      <div class="pillar-name">Firemoto</div>
-      <div class="pillar-desc">Motorcycle gear engineered from scratch. The funding engine.</div>
-      <div class="pillar-status live">● Live</div>
+<!-- HORMOZI -->
+<section class="hormozi">
+  <div class="hormozi-card reveal">
+    <div class="hormozi-header">
+      <div class="hormozi-author">
+        <div class="hormozi-avatar">A</div>
+        <div class="hormozi-author-info">
+          <strong>Alex Hormozi</strong>
+          <span>@AlexHormozi</span>
+        </div>
+      </div>
+      <div class="hormozi-x">✕</div>
     </div>
-    <div class="pillar">
-      <div class="pillar-num">02</div>
-      <div class="pillar-name">StopTheCalls</div>
-      <div class="pillar-desc">Legally stop debt collector harassment. Automated. Instant.</div>
-      <div class="pillar-status testing">● Validating</div>
+    <div class="hormozi-body">
+      <p><span class="h-gold">"Every single person who wants to do something with their life has gone through the lonely chapter.</span> You don't fit in with your old friends anymore. You're not ready for the new group of friends yet.</p>
     </div>
-    <div class="pillar">
-      <div class="pillar-num">03</div>
-      <div class="pillar-name">Lonely Chapter</div>
-      <div class="pillar-desc">A vetted community for founders who are serious.</div>
-      <div class="pillar-status testing">● Validating</div>
-    </div>
-    <div class="pillar">
-      <div class="pillar-num">04</div>
-      <div class="pillar-name">Veronium</div>
-      <div class="pillar-desc">Turn your life into a game. Built for one. Released for many.</div>
-      <div class="pillar-status live">● Live</div>
-    </div>
-    <div class="pillar">
-      <div class="pillar-num">05</div>
-      <div class="pillar-name">Podzter</div>
-      <div class="pillar-desc">Podcast collaboration and strategic connection.</div>
-      <div class="pillar-status vault">○ Vault</div>
-    </div>
-    <div class="pillar">
-      <div class="pillar-num">∞</div>
-      <div class="pillar-name">What's Next</div>
-      <div class="pillar-desc">The market decides. The architect builds. Always testing.</div>
-      <div class="pillar-status vault">○ Always</div>
+    <div class="hormozi-footer">
+      <span class="hormozi-source">@AlexHormozi · Public tweet</span>
+      <span class="hormozi-skool">Built on <strong>Skool</strong> — Hormozi's platform</span>
     </div>
   </div>
+
+  <div class="jay-pullquote reveal">
+    <p>"The hardest part isn't the work. It's the lonely phase. If you're not seeing signs of success — <em>the sign of success is the hate you get along the way.</em>"</p>
+    <cite>— Jay, founder · 3 years building</cite>
+  </div>
+
+  <div class="section-cta reveal">
+    <a href="lc-apply.html" class="btn-outline">Apply for access →</a>
+    <span class="sub-note">$10K+/month revenue required</span>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- WHAT YOU GET -->
+<section class="benefits">
+  <div class="benefits-header reveal">
+    <span class="section-label">What you get</span>
+    <h2>Everything in one room.</h2>
+  </div>
+  <div class="benefits-grid">
+    <div class="benefit-item reveal">
+      <div class="benefit-dot"></div>
+      <span class="benefit-text">Private community, always active</span>
+    </div>
+    <div class="benefit-item reveal">
+      <div class="benefit-dot"></div>
+      <span class="benefit-text">Vetted members only — no beginners, ever</span>
+    </div>
+    <div class="benefit-item reveal">
+      <div class="benefit-dot"></div>
+      <span class="benefit-text">Monthly live expert calls</span>
+    </div>
+    <div class="benefit-item reveal">
+      <div class="benefit-dot"></div>
+      <span class="benefit-text">Recordings of every call included</span>
+    </div>
+    <div class="benefit-item reveal">
+      <div class="benefit-dot"></div>
+      <span class="benefit-text">Founder hot seats — let's solve your problems</span>
+    </div>
+    <div class="benefit-item reveal">
+      <div class="benefit-dot"></div>
+      <span class="benefit-text">Ads, hiring, systems, and growth experts</span>
+    </div>
+    <div class="benefit-item reveal">
+      <div class="benefit-dot"></div>
+      <span class="benefit-text">SOPs, playbooks, and frameworks library</span>
+    </div>
+    <div class="benefit-item reveal">
+      <div class="benefit-dot"></div>
+      <span class="benefit-text">Peer accountability and direct intros</span>
+    </div>
+    <div class="benefit-item reveal">
+      <div class="benefit-dot"></div>
+      <span class="benefit-text">Founders at your exact revenue stage</span>
+    </div>
+    <div class="benefit-item reveal">
+      <div class="benefit-dot"></div>
+      <span class="benefit-text">No courses. No motivation. Just operators.</span>
+    </div>
+  </div>
+
+  <div class="section-cta reveal">
+    <a href="lc-apply.html" class="btn-primary">Apply for founding access</a>
+    <span class="sub-note">Founding rate: $79/mo for life · Goes up when spots fill</span>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- WHO IT'S FOR -->
+<section class="who">
+  <div class="who-inner">
+    <div class="who-header reveal">
+      <span class="section-label">Who it's for</span>
+      <h2>This room is <em>not</em><br />for everyone.</h2>
+      <p>Every application is reviewed. Here's exactly who gets in.</p>
+    </div>
+    <div class="who-list">
+      <div class="who-item reveal">
+        <div class="who-check"></div>
+        <div class="who-text">
+          <strong>$10K–$100K/month revenue</strong>
+          Active businesses verified by us.
+        </div>
+      </div>
+      <div class="who-item reveal">
+        <div class="who-check"></div>
+        <div class="who-text">
+          <strong>eCommerce, SaaS, agency, content, or apps</strong>
+          Any online business model qualifies.
+        </div>
+      </div>
+      <div class="who-item reveal">
+        <div class="who-check"></div>
+        <div class="who-text">
+          <strong>You've outgrown beginner communities</strong>
+          The questions are too basic. The room doesn't match where you are.
+        </div>
+      </div>
+      <div class="who-item reveal">
+        <div class="who-check"></div>
+        <div class="who-text">
+          <strong>You want peers, not content</strong>
+          Real conversations with real operators — not courses or motivation.
+        </div>
+      </div>
+      <div class="who-item reveal">
+        <div class="who-check"></div>
+        <div class="who-text">
+          <strong>You'll show up and contribute</strong>
+          The room is worth what its members put in.
+        </div>
+      </div>
+      <div class="who-item reveal">
+        <div class="who-check"></div>
+        <div class="who-text">
+          <strong>Can attend 1–2 Zoom calls per month</strong>
+          Live calls are core to the value here.
+        </div>
+      </div>
+    </div>
+
+    <div class="section-cta reveal">
+      <a href="lc-apply.html" class="btn-outline">Apply now — reviewed in 48 hours</a>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- PRICING -->
+<section class="pricing" id="pricing">
+  <div class="pricing-header reveal">
+    <span class="section-label">Pricing</span>
+    <h2>Get in early.<br />Lock your rate for life.</h2>
+    <p>Price increases as the community grows. Founding members never pay more.</p>
+  </div>
+  <div class="pricing-cards">
+    <div class="pricing-card reveal">
+      <p class="pricing-tier">Founding member</p>
+      <div class="pricing-price"><sup>$</sup>79</div>
+      <p class="pricing-period">/ month · locked for life</p>
+      <div class="pricing-divider"></div>
+      <p class="pricing-feature">Full community access</p>
+      <p class="pricing-feature">Monthly expert calls</p>
+      <p class="pricing-feature">Founder hot seats</p>
+      <p class="pricing-feature">Resource library</p>
+      <p class="pricing-note"><strong>15–20 spots only</strong><br />Open now</p>
+      <span class="pricing-badge">Open now</span>
+    </div>
+    <div class="pricing-card featured reveal">
+      <p class="pricing-tier">Early member</p>
+      <div class="pricing-price"><sup>$</sup>119</div>
+      <p class="pricing-period">/ month</p>
+      <div class="pricing-divider"></div>
+      <p class="pricing-feature">Full community access</p>
+      <p class="pricing-feature">Monthly expert calls</p>
+      <p class="pricing-feature">Founder hot seats</p>
+      <p class="pricing-feature">Resource library</p>
+      <p class="pricing-note">Opens after founding fills<br /><strong>~30–50 members</strong></p>
+      <span class="pricing-badge">Coming soon</span>
+    </div>
+    <div class="pricing-card reveal">
+      <p class="pricing-tier">Standard</p>
+      <div class="pricing-price"><sup>$</sup>179</div>
+      <p class="pricing-period">/ month</p>
+      <div class="pricing-divider"></div>
+      <p class="pricing-feature">Full community access</p>
+      <p class="pricing-feature">Monthly expert calls</p>
+      <p class="pricing-feature">Founder hot seats</p>
+      <p class="pricing-feature">Resource library</p>
+      <p class="pricing-note">After community established<br /><strong>100+ members</strong></p>
+      <span class="pricing-badge">Future pricing</span>
+    </div>
+  </div>
+
+  <div class="section-cta reveal" style="padding-top: 44px;">
+    <a href="lc-apply.html" class="btn-primary">Apply for founding membership</a>
+    <span class="sub-note">Reviewed within 48 hours &nbsp;·&nbsp; $10K+/mo required &nbsp;·&nbsp; 15–20 founding spots</span>
+  </div>
+</section>
+
+<!-- FINAL CTA -->
+<section class="final-cta">
+  <h2 class="reveal">
+    Stop going through<br />this chapter <em>alone.</em>
+  </h2>
+  <p class="reveal">
+    Founding rate: $79/mo, locked for life.<br />15–20 spots. Apply — we review within 48 hours.
+  </p>
+  <a href="lc-apply.html" class="btn-primary reveal">Apply for founding access →</a>
+  <span class="final-cta-note reveal">Vetted applications &nbsp;·&nbsp; $10K+/month revenue &nbsp;·&nbsp; Reviewed within 48 hours</span>
 </section>
 
 <!-- FOOTER -->
-<footer id="footer">
-  <div id="footer-left">EXOSHELL.SPACE · PRIVATE HOLDINGS</div>
-  <div id="footer-right">"This cannot be how the movie ends."</div>
+<footer>
+  <span class="footer-logo">Lonely<span>.</span>Chapter</span>
+  <span class="footer-copy">© 2025 Lonely Chapter &nbsp;·&nbsp; Private community for mid-stage founders</span>
 </footer>
 
 <script>
-// Custom cursor
-const cursor = document.getElementById('cursor');
-document.addEventListener('mousemove', e => {
-  cursor.style.left = e.clientX - 2 + 'px';
-  cursor.style.top = e.clientY - 2 + 'px';
-});
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const el = entry.target;
+        const siblings = [...el.parentElement.querySelectorAll('.reveal')];
+        const idx = siblings.indexOf(el);
+        setTimeout(() => el.classList.add('visible'), idx * 55);
+        observer.unobserve(el);
+      }
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -28px 0px' });
+  reveals.forEach(el => observer.observe(el));
 
-// Intersection observer for manifesto lines
-const observer = new IntersectionObserver((entries) => {
-  entries.forEach(entry => {
-    if (entry.isIntersecting) {
-      entry.target.style.color = '';
-      entry.target.style.transition = 'color 0.6s ease';
-    }
-  });
-}, { threshold: 0.3 });
-
-document.querySelectorAll('.manifesto-line').forEach((line, i) => {
-  line.style.transitionDelay = (i * 0.08) + 's';
-  observer.observe(line);
-});
-
-// Venture lines cycle
-const ventureLines = document.querySelectorAll('.venture-line');
-let current = 0;
-setInterval(() => {
-  ventureLines[current].classList.remove('active');
-  current = (current + 1) % ventureLines.length;
-  ventureLines[current].classList.add('active');
-}, 2000);
-
-// Coordinates update
-function updateCoords() {
-  const now = new Date();
-  const time = now.toTimeString().slice(0,8);
-  const coordBr = document.querySelector('.coord-br');
-  if (coordBr) coordBr.textContent = `EXOSHELL.SPACE · ${time}`;
-}
-setInterval(updateCoords, 1000);
-updateCoords();
+  const headline = document.querySelector('.hero-headline');
+  window.addEventListener('scroll', () => {
+    if (headline && window.scrollY < window.innerHeight)
+      headline.style.transform = `translateY(${window.scrollY * 0.1}px)`;
+  }, { passive: true });
 </script>
-
 </body>
 </html>
