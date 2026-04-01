@@ -547,6 +547,11 @@ fbq('track', 'PageView');
 <noscript><img height="1" width="1" style="display:none"
 src="https://www.facebook.com/tr?id=1901966080462554&ev=PageView&noscript=1"
 /></noscript>
+
+<script>
+  fbq('track', 'ViewContent');
+</script>
+  
 <!-- End Meta Pixel Code -->
   
 </head>
@@ -1003,6 +1008,10 @@ src="https://www.facebook.com/tr?id=1901966080462554&ev=PageView&noscript=1"
       });
 
       if (response.ok) {
+
+// Fire Meta Pixel Lead event here
+      fbq('track', 'Lead');
+        
         document.getElementById('stepCounter').style.opacity = '0';
         document.getElementById('progressBar').style.width = '100%';
         document.getElementById('stage').style.display = 'none';
@@ -1015,6 +1024,9 @@ src="https://www.facebook.com/tr?id=1901966080462554&ev=PageView&noscript=1"
       btn.disabled = false;
       btn.textContent = 'Try again →';
     }
+
+fbq('track', 'Lead');
+    
   }
 
   // ── Radio choice interactivity ──
