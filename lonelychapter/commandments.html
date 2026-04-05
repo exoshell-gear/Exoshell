@@ -324,7 +324,99 @@ src="https://www.facebook.com/tr?id=1901966080462554&ev=PageView&noscript=1"
   .footer-logo span { color: var(--amber); }
   .footer-copy { font-size: 0.68rem; color: var(--faint); letter-spacing: 0.04em; }
 
-  /* ── RESPONSIVE ── */
+  /* ── STICKY BAR ── */
+  .sticky-bar {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    z-index: 500;
+    background: var(--ink);
+    border-top: 1px solid var(--border);
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    transform: translateY(100%);
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .sticky-bar.visible {
+    transform: translateY(0);
+  }
+  .sticky-bar-text {
+    font-size: 0.82rem;
+    color: rgba(247,242,234,0.65);
+    line-height: 1.4;
+    flex: 1;
+  }
+  .sticky-bar-text strong {
+    color: var(--warm-white);
+    font-weight: 500;
+  }
+  .sticky-bar .btn-sticky {
+    display: inline-block;
+    background: var(--amber);
+    color: var(--black);
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-decoration: none;
+    padding: 10px 22px;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+  }
+  .sticky-bar .btn-sticky:hover {
+    box-shadow: 0 4px 20px rgba(200,146,42,0.35);
+  }
+  .sticky-bar-close {
+    background: none;
+    border: none;
+    color: var(--faint);
+    font-size: 1rem;
+    cursor: pointer;
+    padding: 4px;
+    flex-shrink: 0;
+    line-height: 1;
+    transition: color 0.2s;
+  }
+  .sticky-bar-close:hover { color: var(--muted); }
+
+  /* ── MID-PAGE NUDGE ── */
+  .mid-nudge-inline {
+    grid-column: 1 / -1;
+    padding: 8px 0 24px;
+  }
+  .mid-nudge-inner {
+    border-left: 2px solid var(--amber);
+    padding: 14px 0 14px 20px;
+    opacity: 0;
+    transform: translateY(12px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+  .mid-nudge-inner.visible {
+    opacity: 1;
+    transform: none;
+  }
+  .mid-nudge-text {
+    font-size: 0.85rem;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+  .mid-nudge-text a {
+    color: var(--amber);
+    text-decoration: none;
+    font-weight: 500;
+    border-bottom: 1px solid rgba(200,146,42,0.3);
+    transition: border-color 0.2s;
+  }
+  .mid-nudge-text a:hover { border-color: var(--amber); }
+
+  @media (max-width: 640px) {
+    .mid-nudge { padding: 0 20px; }
+    .sticky-bar { padding: 12px 16px; }
+    .sticky-bar-text { font-size: 0.76rem; }
+  }
   @media (max-width: 640px) {
     nav { padding: 20px; }
     .page-header { padding: 56px 20px 40px; }
@@ -396,6 +488,13 @@ src="https://www.facebook.com/tr?id=1901966080462554&ev=PageView&noscript=1"
     </div>
   </div>
 
+  <!-- MID-PAGE NUDGE -->
+  <div class="mid-nudge-inline">
+    <div class="mid-nudge-inner">
+      <p class="mid-nudge-text">Halfway there. There's a full <strong>140-page Scaling Bible</strong> inside the community — frameworks, SOPs, and operator-level knowledge for founders at your stage. <a href="lc-apply.html" id="nudge-link">See if you qualify →</a></p>
+    </div>
+  </div>
+
   <div class="commandment">
     <div class="cmd-number">VI</div>
     <div class="cmd-content">
@@ -444,7 +543,7 @@ src="https://www.facebook.com/tr?id=1901966080462554&ev=PageView&noscript=1"
     <span class="cta-eyebrow">Lonely Chapter</span>
     <h2 class="cta-headline">Enjoyed this?<br />There's a <em>140-page bible</em> inside the community.</h2>
     <p class="cta-sub">Members get access to the full Scaling Bible — 140 pages of frameworks, SOPs, and operator-level knowledge. Plus live expert calls, hot seats, and a vetted room of founders doing $10K–$100K/month.</p>
-    <a href="lc-apply.html" class="btn-primary" id="cta-apply">Apply for access →</a>
+    <a href="lc-apply.html" class="btn-primary" id="cta-apply">See if you qualify →</a>
     <span class="cta-note">Vetted applications only &nbsp;·&nbsp; $10K+/month revenue &nbsp;·&nbsp; Founding rate: $79/mo</span>
   </div>
 </section>
@@ -455,32 +554,58 @@ src="https://www.facebook.com/tr?id=1901966080462554&ev=PageView&noscript=1"
   <span class="footer-copy">© 2025 Lonely Chapter &nbsp;·&nbsp; Private community for mid-stage founders</span>
 </footer>
 
+<!-- STICKY BAR -->
+<div class="sticky-bar" id="stickyBar">
+  <p class="sticky-bar-text"><strong>Enjoying this?</strong> There's a 140-page Scaling Bible inside the community.</p>
+  <a href="lc-apply.html" class="btn-sticky" id="sticky-cta">See if you qualify</a>
+  <button class="sticky-bar-close" id="stickyClose" aria-label="Dismiss">✕</button>
+</div>
+
 <script>
-  // Scroll reveal for commandments
-  const items = document.querySelectorAll('.commandment, .cta-card');
+  // Scroll reveal for commandments + nudge
+  const items = document.querySelectorAll('.commandment, .cta-card, .mid-nudge-inner');
   const observer = new IntersectionObserver((entries) => {
-    entries.forEach((entry, i) => {
+    entries.forEach((entry) => {
       if (entry.isIntersecting) {
-        // Stagger commandments
-        const allItems = [...document.querySelectorAll('.commandment')];
-        const idx = allItems.indexOf(entry.target);
+        const allCmds = [...document.querySelectorAll('.commandment')];
+        const idx = allCmds.indexOf(entry.target);
         const delay = idx >= 0 ? idx * 60 : 0;
         setTimeout(() => entry.target.classList.add('visible'), delay);
         observer.unobserve(entry.target);
       }
     });
   }, { threshold: 0.08, rootMargin: '0px 0px -24px 0px' });
-
   items.forEach(el => observer.observe(el));
 
-  // Meta Pixel — track CTA click as a custom event
-  document.getElementById('cta-apply')?.addEventListener('click', () => {
-    if (typeof fbq !== 'undefined') {
-      fbq('track', 'Lead', { content_name: 'commandments_cta' });
+  // Sticky bar — show after scrolling past 30% of page
+  const stickyBar = document.getElementById('stickyBar');
+  const stickyClose = document.getElementById('stickyClose');
+  let stickyDismissed = false;
+  let stickyShown = false;
+
+  window.addEventListener('scroll', () => {
+    if (stickyDismissed) return;
+    const pct = (window.scrollY + window.innerHeight) / document.body.scrollHeight;
+    if (pct > 0.30 && !stickyShown) {
+      stickyShown = true;
+      stickyBar.classList.add('visible');
     }
+  }, { passive: true });
+
+  stickyClose.addEventListener('click', () => {
+    stickyDismissed = true;
+    stickyBar.classList.remove('visible');
   });
 
-  // Track scroll depth — fire ViewContent at 75% scroll
+  // Pixel — CTA clicks
+  const trackLead = (name) => {
+    if (typeof fbq !== 'undefined') fbq('track', 'Lead', { content_name: name });
+  };
+  document.getElementById('cta-apply')?.addEventListener('click', () => trackLead('commandments_cta_bottom'));
+  document.getElementById('sticky-cta')?.addEventListener('click', () => trackLead('commandments_sticky_bar'));
+  document.getElementById('nudge-link')?.addEventListener('click', () => trackLead('commandments_mid_nudge'));
+
+  // Pixel — ViewContent at 75% scroll
   let firedViewContent = false;
   window.addEventListener('scroll', () => {
     if (firedViewContent) return;
@@ -488,11 +613,10 @@ src="https://www.facebook.com/tr?id=1901966080462554&ev=PageView&noscript=1"
     const total = document.body.scrollHeight;
     if (scrolled / total >= 0.75) {
       firedViewContent = true;
-      if (typeof fbq !== 'undefined') {
-        fbq('track', 'ViewContent', { content_name: 'commandments_page' });
-      }
+      if (typeof fbq !== 'undefined') fbq('track', 'ViewContent', { content_name: 'commandments_page' });
     }
   }, { passive: true });
 </script>
+
 </body>
 </html>
