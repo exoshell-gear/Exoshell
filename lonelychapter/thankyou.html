@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>You're In — Lonely Chapter</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:wght@300;400;500&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet" />
+
+<!-- Meta Pixel -->
+<script>
+!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window, document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', '1901966080462554');
+fbq('track', 'PageView');
+fbq('track', 'Lead');
+</script>
+<noscript><img height="1" width="1" style="display:none"
+src="https://www.facebook.com/tr?id=1901966080462554&ev=Lead&noscript=1"
+/></noscript>
+<!-- End Meta Pixel -->
+
+<style>
+  :root {
+    --black: #0d0c0b;
+    --ink:   #1a1814;
+    --amber: #c8922a;
+    --gold:  #e8b84b;
+    --warm-white: #f7f2ea;
+    --muted: #6b6458;
+    --faint: #3a3530;
+    --border: rgba(200, 146, 42, 0.2);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--black);
+    color: var(--warm-white);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  /* Grain */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+    opacity: 0.028;
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  /* NAV */
+  nav {
+    padding: 24px 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+  .nav-logo {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.05rem;
+    letter-spacing: 0.04em;
+    color: var(--warm-white);
+    text-decoration: none;
+  }
+  .nav-logo span { color: var(--amber); }
+
+  /* BUTTONS */
+  .btn-primary {
+    display: inline-block;
+    background: var(--amber);
+    color: var(--black);
+    font-size: 0.8rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    text-decoration: none;
+    padding: 15px 38px;
+    transition: all 0.2s ease;
+  }
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 8px 32px rgba(200,146,42,0.3); }
+
+  .btn-outline {
+    display: inline-block;
+    background: transparent;
+    color: var(--amber);
+    font-size: 0.8rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    text-decoration: none;
+    padding: 14px 38px;
+    border: 1px solid var(--amber);
+    transition: all 0.2s ease;
+  }
+  .btn-outline:hover { background: var(--amber); color: var(--black); }
+
+  .section-divider {
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--border), transparent);
+  }
+
+  .section-label {
+    font-size: 0.67rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--amber);
+    display: block;
+    margin-bottom: 12px;
+  }
+
+  /* CONFIRMATION HERO */
+  .confirm {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 72px 48px 64px;
+    text-align: center;
+  }
+
+  .confirm-mark {
+    width: 56px; height: 56px;
+    border: 1px solid var(--amber);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 28px;
+    font-size: 1.2rem;
+    color: var(--amber);
+    animation: fadeUp 0.6s ease forwards;
+  }
+
+  .confirm h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 5vw, 3.4rem);
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    margin-bottom: 18px;
+    animation: fadeUp 0.7s ease forwards 0.1s;
+    opacity: 0;
+  }
+  .confirm h1 em { font-style: italic; color: var(--amber); }
+
+  .confirm-sub {
+    font-size: 0.95rem;
+    color: var(--muted);
+    line-height: 1.75;
+    max-width: 480px;
+    margin: 0 auto;
+    animation: fadeUp 0.7s ease forwards 0.2s;
+    opacity: 0;
+  }
+
+  .confirm-sub strong { color: rgba(247,242,234,0.75); font-weight: 500; }
+
+  .confirm-divider {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin: 48px auto 0;
+    max-width: 400px;
+    animation: fadeUp 0.7s ease forwards 0.35s;
+    opacity: 0;
+  }
+  .confirm-divider::before, .confirm-divider::after {
+    content: '';
+    flex: 1; height: 1px;
+    background: rgba(255,255,255,0.06);
+  }
+  .confirm-divider-text {
+    font-size: 0.72rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--faint);
+    white-space: nowrap;
+  }
+
+  /* PIVOT */
+  .pivot {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 48px 48px 64px;
+    text-align: center;
+  }
+
+  .pivot h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.6rem, 3.5vw, 2.4rem);
+    font-weight: 600;
+    line-height: 1.2;
+    margin-bottom: 14px;
+  }
+  .pivot h2 em { font-style: italic; color: var(--amber); }
+
+  .pivot p {
+    font-size: 0.92rem;
+    color: var(--muted);
+    line-height: 1.75;
+    max-width: 500px;
+    margin: 0 auto 36px;
+  }
+
+  /* WHAT IS LC */
+  .what-is {
+    background: var(--ink);
+    padding: 72px 48px;
+  }
+  .what-is-inner {
+    max-width: 720px;
+    margin: 0 auto;
+  }
+  .what-is-inner h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.6rem, 3.5vw, 2.4rem);
+    font-weight: 600;
+    line-height: 1.2;
+    margin-bottom: 14px;
+  }
+  .what-is-inner h2 em { font-style: italic; color: var(--amber); }
+  .what-is-inner > p {
+    font-size: 0.95rem;
+    color: var(--muted);
+    line-height: 1.8;
+    margin-bottom: 48px;
+    max-width: 580px;
+  }
+
+  .benefits-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: rgba(255,255,255,0.05);
+    margin-bottom: 48px;
+  }
+  .benefit-item {
+    background: var(--ink);
+    padding: 18px 22px;
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    transition: background 0.2s;
+  }
+  .benefit-item:hover { background: #201e1b; }
+  .benefit-dot {
+    width: 6px; height: 6px;
+    background: var(--amber);
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 8px;
+  }
+  .benefit-text {
+    font-size: 0.9rem;
+    color: rgba(247,242,234,0.8);
+    line-height: 1.5;
+    font-weight: 400;
+  }
+
+  /* WHO */
+  .who {
+    padding: 72px 48px;
+    max-width: 720px;
+    margin: 0 auto;
+  }
+  .who h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.6rem, 3.5vw, 2.4rem);
+    font-weight: 600;
+    line-height: 1.2;
+    margin-bottom: 8px;
+  }
+  .who h2 em { font-style: italic; color: var(--amber); }
+  .who > p {
+    font-size: 0.88rem;
+    color: var(--muted);
+    margin-bottom: 32px;
+  }
+
+  .who-list {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: rgba(255,255,255,0.04);
+    margin-bottom: 48px;
+  }
+  .who-item {
+    background: var(--black);
+    padding: 16px 20px;
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+  }
+  .who-check {
+    width: 16px; height: 16px;
+    border: 1px solid var(--amber);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 3px;
+  }
+  .who-check::after {
+    content: '';
+    width: 5px; height: 5px;
+    background: var(--amber);
+    border-radius: 50%;
+  }
+  .who-text {
+    font-size: 0.88rem;
+    color: rgba(247,242,234,0.72);
+    line-height: 1.5;
+  }
+  .who-text strong {
+    display: block;
+    color: var(--warm-white);
+    font-weight: 500;
+    margin-bottom: 1px;
+    font-size: 0.9rem;
+  }
+
+  /* QUOTE */
+  .quote-section {
+    background: var(--ink);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    padding: 64px 48px;
+  }
+  .quote-inner {
+    max-width: 720px;
+    margin: 0 auto;
+  }
+  .hormozi-card {
+    border: 1px solid var(--border);
+    background: var(--black);
+    padding: 36px 44px;
+    position: relative;
+    margin-bottom: 2px;
+  }
+  .hormozi-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(to right, var(--amber), transparent);
+  }
+  .hormozi-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  .hormozi-author { display: flex; align-items: center; gap: 12px; }
+  .hormozi-avatar {
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--amber), #8b5e1a);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Playfair Display', serif;
+    font-size: 0.95rem;
+    color: var(--black);
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .hormozi-author-info strong {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--warm-white);
+  }
+  .hormozi-author-info span { font-size: 0.7rem; color: var(--muted); }
+  .hormozi-x { opacity: 0.2; font-size: 0.95rem; color: var(--warm-white); }
+  .hormozi-body {
+    font-size: 0.98rem;
+    line-height: 1.82;
+    color: rgba(247,242,234,0.75);
+    font-weight: 300;
+  }
+  .hormozi-body p { margin-bottom: 12px; }
+  .hormozi-body p:last-child { margin-bottom: 0; }
+  .h-gold { color: var(--gold); font-style: italic; }
+  .h-white { color: var(--warm-white); font-weight: 400; }
+  .hormozi-footer {
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid rgba(255,255,255,0.05);
+    font-size: 0.66rem;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  .jay-pullquote {
+    background: var(--black);
+    border: 1px solid rgba(255,255,255,0.04);
+    border-left: 2px solid var(--faint);
+    padding: 20px 28px;
+  }
+  .jay-pullquote p {
+    font-size: 0.9rem;
+    color: rgba(247,242,234,0.45);
+    font-style: italic;
+    line-height: 1.7;
+    margin-bottom: 8px;
+  }
+  .jay-pullquote p em { color: rgba(247,242,234,0.7); }
+  .jay-pullquote cite {
+    font-size: 0.66rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--faint);
+    font-style: normal;
+  }
+
+  /* PRICING STRIP */
+  .pricing-strip {
+    padding: 72px 48px;
+    max-width: 720px;
+    margin: 0 auto;
+  }
+  .pricing-strip h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.6rem, 3.5vw, 2.4rem);
+    font-weight: 600;
+    line-height: 1.2;
+    margin-bottom: 8px;
+  }
+  .pricing-strip h2 em { font-style: italic; color: var(--amber); }
+  .pricing-strip > p {
+    font-size: 0.88rem;
+    color: var(--muted);
+    margin-bottom: 32px;
+  }
+
+  .pricing-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: rgba(255,255,255,0.05);
+    margin-bottom: 36px;
+  }
+  .pricing-col {
+    background: var(--black);
+    padding: 28px 24px;
+    text-align: center;
+    position: relative;
+  }
+  .pricing-col.featured {
+    background: var(--ink);
+    border-top: 2px solid var(--amber);
+  }
+  .pricing-col.featured::before {
+    content: 'NOW OPEN';
+    position: absolute;
+    top: -10px; left: 50%; transform: translateX(-50%);
+    background: var(--amber);
+    color: var(--black);
+    font-size: 0.56rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    padding: 3px 10px;
+  }
+  .pricing-tier {
+    font-size: 0.62rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 16px;
+  }
+  .pricing-col.featured .pricing-tier { color: var(--amber); }
+  .pricing-price {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.6rem;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .pricing-price sup {
+    font-size: 1rem;
+    font-weight: 400;
+    vertical-align: top;
+    margin-top: 6px;
+    display: inline-block;
+  }
+  .pricing-period { font-size: 0.7rem; color: var(--muted); margin-bottom: 16px; }
+  .pricing-divider { width: 24px; height: 1px; background: var(--border); margin: 0 auto 14px; }
+  .pricing-feature { font-size: 0.76rem; color: rgba(247,242,234,0.45); margin-bottom: 6px; }
+  .pricing-note {
+    font-size: 0.7rem;
+    color: var(--muted);
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid rgba(255,255,255,0.05);
+    line-height: 1.5;
+  }
+  .pricing-note strong { color: var(--amber); font-weight: 500; }
+
+  /* FINAL CTA */
+  .final-cta {
+    background: var(--ink);
+    border-top: 1px solid var(--border);
+    padding: 80px 48px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .final-cta::before {
+    content: '';
+    position: absolute;
+    top: 50%; left: 50%; transform: translate(-50%,-50%);
+    width: 500px; height: 500px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(200,146,42,0.05) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .final-cta h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.8rem, 4.5vw, 3.4rem);
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    margin-bottom: 16px;
+    max-width: 580px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .final-cta h2 em { font-style: italic; color: var(--amber); }
+  .final-cta p {
+    font-size: 0.9rem;
+    color: var(--muted);
+    margin: 0 auto 32px;
+    max-width: 400px;
+    line-height: 1.75;
+  }
+  .final-cta-note {
+    display: block;
+    margin-top: 14px;
+    font-size: 0.7rem;
+    letter-spacing: 0.06em;
+    color: var(--faint);
+  }
+
+  /* FOOTER */
+  footer {
+    padding: 24px 48px;
+    border-top: 1px solid rgba(255,255,255,0.04);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .footer-logo { font-family: 'DM Serif Display', serif; font-size: 0.9rem; color: var(--muted); }
+  .footer-logo span { color: var(--amber); }
+  .footer-copy { font-size: 0.68rem; color: var(--faint); letter-spacing: 0.04em; }
+
+  /* ANIMATIONS */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .reveal {
+    opacity: 0;
+    transform: translateY(22px);
+    transition: opacity 0.65s ease, transform 0.65s ease;
+  }
+  .reveal.visible { opacity: 1; transform: none; }
+
+  /* RESPONSIVE */
+  @media (max-width: 640px) {
+    nav { padding: 18px 20px; }
+    .confirm, .pivot { padding: 56px 20px 48px; }
+    .what-is { padding: 56px 20px; }
+    .who { padding: 56px 20px; }
+    .quote-section { padding: 56px 20px; }
+    .hormozi-card { padding: 28px 24px; }
+    .pricing-strip { padding: 56px 20px; }
+    .pricing-row { grid-template-columns: 1fr; }
+    .benefits-grid { grid-template-columns: 1fr; }
+    .who-list { grid-template-columns: 1fr; }
+    .final-cta { padding: 64px 20px; }
+    footer { padding: 20px; flex-direction: column; gap: 8px; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="lonely-chapter.html" class="nav-logo">Lonely<span>.</span>Chapter</a>
+</nav>
+
+<!-- CONFIRMATION -->
+<section class="confirm">
+  <div class="confirm-mark">✓</div>
+  <h1>It's on its way to<br />your <em>inbox.</em></h1>
+  <p class="confirm-sub">
+    The Entrepreneur's Bible — all <strong>140 pages</strong> — is heading to your email now. Check your inbox, and your spam folder if it doesn't show up in a few minutes.
+  </p>
+  <div class="confirm-divider">
+    <span class="confirm-divider-text">While you wait</span>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- PIVOT -->
+<section class="pivot reveal">
+  <span class="section-label">Lonely Chapter</span>
+  <h2>The Bible is a taste of<br />what's <em>inside the room.</em></h2>
+  <p>
+    It was originally created for members — founders doing $10K–$100K/month who needed operator-level frameworks, not motivation. The community it comes from is now open for founding members.
+  </p>
+  <a href="lc-apply.html" class="btn-primary" id="cta-pivot">See if you qualify →</a>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- WHAT IS LC -->
+<section class="what-is">
+  <div class="what-is-inner">
+    <div class="reveal">
+      <span class="section-label">What you get</span>
+      <h2>A private room of operators.<br /><em>Nothing less.</em></h2>
+      <p>Vetted founders at your revenue stage. Real conversations about real problems. No beginners, no content, no noise.</p>
+    </div>
+    <div class="benefits-grid">
+      <div class="benefit-item reveal"><div class="benefit-dot"></div><span class="benefit-text">Private Skool community, always active</span></div>
+      <div class="benefit-item reveal"><div class="benefit-dot"></div><span class="benefit-text">Vetted members only — no beginners, ever</span></div>
+      <div class="benefit-item reveal"><div class="benefit-dot"></div><span class="benefit-text">1–2 live expert calls per month</span></div>
+      <div class="benefit-item reveal"><div class="benefit-dot"></div><span class="benefit-text">Recordings of every call included</span></div>
+      <div class="benefit-item reveal"><div class="benefit-dot"></div><span class="benefit-text">Founder hot seats — bring your real problems</span></div>
+      <div class="benefit-item reveal"><div class="benefit-dot"></div><span class="benefit-text">Ads, hiring, systems, and growth experts</span></div>
+      <div class="benefit-item reveal"><div class="benefit-dot"></div><span class="benefit-text">SOPs, playbooks, and frameworks library</span></div>
+      <div class="benefit-item reveal"><div class="benefit-dot"></div><span class="benefit-text">The full 140-page Scaling Bible included</span></div>
+      <div class="benefit-item reveal"><div class="benefit-dot"></div><span class="benefit-text">Founders at your exact revenue stage</span></div>
+      <div class="benefit-item reveal"><div class="benefit-dot"></div><span class="benefit-text">No courses. No motivation. Just operators.</span></div>
+    </div>
+    <div class="reveal" style="text-align:center;">
+      <a href="lc-apply.html" class="btn-outline" id="cta-benefits">Apply for founding access →</a>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- WHO -->
+<section class="who">
+  <div class="reveal">
+    <span class="section-label">Who it's for</span>
+    <h2>This room is <em>not</em> for everyone.</h2>
+    <p>Every application is reviewed. Here's exactly who gets in.</p>
+  </div>
+  <div class="who-list">
+    <div class="who-item reveal">
+      <div class="who-check"></div>
+      <div class="who-text"><strong>$10K–$100K/month revenue</strong>Active business. Real numbers.</div>
+    </div>
+    <div class="who-item reveal">
+      <div class="who-check"></div>
+      <div class="who-text"><strong>eCommerce, SaaS, agency, content, or apps</strong>Any online business model.</div>
+    </div>
+    <div class="who-item reveal">
+      <div class="who-check"></div>
+      <div class="who-text"><strong>You've outgrown beginner communities</strong>The questions are too basic. The room doesn't match your level.</div>
+    </div>
+    <div class="who-item reveal">
+      <div class="who-check"></div>
+      <div class="who-text"><strong>You want peers, not content</strong>Real conversations with real operators.</div>
+    </div>
+    <div class="who-item reveal">
+      <div class="who-check"></div>
+      <div class="who-text"><strong>You'll show up and contribute</strong>The room is worth what members put in.</div>
+    </div>
+    <div class="who-item reveal">
+      <div class="who-check"></div>
+      <div class="who-text"><strong>Can attend 1–2 Zoom calls per month</strong>Live calls are core to the value.</div>
+    </div>
+  </div>
+  <div class="reveal" style="text-align:center;">
+    <a href="lc-apply.html" class="btn-primary" id="cta-who">See if you qualify →</a>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- QUOTE SECTION -->
+<section class="quote-section">
+  <div class="quote-inner">
+    <div class="hormozi-card reveal">
+      <div class="hormozi-header">
+        <div class="hormozi-author">
+          <div class="hormozi-avatar">A</div>
+          <div class="hormozi-author-info">
+            <strong>Alex Hormozi</strong>
+            <span>@AlexHormozi</span>
+          </div>
+        </div>
+        <div class="hormozi-x">✕</div>
+      </div>
+      <div class="hormozi-body">
+        <p><span class="h-gold">"Every single person who wants to do something with their life has gone through the lonely chapter.</span> You don't fit in with your old friends anymore. You're not ready for the new group of friends yet.</p>
+        <p>And you're going through it thinking — <span class="h-white">'is this even worth it?'</span> Because you're seeing no signs of success. But <span class="h-white">the sign of success is the hate you get along the way."</span></p>
+      </div>
+      <div class="hormozi-footer">@AlexHormozi · Public tweet &nbsp;·&nbsp; Built on <strong style="color:var(--amber)">Skool</strong> — Hormozi's platform</div>
+    </div>
+    <div class="jay-pullquote reveal">
+      <p>"The hardest part isn't the work. It's the lonely phase. If you're not seeing signs of success — <em>the sign of success is the hate you get along the way.</em>"</p>
+      <cite>— Jay, founder · 3 years building</cite>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- PRICING -->
+<section class="pricing-strip">
+  <div class="reveal">
+    <span class="section-label">Pricing</span>
+    <h2>Get in early.<br /><em>Lock your rate for life.</em></h2>
+    <p>Price increases as the community grows. Founding members never pay more.</p>
+  </div>
+  <div class="pricing-row">
+    <div class="pricing-col featured reveal">
+      <p class="pricing-tier">Founding member</p>
+      <div class="pricing-price"><sup>$</sup>79</div>
+      <p class="pricing-period">/ month · locked for life</p>
+      <div class="pricing-divider"></div>
+      <p class="pricing-feature">Full community access</p>
+      <p class="pricing-feature">Monthly expert calls</p>
+      <p class="pricing-feature">Founder hot seats</p>
+      <p class="pricing-feature">140-page Scaling Bible</p>
+      <p class="pricing-note"><strong>15–20 spots only</strong><br />Open now</p>
+    </div>
+    <div class="pricing-col reveal">
+      <p class="pricing-tier">Early member</p>
+      <div class="pricing-price"><sup>$</sup>119</div>
+      <p class="pricing-period">/ month</p>
+      <div class="pricing-divider"></div>
+      <p class="pricing-feature">Full community access</p>
+      <p class="pricing-feature">Monthly expert calls</p>
+      <p class="pricing-feature">Founder hot seats</p>
+      <p class="pricing-feature">140-page Scaling Bible</p>
+      <p class="pricing-note">After founding fills<br /><strong>~30–50 members</strong></p>
+    </div>
+    <div class="pricing-col reveal">
+      <p class="pricing-tier">Standard</p>
+      <div class="pricing-price"><sup>$</sup>179</div>
+      <p class="pricing-period">/ month</p>
+      <div class="pricing-divider"></div>
+      <p class="pricing-feature">Full community access</p>
+      <p class="pricing-feature">Monthly expert calls</p>
+      <p class="pricing-feature">Founder hot seats</p>
+      <p class="pricing-feature">140-page Scaling Bible</p>
+      <p class="pricing-note">After established<br /><strong>100+ members</strong></p>
+    </div>
+  </div>
+  <div class="reveal" style="text-align:center;">
+    <a href="lc-apply.html" class="btn-primary" id="cta-pricing">Apply for founding membership →</a>
+    <p style="margin-top:12px; font-size:0.72rem; color:var(--faint); letter-spacing:0.04em;">Reviewed within 48 hours &nbsp;·&nbsp; $10K+/mo required &nbsp;·&nbsp; 15–20 founding spots</p>
+  </div>
+</section>
+
+<!-- FINAL CTA -->
+<section class="final-cta">
+  <h2 class="reveal">Stop going through<br />this chapter <em>alone.</em></h2>
+  <p class="reveal">Founding rate: $79/mo, locked for life. 15–20 spots. Apply — we review within 48 hours.</p>
+  <a href="lc-apply.html" class="btn-primary reveal" id="cta-final">Apply for founding access →</a>
+  <span class="final-cta-note reveal">Vetted applications &nbsp;·&nbsp; $10K+/month revenue &nbsp;·&nbsp; Reviewed within 48 hours</span>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <span class="footer-logo">Lonely<span>.</span>Chapter</span>
+  <span class="footer-copy">© 2025 Lonely Chapter &nbsp;·&nbsp; Private community for mid-stage founders</span>
+</footer>
+
+<script>
+  // Scroll reveal
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const el = entry.target;
+        const siblings = [...el.parentElement.querySelectorAll('.reveal')];
+        const idx = siblings.indexOf(el);
+        setTimeout(() => el.classList.add('visible'), idx * 55);
+        observer.unobserve(el);
+      }
+    });
+  }, { threshold: 0.08, rootMargin: '0px 0px -24px 0px' });
+  reveals.forEach(el => observer.observe(el));
+
+  // Pixel — track each CTA click separately so you know which one converts
+  const trackLead = (name) => {
+    if (typeof fbq !== 'undefined') fbq('track', 'Lead', { content_name: name });
+  };
+  document.getElementById('cta-pivot')   ?.addEventListener('click', () => trackLead('thankyou_pivot'));
+  document.getElementById('cta-benefits')?.addEventListener('click', () => trackLead('thankyou_benefits'));
+  document.getElementById('cta-who')     ?.addEventListener('click', () => trackLead('thankyou_who'));
+  document.getElementById('cta-pricing') ?.addEventListener('click', () => trackLead('thankyou_pricing'));
+  document.getElementById('cta-final')   ?.addEventListener('click', () => trackLead('thankyou_final'));
+
+  // Pixel — ViewContent at 75% scroll (they read the whole page)
+  let fired = false;
+  window.addEventListener('scroll', () => {
+    if (fired) return;
+    if ((window.scrollY + window.innerHeight) / document.body.scrollHeight >= 0.75) {
+      fired = true;
+      if (typeof fbq !== 'undefined') fbq('track', 'ViewContent', { content_name: 'thankyou_page' });
+    }
+  }, { passive: true });
+</script>
+</body>
+</html>
