@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EXOSHELL</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@900&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Orbitron', sans-serif;
+      background: #000;
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      perspective: 1000px;
+    }
+
+    .container {
+      text-align: center;
+      position: relative;
+      z-index: 2;
+    }
+
+    /* Geometric Fortress Structure */
+    .fortress {
+      width: 400px;
+      height: 400px;
+      position: relative;
+      margin: 0 auto 80px;
+      opacity: 0;
+      animation: riseFromGround 2s ease 0.5s forwards;
+    }
+
+    @keyframes riseFromGround {
+      from {
+        opacity: 0;
+        transform: translateY(100px) scale(0.8);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    /* Central Tower */
+    .tower {
+      position: absolute;
+      width: 80px;
+      height: 200px;
+      background: linear-gradient(180deg, #fff 0%, #888 100%);
+      left: 50%;
+      bottom: 0;
+      transform: translateX(-50%);
+      clip-path: polygon(20% 0%, 80% 0%, 100% 100%, 0% 100%);
+      animation: buildTower 1s ease 1.2s backwards;
+      box-shadow: 0 0 40px rgba(255,255,255,0.3);
+    }
+
+    @keyframes buildTower {
+      from {
+        height: 0;
+      }
+      to {
+        height: 200px;
+      }
+    }
+
+    /* Tower Crown */
+    .crown {
+      position: absolute;
+      width: 100px;
+      height: 60px;
+      background: linear-gradient(180deg, #fff 0%, #aaa 100%);
+      left: 50%;
+      bottom: 200px;
+      transform: translateX(-50%);
+      clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+      animation: buildCrown 0.6s ease 2.2s backwards;
+      box-shadow: 0 0 50px rgba(255,255,255,0.4);
+    }
+
+    @keyframes buildCrown {
+      from {
+        transform: translateX(-50%) translateY(40px);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(-50%) translateY(0);
+        opacity: 1;
+      }
+    }
+
+    /* Side Pillars */
+    .pillar {
+      position: absolute;
+      width: 50px;
+      height: 140px;
+      background: linear-gradient(180deg, #ddd 0%, #666 100%);
+      bottom: 0;
+      clip-path: polygon(25% 0%, 75% 0%, 100% 100%, 0% 100%);
+      box-shadow: 0 0 30px rgba(255,255,255,0.2);
+    }
+
+    .pillar-left {
+      left: 80px;
+      animation: buildPillar 0.8s ease 1.4s backwards;
+    }
+
+    .pillar-right {
+      right: 80px;
+      animation: buildPillar 0.8s ease 1.6s backwards;
+    }
+
+    @keyframes buildPillar {
+      from {
+        height: 0;
+      }
+      to {
+        height: 140px;
+      }
+    }
+
+    /* Outer Towers */
+    .outer-tower {
+      position: absolute;
+      width: 40px;
+      height: 100px;
+      background: linear-gradient(180deg, #ccc 0%, #555 100%);
+      bottom: 0;
+      clip-path: polygon(30% 0%, 70% 0%, 100% 100%, 0% 100%);
+      box-shadow: 0 0 25px rgba(255,255,255,0.15);
+    }
+
+    .outer-left {
+      left: 20px;
+      animation: buildOuter 0.7s ease 1.8s backwards;
+    }
+
+    .outer-right {
+      right: 20px;
+      animation: buildOuter 0.7s ease 2s backwards;
+    }
+
+    @keyframes buildOuter {
+      from {
+        height: 0;
+      }
+      to {
+        height: 100px;
+      }
+    }
+
+    /* Geometric Accents */
+    .accent {
+      position: absolute;
+      width: 30px;
+      height: 30px;
+      background: #fff;
+      opacity: 0;
+      animation: accentPulse 0.4s ease forwards;
+      box-shadow: 0 0 20px rgba(255,255,255,0.6);
+    }
+
+    .accent-1 {
+      left: 50%;
+      bottom: 140px;
+      transform: translateX(-50%) rotate(45deg);
+      animation-delay: 2.8s;
+    }
+
+    .accent-2 {
+      left: 100px;
+      bottom: 80px;
+      transform: translateX(-50%) rotate(45deg);
+      animation-delay: 3s;
+    }
+
+    .accent-3 {
+      right: 70px;
+      bottom: 80px;
+      transform: translateX(50%) rotate(45deg);
+      animation-delay: 3.2s;
+    }
+
+    @keyframes accentPulse {
+      0% {
+        opacity: 0;
+        transform: translateX(-50%) rotate(45deg) scale(0);
+      }
+      70% {
+        opacity: 1;
+        transform: translateX(-50%) rotate(45deg) scale(1.2);
+      }
+      100% {
+        opacity: 0.8;
+        transform: translateX(-50%) rotate(45deg) scale(1);
+      }
+    }
+
+    /* Foundation Lines */
+    .foundation {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent 0%, #fff 50%, transparent 100%);
+      opacity: 0;
+      animation: foundationGlow 1s ease 3.4s forwards;
+      box-shadow: 0 0 20px rgba(255,255,255,0.5);
+    }
+
+    @keyframes foundationGlow {
+      to {
+        opacity: 0.6;
+      }
+    }
+
+    /* Wordmark */
+    .wordmark {
+      font-size: 64px;
+      font-weight: 900;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      opacity: 0;
+      animation: fadeIn 1s ease 3.6s forwards;
+      text-shadow: 0 0 40px rgba(255,255,255,0.4);
+    }
+
+    /* Background */
+    .bg-grid {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: 
+        linear-gradient(#222 1px, transparent 1px),
+        linear-gradient(90deg, #222 1px, transparent 1px);
+      background-size: 50px 50px;
+      opacity: 0.1;
+      z-index: 0;
+    }
+
+    .vignette {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at center, transparent 0%, rgba(0,0,0,0.9) 100%);
+      z-index: 1;
+    }
+
+    @keyframes fadeIn {
+      to {
+        opacity: 1;
+      }
+    }
+
+    /* Mobile */
+    @media (max-width: 768px) {
+      .fortress {
+        width: 300px;
+        height: 300px;
+        margin-bottom: 60px;
+      }
+      
+      .tower {
+        width: 60px;
+        height: 150px;
+      }
+      
+      .crown {
+        width: 75px;
+        height: 45px;
+        bottom: 150px;
+      }
+      
+      .pillar {
+        width: 38px;
+        height: 105px;
+      }
+      
+      .pillar-left {
+        left: 60px;
+      }
+      
+      .pillar-right {
+        right: 60px;
+      }
+      
+      .outer-tower {
+        width: 30px;
+        height: 75px;
+      }
+      
+      .outer-left {
+        left: 15px;
+      }
+      
+      .outer-right {
+        right: 15px;
+      }
+      
+      .accent {
+        width: 20px;
+        height: 20px;
+      }
+      
+      .accent-1 {
+        bottom: 105px;
+      }
+      
+      .accent-2 {
+        left: 75px;
+        bottom: 60px;
+      }
+      
+      .accent-3 {
+        right: 52px;
+        bottom: 60px;
+      }
+      
+      .wordmark {
+        font-size: 42px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-grid"></div>
+  <div class="vignette"></div>
+  
+  <div class="container">
+    <div class="fortress">
+      <div class="tower"></div>
+      <div class="crown"></div>
+      <div class="pillar pillar-left"></div>
+      <div class="pillar pillar-right"></div>
+      <div class="outer-tower outer-left"></div>
+      <div class="outer-tower outer-right"></div>
+      <div class="accent accent-1"></div>
+      <div class="accent accent-2"></div>
+      <div class="accent accent-3"></div>
+      <div class="foundation"></div>
+    </div>
+    
+    <div class="wordmark">EXOSHELL</div>
+  </div>
+</body>
+</html>
