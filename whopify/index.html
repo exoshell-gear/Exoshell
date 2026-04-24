@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Whopify - Waitlist</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --black: #000000;
+      --white: #FFFFFF;
+      --purple: #8B3FFF;
+      --gray: #888888;
+      --dark-gray: #1a1a1a;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--black);
+      color: var(--white);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      overflow-x: hidden;
+    }
+
+    .container {
+      max-width: 500px;
+      width: 100%;
+      position: relative;
+      z-index: 2;
+    }
+
+    .logo {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      color: var(--purple);
+      margin-bottom: 80px;
+      opacity: 0;
+      animation: fadeIn 0.8s ease forwards;
+    }
+
+    h1 {
+      font-size: 32px;
+      font-weight: 700;
+      line-height: 1.2;
+      margin-bottom: 24px;
+      opacity: 0;
+      animation: fadeIn 0.8s ease 0.2s forwards;
+    }
+
+    .subhead {
+      font-size: 16px;
+      color: var(--gray);
+      line-height: 1.6;
+      margin-bottom: 48px;
+      opacity: 0;
+      animation: fadeIn 0.8s ease 0.4s forwards;
+    }
+
+    .benefits {
+      list-style: none;
+      margin-bottom: 48px;
+      opacity: 0;
+      animation: fadeIn 0.8s ease 0.6s forwards;
+    }
+
+    .benefits li {
+      font-size: 14px;
+      color: var(--white);
+      padding-left: 24px;
+      position: relative;
+      margin-bottom: 14px;
+      line-height: 1.5;
+    }
+
+    .benefits li::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 7px;
+      width: 12px;
+      height: 2px;
+      background: var(--purple);
+    }
+
+    .form {
+      opacity: 0;
+      animation: fadeIn 0.8s ease 0.8s forwards;
+    }
+
+    .input-group {
+      position: relative;
+      margin-bottom: 16px;
+    }
+
+    input[type="email"] {
+      width: 100%;
+      padding: 16px;
+      background: var(--dark-gray);
+      border: 1px solid transparent;
+      color: var(--white);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      outline: none;
+      transition: all 0.3s ease;
+    }
+
+    input[type="email"]:focus {
+      border-color: var(--purple);
+      background: rgba(139, 63, 255, 0.05);
+    }
+
+    input[type="email"]::placeholder {
+      color: var(--gray);
+    }
+
+    button {
+      width: 100%;
+      padding: 16px;
+      background: var(--purple);
+      color: var(--white);
+      border: none;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    button:hover {
+      background: var(--white);
+      color: var(--black);
+      transform: translateY(-2px);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    .footer {
+      margin-top: 80px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--gray);
+      text-align: center;
+      opacity: 0;
+      animation: fadeIn 0.8s ease 1s forwards;
+    }
+
+    /* Background grid effect - more visible */
+    .bg-grid {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: 
+        linear-gradient(var(--dark-gray) 1px, transparent 1px),
+        linear-gradient(90deg, var(--dark-gray) 1px, transparent 1px);
+      background-size: 40px 40px;
+      opacity: 0.6;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    /* Subtle glow effect */
+    .glow {
+      position: fixed;
+      top: 20%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(139, 63, 255, 0.15) 0%, transparent 70%);
+      filter: blur(80px);
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .success-message {
+      display: none;
+      padding: 16px;
+      background: rgba(139, 63, 255, 0.1);
+      border: 1px solid var(--purple);
+      color: var(--purple);
+      font-size: 14px;
+      margin-top: 16px;
+      text-align: center;
+    }
+
+    .success-message.show {
+      display: block;
+      animation: fadeIn 0.5s ease;
+    }
+
+    @media (max-width: 480px) {
+      h1 {
+        font-size: 28px;
+      }
+      
+      .logo {
+        margin-bottom: 60px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="glow"></div>
+  <div class="bg-grid"></div>
+  
+  <div class="container">
+    <div class="logo">WHOPIFY</div>
+    
+    <h1>Shopify Payments frozen?<br>Start selling again in 20 minutes.</h1>
+    
+    <p class="subhead">
+      You're here because you know the problem. We built the solution.
+    </p>
+    
+    <ul class="benefits">
+      <li>Never lose access to your payouts</li>
+      <li>Lower fees: 2.7% vs Shopify's 2.9%</li>
+      <li>Faster payouts: 3 days vs 7</li>
+      <li>Built-in chargeback protection</li>
+      <li>Klarna, Afterpay, Affirm, Sezzle built-in</li>
+      <li>Fully customizable checkout</li>
+      <li>Works with Shopify, WooCommerce, or standalone</li>
+      <li>Drop one script in your theme, you're live</li>
+      <li>Works even with MATCH listings</li>
+    </ul>
+    
+    <form class="form" id="waitlist-form" action="https://formspree.io/f/mpqkkbqw" method="POST">
+      <div class="input-group">
+        <input 
+          type="email" 
+          id="email"
+          name="email"
+          placeholder="Enter your email" 
+          required
+          autocomplete="email"
+        >
+      </div>
+      <button type="submit">Join Waitlist</button>
+      <div class="success-message" id="success">
+        You're on the list. We'll be in touch.
+      </div>
+    </form>
+    
+    <div class="footer">
+      Built by merchants, for merchants.
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('waitlist-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const form = e.target;
+      const email = document.getElementById('email').value;
+      const button = form.querySelector('button');
+      const successMsg = document.getElementById('success');
+      
+      // Submit to Formspree
+      fetch(form.action, {
+        method: 'POST',
+        body: new FormData(form),
+        headers: {
+          'Accept': 'application/json'
+        }
+      }).then(response => {
+        if (response.ok) {
+          button.textContent = 'Added';
+          button.style.background = 'var(--white)';
+          button.style.color = 'var(--black)';
+          successMsg.classList.add('show');
+          form.reset();
+        } else {
+          alert('Something went wrong. Please try again.');
+        }
+      }).catch(error => {
+        alert('Something went wrong. Please try again.');
+      });
+    });
+  </script>
+</body>
+</html>
