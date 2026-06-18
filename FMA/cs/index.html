@@ -1,0 +1,1268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Firemoto CS Wizard</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Armata&family=Montserrat:wght@400;600&display=swap');
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #171616;
+    color: #fff;
+    font-family: 'Montserrat', sans-serif;
+    min-height: 100vh;
+    padding: 16px 16px 60px;
+  }
+
+  .card {
+    background: #1f1e1e;
+    border: 1px solid #2a2a2a;
+    border-radius: 4px;
+    max-width: 640px;
+    margin: 0 auto;
+    overflow: hidden;
+  }
+
+  .card-header {
+    background: #252424;
+    padding: 14px 20px;
+    border-bottom: 1px solid #2a2a2a;
+  }
+
+  .scenario-label {
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #D0EB29;
+    font-family: 'Armata', sans-serif;
+  }
+
+  .card-body { padding: 22px 20px; }
+
+  .question {
+    font-family: 'Armata', sans-serif;
+    font-size: 17px;
+    line-height: 1.45;
+    margin-bottom: 22px;
+    color: #fff;
+  }
+
+  .options { display: flex; flex-direction: column; gap: 10px; }
+
+  .option-btn {
+    background: #171616;
+    border: 1px solid #333;
+    color: #fff;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 13px;
+    padding: 14px 18px;
+    text-align: left;
+    cursor: pointer;
+    border-radius: 3px;
+    transition: border-color 0.15s, background 0.15s;
+    line-height: 1.4;
+  }
+
+  .option-btn:hover { border-color: #D0EB29; background: #1a1a18; }
+  .option-btn.yes { border-left: 3px solid #D0EB29; }
+  .option-btn.no  { border-left: 3px solid #444; }
+
+  .resolution-tag {
+    display: inline-block;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-family: 'Armata', sans-serif;
+    padding: 4px 10px;
+    border-radius: 2px;
+    margin-bottom: 12px;
+  }
+
+  .resolution-tag.deny  { background: #FF0000; color: #fff; }
+  .resolution-tag.send  { background: #D0EB29; color: #171616; }
+  .resolution-tag.offer { background: #2a4a8a; color: #fff; }
+  .resolution-tag.info  { background: #333; color: #ccc; }
+
+  .resolution-title {
+    font-family: 'Armata', sans-serif;
+    font-size: 19px;
+    margin-bottom: 8px;
+    color: #fff;
+  }
+
+  .resolution-note {
+    font-size: 12px;
+    color: #888;
+    margin-bottom: 18px;
+    line-height: 1.6;
+  }
+
+  .escalation-box {
+    background: #1a1010;
+    border: 1px solid #FF0000;
+    border-radius: 3px;
+    padding: 12px 16px;
+    font-size: 12px;
+    color: #FF0000;
+    margin-bottom: 18px;
+    line-height: 1.6;
+  }
+
+  .escalation-box strong {
+    display: block;
+    margin-bottom: 4px;
+    font-family: 'Armata', sans-serif;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    font-size: 11px;
+  }
+
+  /* Template tabs */
+  .template-section { margin-bottom: 20px; }
+
+  .template-tabs {
+    display: flex;
+    gap: 0;
+    margin-bottom: 0;
+    border-bottom: 1px solid #2a2a2a;
+  }
+
+  .tab-btn {
+    background: #171616;
+    border: 1px solid #2a2a2a;
+    border-bottom: none;
+    color: #666;
+    font-family: 'Armata', sans-serif;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 8px 16px;
+    cursor: pointer;
+    transition: color 0.15s, background 0.15s;
+    margin-right: 4px;
+    border-radius: 3px 3px 0 0;
+  }
+
+  .tab-btn.active {
+    background: #1f1e1e;
+    color: #D0EB29;
+    border-color: #2a2a2a;
+  }
+
+  .tab-btn:hover:not(.active) { color: #ccc; }
+
+  .template-pane { display: none; }
+  .template-pane.active { display: block; }
+
+  .template-box {
+    background: #141414;
+    border: 1px solid #2a2a2a;
+    border-left: 3px solid #D0EB29;
+    border-top: none;
+    border-radius: 0 0 3px 3px;
+    padding: 16px 18px;
+    font-size: 13px;
+    line-height: 1.8;
+    color: #ddd;
+    white-space: pre-wrap;
+  }
+
+  .copy-btn {
+    background: #D0EB29;
+    color: #171616;
+    border: none;
+    font-family: 'Armata', sans-serif;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 9px 18px;
+    cursor: pointer;
+    border-radius: 2px;
+    margin-top: 10px;
+    display: block;
+    transition: opacity 0.15s;
+  }
+
+  .copy-btn:hover { opacity: 0.85; }
+  .copy-btn.copied { background: #444; color: #D0EB29; }
+
+  /* Nav row — always visible */
+  .nav-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 8px;
+  }
+
+  .back-btn {
+    background: transparent;
+    border: 1px solid #333;
+    color: #888;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 12px;
+    padding: 9px 16px;
+    cursor: pointer;
+    border-radius: 2px;
+    transition: border-color 0.15s, color 0.15s;
+  }
+
+  .back-btn:hover { border-color: #666; color: #ccc; }
+
+  .restart-btn {
+    background: transparent;
+    border: 1px solid #333;
+    color: #888;
+    font-family: 'Armata', sans-serif;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 9px 16px;
+    cursor: pointer;
+    border-radius: 2px;
+    transition: border-color 0.15s, color 0.15s;
+  }
+
+  .restart-btn:hover { border-color: #D0EB29; color: #D0EB29; }
+
+  /* Home */
+  #home { display: block; }
+  #tree { display: none; }
+
+  .home-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-width: 640px;
+    margin: 0 auto;
+  }
+
+  .section-label {
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #555;
+    font-family: 'Armata', sans-serif;
+    max-width: 640px;
+    margin: 0 auto 10px;
+    padding-left: 2px;
+  }
+
+  .scenario-card {
+    background: #1f1e1e;
+    border: 1px solid #2a2a2a;
+    border-radius: 4px;
+    padding: 16px 20px;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .scenario-card:hover { border-color: #D0EB29; background: #1a1a18; }
+
+  .scenario-card h3 {
+    font-family: 'Armata', sans-serif;
+    font-size: 14px;
+    color: #fff;
+    margin-bottom: 3px;
+  }
+
+  .scenario-card p { font-size: 11px; color: #666; }
+
+  .arrow { color: #444; font-size: 18px; }
+  .scenario-card:hover .arrow { color: #D0EB29; }
+
+  .progress-bar {
+    height: 2px;
+    background: #2a2a2a;
+    margin-bottom: 18px;
+    border-radius: 1px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: #D0EB29;
+    transition: width 0.3s ease;
+  }
+</style>
+</head>
+<body>
+
+<!-- HOME -->
+<div id="home">
+  <div class="section-label">Select a scenario</div>
+  <div class="home-grid">
+    <div class="scenario-card" onclick="startScenario('exchange')">
+      <div><h3>Size Exchange</h3><p>Customer wants to swap their size</p></div>
+      <span class="arrow">›</span>
+    </div>
+    <div class="scenario-card" onclick="startScenario('return')">
+      <div><h3>Return / Refund</h3><p>Customer wants to return their order</p></div>
+      <span class="arrow">›</span>
+    </div>
+    <div class="scenario-card" onclick="startScenario('tracking')">
+      <div><h3>Order Tracking</h3><p>Where is my order?</p></div>
+      <span class="arrow">›</span>
+    </div>
+    <div class="scenario-card" onclick="startScenario('cancel')">
+      <div><h3>Cancellation</h3><p>Customer wants to cancel their order</p></div>
+      <span class="arrow">›</span>
+    </div>
+    <div class="scenario-card" onclick="startScenario('address')">
+      <div><h3>Address / Size Change</h3><p>Customer needs to update their order details</p></div>
+      <span class="arrow">›</span>
+    </div>
+    <div class="scenario-card" onclick="startScenario('customs')">
+      <div><h3>Customs / Shipping Issue</h3><p>Package held, lost, or customs fees</p></div>
+      <span class="arrow">›</span>
+    </div>
+    <div class="scenario-card" onclick="startScenario('quality')">
+      <div><h3>Quality Issue</h3><p>Product defective or falling apart</p></div>
+      <span class="arrow">›</span>
+    </div>
+    <div class="scenario-card" onclick="startScenario('crash')">
+      <div><h3>Crash Replacement</h3><p>Customer crashed and has crash protection</p></div>
+      <span class="arrow">›</span>
+    </div>
+    <div class="scenario-card" onclick="startScenario('affiliate_free')">
+      <div><h3>Affiliate Asking for Free Gear</h3><p>Ambassador wants free product</p></div>
+      <span class="arrow">›</span>
+    </div>
+    <div class="scenario-card" onclick="startScenario('custom_order')">
+      <div><h3>Custom Order Request</h3><p>Customer wants a custom product</p></div>
+      <span class="arrow">›</span>
+    </div>
+    <div class="scenario-card" onclick="startScenario('supplier_unresponsive')">
+      <div><h3>Supplier Not Responding</h3><p>Kashif / MIRS not responding</p></div>
+      <span class="arrow">›</span>
+    </div>
+  </div>
+</div>
+
+<!-- DECISION TREE -->
+<div id="tree">
+  <div class="card">
+    <div class="card-header">
+      <span class="scenario-label" id="tree-scenario-label">Scenario</span>
+    </div>
+    <div class="card-body">
+      <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+
+      <!-- Question screen -->
+      <div id="question-screen">
+        <div class="question" id="question-text"></div>
+        <div class="options" id="options-container"></div>
+        <div class="nav-row" style="margin-top:20px;">
+          <button class="back-btn" onclick="goBack()">← Back</button>
+          <button class="restart-btn" onclick="goHome()">New Scenario</button>
+        </div>
+      </div>
+
+      <!-- Resolution screen -->
+      <div id="resolution-screen" style="display:none;">
+        <span class="resolution-tag" id="res-tag">Action</span>
+        <div class="resolution-title" id="res-title"></div>
+        <div class="resolution-note" id="res-note"></div>
+        <div id="escalation-container"></div>
+        <div class="template-section" id="template-section" style="display:none;">
+          <div class="template-tabs">
+            <button class="tab-btn active" id="tab-email" onclick="switchTab('email')">Email</button>
+            <button class="tab-btn" id="tab-dm" onclick="switchTab('dm')">DM</button>
+          </div>
+          <div class="template-pane active" id="pane-email">
+            <div class="template-box" id="res-template-email"></div>
+          </div>
+          <div class="template-pane" id="pane-dm">
+            <div class="template-box" id="res-template-dm"></div>
+          </div>
+          <button class="copy-btn" id="copy-btn" onclick="copyTemplate()">Copy Template</button>
+        </div>
+        <div class="nav-row">
+          <button class="back-btn" onclick="goBack()">← Back</button>
+          <button class="restart-btn" onclick="goHome()">New Scenario</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+let currentScenario = null;
+let history = [];
+let activeTab = 'email';
+
+const trees = {
+
+  exchange: {
+    label: 'Size Exchange',
+    start: 'e1',
+    nodes: {
+      e1: {
+        q: 'Has it been over 30 days since the customer received their order?',
+        opts: [
+          { label: 'Yes — over 30 days', next: 'e_too_late' },
+          { label: 'No — within 30 days', next: 'e2' }
+        ]
+      },
+      e2: {
+        q: 'Did we ship the wrong size (our error)?',
+        opts: [
+          { label: 'Yes — we shipped the wrong size', next: 'e_our_fault' },
+          { label: 'No — correct size was shipped', next: 'e3' }
+        ]
+      },
+      e3: {
+        q: 'Was the original order placed at a discount greater than 15%?',
+        opts: [
+          { label: 'Yes — discount over 15%', next: 'e_final_sale' },
+          { label: 'No — full price or under 15% off', next: 'e_customer_fault' }
+        ]
+      },
+      e_too_late: {
+        type: 'resolution', tag: 'deny',
+        title: 'Too Late — Outside Exchange Window',
+        note: 'Over 30 days since delivery. Exchange window closed.',
+        email: `Hey [name],
+
+We're unable to process an exchange on this order — our exchange window is 30 days from delivery and that date has passed.
+
+Firemoto`,
+        dm: `Exchange window is 30 days from delivery and that's passed. We're unable to process this one.`
+      },
+      e_final_sale: {
+        type: 'resolution', tag: 'deny',
+        title: 'Final Sale — No Exchange',
+        note: 'Discount over 15%. Final sale items are not eligible for exchange.',
+        email: `Hey [name],
+
+This order was placed at a sale price, which makes it a final sale. We're unable to process an exchange on final sale items.
+
+Firemoto`,
+        dm: `This order was final sale so we can't process an exchange on it.`
+      },
+      e_our_fault: {
+        type: 'resolution', tag: 'send',
+        title: 'Ship Correct Size — Our Cost',
+        note: 'We shipped the wrong size. Ship correct size immediately. Customer keeps original. No return needed.',
+        email: `Hey [name],
+
+That's on us — we'll get the correct size out to you right away.
+
+You're welcome to keep the original. No need to send anything back.
+
+Tracking will come within 1-2 business days.
+
+Firemoto`,
+        dm: `That's on us. Sending the correct size now — keep the original.
+
+Tracking in 1-2 days.`
+      },
+      e_customer_fault: {
+        type: 'resolution', tag: 'offer',
+        title: 'Exchange — Customer Pays Shipping',
+        note: 'Correct size was shipped. Customer pays return shipping back to us.',
+        email: `Hey [name],
+
+No problem — we can sort out an exchange.
+
+Since the correct size was shipped, you'd cover the return shipping cost. Send it back unworn with tags attached to:
+
+[Return address]
+
+Once we receive it, we'll ship your new size right away.
+
+Firemoto`,
+        dm: `We can do an exchange — you'd just cover the return shipping since the right size was sent.
+
+Send it back unworn with tags to: [Return address]
+
+We'll ship the new size once we get it.`
+      }
+    }
+  },
+
+  return: {
+    label: 'Return / Refund',
+    start: 'r1',
+    nodes: {
+      r1: {
+        q: 'Has it been over 30 days since the customer received their order?',
+        opts: [
+          { label: 'Yes — over 30 days', next: 'r_too_late' },
+          { label: 'No — within 30 days', next: 'r2' }
+        ]
+      },
+      r2: {
+        q: 'Was the order placed at a discount greater than 15%?',
+        opts: [
+          { label: 'Yes — discount over 15%', next: 'r_final_sale' },
+          { label: 'No — full price or under 15% off', next: 'r3' }
+        ]
+      },
+      r3: {
+        q: 'What is the reason for the return?',
+        opts: [
+          { label: 'We shipped the wrong item / defective product', next: 'r_our_fault' },
+          { label: 'Simply unhappy with the purchase', next: 'r4' }
+        ]
+      },
+      r4: {
+        q: 'Offer a 50% refund — customer keeps the item. Do they accept?',
+        opts: [
+          { label: 'Yes — they accept the partial refund', next: 'r_partial' },
+          { label: 'No — they want a full refund', next: 'r_full_return' }
+        ]
+      },
+      r_too_late: {
+        type: 'resolution', tag: 'deny',
+        title: 'Too Late — Outside Return Window',
+        note: 'Over 30 days since delivery. Return window closed.',
+        email: `Hey [name],
+
+Our return window is 30 days from delivery and that date has passed — we're unable to process a return on this order.
+
+Firemoto`,
+        dm: `Return window is 30 days from delivery and that's passed. Can't process this one.`
+      },
+      r_final_sale: {
+        type: 'resolution', tag: 'deny',
+        title: 'Final Sale — No Return',
+        note: 'Discount over 15%. Final sale.',
+        email: `Hey [name],
+
+This order was placed at a sale price, which makes it final sale. We're unable to accept returns on final sale items.
+
+Firemoto`,
+        dm: `This was a final sale order — returns aren't available on those.`
+      },
+      r_our_fault: {
+        type: 'resolution', tag: 'send',
+        title: 'Our Error — Ship Replacement',
+        note: 'Our error. Ship replacement immediately. Customer keeps original.',
+        email: `Hey [name],
+
+That's on us. We'll get the right item out to you right away.
+
+No need to return anything — keep it.
+
+Tracking within 1-2 business days.
+
+Firemoto`,
+        dm: `That's on us. Sending the right item now — keep the original.
+
+Tracking in 1-2 days.`
+      },
+      r_partial: {
+        type: 'resolution', tag: 'offer',
+        title: 'Process 50% Refund',
+        note: 'Customer accepted. Process 50% refund immediately.',
+        email: `Hey [name],
+
+Done — we've processed a 50% refund on your order. Should hit your account within 2-5 business days depending on your bank.
+
+Firemoto`,
+        dm: `Done. 50% refund processed. Hits your account in 2-5 days.`
+      },
+      r_full_return: {
+        type: 'resolution', tag: 'info',
+        title: 'Full Return — Customer Ships Back',
+        note: 'Customer ships item back unworn with tags. Full refund on receipt.',
+        email: `Hey [name],
+
+No problem. Send it back unworn with tags attached to:
+
+[Return address]
+
+Once we receive and inspect it, we'll process your full refund within 2-5 business days.
+
+Firemoto`,
+        dm: `Send it back unworn with tags to: [Return address]
+
+Full refund once we receive it.`
+      }
+    }
+  },
+
+  tracking: {
+    label: 'Order Tracking',
+    start: 't1',
+    nodes: {
+      t1: {
+        q: 'Has the order shipped yet?',
+        opts: [
+          { label: 'Yes — tracking number exists', next: 't2' },
+          { label: 'No — not yet shipped', next: 't_not_shipped' }
+        ]
+      },
+      t2: {
+        q: 'Was it marked as delivered?',
+        opts: [
+          { label: 'Yes — tracking says delivered', next: 't_delivered_claim' },
+          { label: 'No — still in transit', next: 't3' }
+        ]
+      },
+      t3: {
+        q: 'Is tracking showing a significant delay or no updates for 5+ days?',
+        opts: [
+          { label: 'Yes — stuck or no updates', next: 't_delay' },
+          { label: 'No — moving, just slow', next: 't_normal' }
+        ]
+      },
+      t_not_shipped: {
+        type: 'resolution', tag: 'info',
+        title: 'Order Not Yet Shipped',
+        note: 'Still being processed. Give estimated dispatch window.',
+        email: `Hey [name],
+
+Your order is being prepped to ship. You'll get tracking within 1-2 business days.
+
+We'll update you as soon as it goes out.
+
+Firemoto`,
+        dm: `Being prepped. You'll get tracking in 1-2 days.`
+      },
+      t_normal: {
+        type: 'resolution', tag: 'info',
+        title: 'In Transit — Normal Timeline',
+        note: 'Order is moving. Share tracking and expected window.',
+        email: `Hey [name],
+
+Your order is on the way. Track it here: [link]
+
+Delivery typically takes 7-10 business days depending on location. If it's been longer or tracking hasn't updated, let us know.
+
+Firemoto`,
+        dm: `On the way. Track: [link]
+
+Usually 7-10 days depending where you are.`
+      },
+      t_delivered_claim: {
+        type: 'resolution', tag: 'info',
+        title: 'Marked Delivered — Customer Says Not Received',
+        note: 'Ask them to check neighbors, front desk, mail room. If still missing, confirm address.',
+        email: `Hey [name],
+
+Tracking shows it was delivered on [date]: [link]
+
+Sometimes packages get left at the wrong door or held at your building's mail room. Worth checking with neighbors or your front desk.
+
+If you still can't find it, confirm your shipping address and we'll dig deeper.
+
+Firemoto`,
+        dm: `Tracking shows delivered [date]: [link]
+
+Check with neighbors or building mail room. Sometimes gets left at the wrong spot.
+
+If still can't find it, confirm your address and we'll dig deeper.`
+      },
+      t_delay: {
+        type: 'resolution', tag: 'offer',
+        title: 'Significant Delay — Offer Resolution',
+        note: 'Offer: wait it out OR 20% refund now and keep the order when it arrives.',
+        escalate: 'If tracking shows "lost in transit" or no movement for 10+ days — escalate to HQ.',
+        email: `Hey [name],
+
+Your order shipped but tracking shows delays. This happens sometimes with [carrier].
+
+Here's what we can do:
+- Wait it out (tracking shows it's moving, just slow)
+- We issue a 20% refund now, you keep the order when it arrives
+
+Your call. Let us know.
+
+Firemoto`,
+        dm: `Tracking shows delays with [carrier].
+
+Options:
+- Wait it out (it's moving, just slow)
+- 20% refund now, keep order when it arrives
+
+Your call.`
+      }
+    }
+  },
+
+  cancel: {
+    label: 'Cancellation',
+    start: 'c1',
+    nodes: {
+      c1: {
+        q: 'Has the order shipped yet?',
+        opts: [
+          { label: 'Yes — already shipped', next: 'c_shipped' },
+          { label: 'No — not yet dispatched', next: 'c_pre_ship' }
+        ]
+      },
+      c_pre_ship: {
+        type: 'resolution', tag: 'offer',
+        title: 'Try to Save It First',
+        note: 'Ask if something is wrong before processing. If they confirm — cancel it.',
+        email: `Hey [name],
+
+Saw you want to cancel. Everything okay?
+
+If there's something we can help with or change, let us know. We think you'll love the gear once you have it.
+
+But if you still want to cancel, no problem — just confirm and we'll process it.
+
+Firemoto`,
+        dm: `Want to cancel?
+
+If something's wrong or you need to change something we can help. But if you still want to cancel just confirm and we'll process it.`
+      },
+      c_shipped: {
+        type: 'resolution', tag: 'info',
+        title: 'Already Shipped — Cannot Cancel',
+        note: 'In transit. Customer can return once delivered for a full refund.',
+        email: `Hey [name],
+
+Your order already shipped, so we can't cancel it now.
+
+Track it here: [link]
+
+Once it arrives, you're welcome to return it for a full refund.
+
+Firemoto`,
+        dm: `Already on the way, can't cancel now.
+
+Track: [link]
+
+Return it when it arrives if needed.`
+      }
+    }
+  },
+
+  address: {
+    label: 'Address / Size Change',
+    start: 'a1',
+    nodes: {
+      a1: {
+        q: 'What does the customer need to change?',
+        opts: [
+          { label: 'Shipping address', next: 'a2' },
+          { label: 'Order size (before it ships)', next: 'a_size_pre' }
+        ]
+      },
+      a2: {
+        q: 'Has the order shipped yet?',
+        opts: [
+          { label: 'No — not yet shipped', next: 'a_address_pre' },
+          { label: 'Yes — already shipped', next: 'a_address_post' }
+        ]
+      },
+      a_address_pre: {
+        type: 'resolution', tag: 'send',
+        title: 'Update Address — Easy Fix',
+        note: 'Get correct details and update before dispatch.',
+        email: `Hey [name],
+
+We need your updated shipping info to make the change.
+
+Name:
+Address:
+City:
+State/Province:
+Zip/Postal Code:
+Country:
+Phone:
+
+Send that over and we'll update it.
+
+Firemoto`,
+        dm: `Hey! Need your updated shipping info:
+
+Name: Address: City: State/Province: Zip: Country: Phone:
+
+Send that and we'll update it.`
+      },
+      a_address_post: {
+        type: 'resolution', tag: 'info',
+        title: 'Already Shipped — Attempt Reroute',
+        note: 'Contact carrier to attempt reroute. Update customer within 24 hours.',
+        email: `Hey [name],
+
+Your order shipped already, so we can't change the address directly. We've reached out to the courier to see if they can reroute it.
+
+Track it here: [link]
+
+We'll update you within 24 hours once we hear back.
+
+Firemoto`,
+        dm: `Already shipped so we can't change it directly. We reached out to the carrier to see if they can reroute.
+
+Track: [link]
+
+Update you within 24hrs.`
+      },
+      a_size_pre: {
+        type: 'resolution', tag: 'send',
+        title: 'Size Updated — Pre-Ship',
+        note: 'Update in the system and confirm.',
+        email: `Hey [name],
+
+Updated. Your order is now [new size].
+
+You're all set.
+
+Firemoto`,
+        dm: `Updated to [size]. You're good.`
+      }
+    }
+  },
+
+  customs: {
+    label: 'Customs / Shipping Issue',
+    start: 'cu1',
+    nodes: {
+      cu1: {
+        q: 'What is the issue?',
+        opts: [
+          { label: 'Package is lost in transit', next: 'cu_lost' },
+          { label: 'Package held at customs', next: 'cu_held' },
+          { label: 'Customer asking about customs fees', next: 'cu2' }
+        ]
+      },
+      cu2: {
+        q: 'Where is the customer located?',
+        opts: [
+          { label: 'United States', next: 'cu_fees_us' },
+          { label: 'Outside the US', next: 'cu_fees_intl' }
+        ]
+      },
+      cu_lost: {
+        type: 'resolution', tag: 'send',
+        title: 'Lost in Transit — Send Replacement',
+        note: 'Confirm address. Send replacement at our cost.',
+        escalate: 'Order value over $500 — escalate to HQ before sending replacement.',
+        email: `Hey [name],
+
+We checked with the carrier. Your order got stuck in transit.
+
+Confirm your delivery address and we'll send a replacement at our cost.
+
+Really sorry about this. We'll get it sorted.
+
+Firemoto`,
+        dm: `Carrier lost it.
+
+Confirm your address and we'll send a replacement on us.
+
+Really sorry.`
+      },
+      cu_held: {
+        type: 'resolution', tag: 'info',
+        title: 'Customs Hold — Customer Action Required',
+        note: 'Customer must contact carrier directly to release.',
+        email: `Hey [name],
+
+Your order made it to [country] but customs is holding it. They need to speak with you directly to release it.
+
+Call [carrier] at [phone number] and give them tracking: [number]
+
+They'll walk you through clearance. Once that's done, they'll deliver it.
+
+Firemoto`,
+        dm: `Customs is holding it. They need to talk to you.
+
+Call [carrier]: [number] Tracking: [number]
+
+They'll walk you through release.`
+      },
+      cu_fees_us: {
+        type: 'resolution', tag: 'info',
+        title: 'US Customs Fees — Inform',
+        note: 'Due to US tariff changes. We cannot cover them.',
+        email: `Hey [name],
+
+We get that customs fees are frustrating. Recent U.S. tariff changes mean more packages get flagged at the border.
+
+These fees are set by U.S. Customs, not us. By law, the importer (you) covers them when the package arrives.
+
+This is standard for international orders now.
+
+Appreciate your understanding.
+
+Firemoto`,
+        dm: `Those fees are from US Customs, not us. Recent tariff changes made this more common. We don't control them.`
+      },
+      cu_fees_intl: {
+        type: 'resolution', tag: 'info',
+        title: 'International Customs Fees — Inform',
+        note: 'Set by local government. Cannot waive.',
+        email: `Hey [name],
+
+Recent law changes mean more international packages are subject to customs fees.
+
+These are set by your local government, not Firemoto. We don't control or collect any of it.
+
+Thanks for understanding.
+
+Firemoto`,
+        dm: `Those fees are from customs/your government, not us. We don't control them.
+
+Recent law changes made this more common.`
+      }
+    }
+  },
+
+  quality: {
+    label: 'Quality Issue',
+    start: 'q1',
+    nodes: {
+      q1: {
+        q: 'Has the customer already received a replacement for this same quality issue?',
+        opts: [
+          { label: 'No — first complaint', next: 'q2' },
+          { label: 'Yes — replacement was already sent', next: 'q_escalate' }
+        ]
+      },
+      q2: {
+        q: 'Have photos of the defect been received?',
+        opts: [
+          { label: 'No — no photos yet', next: 'q_ask_photos' },
+          { label: 'Yes — photos received', next: 'q_send_replacement' }
+        ]
+      },
+      q_ask_photos: {
+        type: 'resolution', tag: 'info',
+        title: 'Request Photos First',
+        note: 'Ask for photos before taking any action.',
+        email: `Hey [name],
+
+Really sorry to hear that. That's not the standard we hold ourselves to.
+
+Can you send us a few photos of the issue? Once we have those we'll get it sorted right away.
+
+Firemoto`,
+        dm: `Really sorry about that. Can you send us a few photos of the issue?
+
+Once we have them we'll sort it out.`
+      },
+      q_send_replacement: {
+        type: 'resolution', tag: 'send',
+        title: 'Send Replacement — Forward Photos to Supplier',
+        note: 'Photos received. Tell MIRS to send replacement. Forward photos + order number to supplier.',
+        escalate: 'Forward photos and order number to Kashif at MIRS so they can investigate the defect.',
+        email: `Hey [name],
+
+Thanks for sending those over. We're shipping you a replacement right away — no need to send anything back.
+
+Tracking within 1-2 business days.
+
+Firemoto`,
+        dm: `Thanks for those. Sending a replacement now — keep the original.
+
+Tracking in 1-2 days.`
+      },
+      q_escalate: {
+        type: 'resolution', tag: 'deny',
+        title: 'Second Replacement — Escalate to HQ',
+        note: 'Do NOT promise another replacement without HQ approval. Collect photos and escalate.',
+        escalate: 'Escalate to HQ at hq@firemoto.co immediately. Do not promise a third replacement. Forward all photos and order number.',
+        email: `Hey [name],
+
+We're really sorry you're dealing with this again — that's completely unacceptable and we take it seriously.
+
+We're escalating this directly to our team to investigate. Someone will follow up with you within 24 hours.
+
+Firemoto`,
+        dm: `Really sorry you're dealing with this again. We're escalating this to our team right now.
+
+Someone will follow up within 24 hours.`
+      }
+    }
+  },
+
+  crash: {
+    label: 'Crash Replacement',
+    start: 'cr1',
+    nodes: {
+      cr1: {
+        q: 'Did the customer purchase crash replacement (crash protection add-on at checkout)?',
+        opts: [
+          { label: 'Yes — crash protection was purchased', next: 'cr2' },
+          { label: 'No — no crash protection on order', next: 'cr_no_coverage' }
+        ]
+      },
+      cr2: {
+        q: 'Has the customer provided proof of purchase (original order confirmation showing crash protection)?',
+        opts: [
+          { label: 'No — not yet provided', next: 'cr_ask_proof' },
+          { label: 'Yes — proof received', next: 'cr3' }
+        ]
+      },
+      cr3: {
+        q: 'Has the customer provided photos of the crashed item?',
+        opts: [
+          { label: 'No — no photos yet', next: 'cr_ask_photos' },
+          { label: 'Yes — photos received', next: 'cr_send_code' }
+        ]
+      },
+      cr_no_coverage: {
+        type: 'resolution', tag: 'deny',
+        title: 'No Crash Protection — Cannot Process',
+        note: 'Crash replacement was not purchased. Inform customer clearly.',
+        email: `Hey [name],
+
+Sorry to hear about your crash — glad you're okay.
+
+Crash replacement is available as an add-on at checkout and unfortunately wasn't included on this order, so we're unable to process a replacement under that program.
+
+If you'd like to get back in gear, reach out and we'll sort you out.
+
+Firemoto`,
+        dm: `Glad you're okay. Crash replacement wasn't included on this order so we can't process it under that program.
+
+Hit us up if you want to get back in gear.`
+      },
+      cr_ask_proof: {
+        type: 'resolution', tag: 'info',
+        title: 'Request Proof of Purchase',
+        note: 'Need original order confirmation showing crash protection was purchased.',
+        email: `Hey [name],
+
+Glad you made it through okay.
+
+To process your crash replacement, we need your original order confirmation email showing crash protection was included. Can you forward that to us?
+
+Once we have it we'll get moving right away.
+
+Firemoto`,
+        dm: `Glad you're okay. To process your replacement we need your original order confirmation showing crash protection was included.
+
+Can you forward that?`
+      },
+      cr_ask_photos: {
+        type: 'resolution', tag: 'info',
+        title: 'Request Photos of Crashed Item',
+        note: 'Proof received. Now need photos of the damaged item.',
+        email: `Hey [name],
+
+Got it, thanks. One more thing — can you send us a few photos of the crashed item?
+
+Once we have those we'll get your replacement sorted.
+
+Firemoto`,
+        dm: `Got it. Can you send a few photos of the crashed item?
+
+Then we'll get your replacement sorted.`
+      },
+      cr_send_code: {
+        type: 'resolution', tag: 'send',
+        title: 'Send 50% Off Replacement Code',
+        note: 'All verification complete. Generate a 50% off code and send it.',
+        email: `Hey [name],
+
+You're all set. Here's your crash replacement code — 50% off your next order:
+
+[CODE]
+
+Use it at checkout. Valid for 30 days.
+
+Ride safe.
+
+Firemoto`,
+        dm: `You're all set. Here's your crash replacement code — 50% off:
+
+[CODE]
+
+Valid 30 days. Ride safe.`
+      }
+    }
+  },
+
+  affiliate_free: {
+    label: 'Affiliate Asking for Free Gear',
+    start: 'af1',
+    nodes: {
+      af1: {
+        type: 'resolution', tag: 'info',
+        title: 'No Free Gear — Redirect to Dashboard',
+        note: 'Free gear is for specific campaigns only. Redirect to 25% ambassador code.',
+        email: `Hey,
+
+We do give out gear to our partners when we're running a specific campaign and you're a good fit for that. We also run giveaways inside our Discord server.
+
+Outside of that, we have a 25% discount for ambassadors — your code is in your dashboard at affiliates.firemoto.co. There are also premade templates in there if you want to start promoting right away.
+
+Firemoto`,
+        dm: `We give out gear for specific campaigns and Discord giveaways.
+
+Outside of that your 25% ambassador discount is in your dashboard at affiliates.firemoto.co — premade templates are in there too if you want to start now.`
+      }
+    }
+  },
+
+  custom_order: {
+    label: 'Custom Order Request',
+    start: 'co1',
+    nodes: {
+      co1: {
+        type: 'resolution', tag: 'info',
+        title: 'Collect Details — Forward to HQ',
+        note: 'Get full details. Forward to hq@firemoto.co. Message HQ in Pumble.',
+        escalate: 'Forward full customer email to hq@firemoto.co. Then message HQ in Pumble: "Custom order request from [name] — forwarded to your email."',
+        email: `Hey [name],
+
+We'd love to hear more about what you have in mind. Can you share:
+
+- Which product (hoodie, jacket, joggers)?
+- What customization are you looking for?
+- Quantity?
+- Any reference images or specs?
+
+Once we have the details we'll get back to you.
+
+Firemoto`,
+        dm: `What did you have in mind?
+
+- Product (hoodie, jacket, joggers)?
+- What customization?
+- Quantity?
+- Any reference images?
+
+Send those over and we'll look into it.`
+      }
+    }
+  },
+
+  supplier_unresponsive: {
+    label: 'Supplier Not Responding',
+    start: 'su1',
+    nodes: {
+      su1: {
+        q: 'How long has it been since you contacted Kashif with no response?',
+        opts: [
+          { label: 'Less than 24 hours', next: 'su_wait' },
+          { label: '24 hours or more', next: 'su_escalate' }
+        ]
+      },
+      su_wait: {
+        type: 'resolution', tag: 'info',
+        title: 'Wait — Not Yet 24 Hours',
+        note: 'Give Kashif 24 hours before escalating. Try one follow-up message.',
+        email: null, dm: null
+      },
+      su_escalate: {
+        type: 'resolution', tag: 'deny',
+        title: 'Escalate to MIRS CEO — Zeeshan',
+        note: 'Kashif has not responded in 24+ hours.',
+        escalate: 'Contact Zeeshan (MIRS CEO) directly on WhatsApp: +923227551500. Explain the outstanding issue clearly.',
+        email: null, dm: null
+      }
+    }
+  }
+
+};
+
+// ─── NAVIGATION ──────────────────────────────────────────────────────────────
+
+function startScenario(key) {
+  currentScenario = key;
+  history = [];
+  activeTab = 'email';
+  document.getElementById('home').style.display = 'none';
+  document.getElementById('tree').style.display = 'block';
+  document.getElementById('tree-scenario-label').textContent = trees[key].label;
+  showNode(trees[key].start);
+}
+
+function showNode(nodeId) {
+  const node = trees[currentScenario].nodes[nodeId];
+  history.push(nodeId);
+  updateProgress();
+  node.type === 'resolution' ? showResolution(node) : showQuestion(node);
+}
+
+function showQuestion(node) {
+  document.getElementById('question-screen').style.display = 'block';
+  document.getElementById('resolution-screen').style.display = 'none';
+  document.getElementById('question-text').textContent = node.q;
+  const c = document.getElementById('options-container');
+  c.innerHTML = '';
+  node.opts.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn ' + (i === 0 ? 'yes' : 'no');
+    btn.textContent = opt.label;
+    btn.onclick = () => showNode(opt.next);
+    c.appendChild(btn);
+  });
+}
+
+function showResolution(node) {
+  document.getElementById('question-screen').style.display = 'none';
+  document.getElementById('resolution-screen').style.display = 'block';
+
+  const tagEl = document.getElementById('res-tag');
+  tagEl.textContent = { deny: 'Deny', send: 'Ship It', offer: 'Offer', info: 'Inform' }[node.tag] || node.tag;
+  tagEl.className = 'resolution-tag ' + node.tag;
+
+  document.getElementById('res-title').textContent = node.title;
+  document.getElementById('res-note').textContent = node.note;
+
+  const escalEl = document.getElementById('escalation-container');
+  escalEl.innerHTML = node.escalate
+    ? `<div class="escalation-box"><strong>⚠ Escalation Trigger</strong>${node.escalate}</div>`
+    : '';
+
+  const hasTemplates = node.email || node.dm;
+  const section = document.getElementById('template-section');
+  section.style.display = hasTemplates ? 'block' : 'none';
+
+  if (hasTemplates) {
+    document.getElementById('res-template-email').textContent = node.email || '(No email template for this scenario)';
+    document.getElementById('res-template-dm').textContent = node.dm || '(No DM template for this scenario)';
+    switchTab('email');
+  }
+}
+
+function switchTab(tab) {
+  activeTab = tab;
+  document.getElementById('tab-email').classList.toggle('active', tab === 'email');
+  document.getElementById('tab-dm').classList.toggle('active', tab === 'dm');
+  document.getElementById('pane-email').classList.toggle('active', tab === 'email');
+  document.getElementById('pane-dm').classList.toggle('active', tab === 'dm');
+  const btn = document.getElementById('copy-btn');
+  btn.textContent = 'Copy Template';
+  btn.classList.remove('copied');
+}
+
+function copyTemplate() {
+  const paneId = activeTab === 'email' ? 'res-template-email' : 'res-template-dm';
+  const text = document.getElementById(paneId).textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById('copy-btn');
+    btn.textContent = 'Copied';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copy Template'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+function updateProgress() {
+  const pct = Math.min((history.length / 4) * 100, 100);
+  document.getElementById('progress-fill').style.width = pct + '%';
+}
+
+function goBack() {
+  if (history.length <= 1) { goHome(); return; }
+  history.pop();
+  const prev = history.pop();
+  showNode(prev);
+}
+
+function goHome() {
+  currentScenario = null;
+  history = [];
+  document.getElementById('home').style.display = 'block';
+  document.getElementById('tree').style.display = 'none';
+  document.getElementById('progress-fill').style.width = '0%';
+}
+</script>
+</body>
+</html>
