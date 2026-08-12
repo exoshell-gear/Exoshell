@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0">
+<title>Habits</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Fraunces:ital,wght@0,500;1,500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #14120f;
+    --card: #1e1b17;
+    --card-2: #262220;
+    --border: #34302a;
+    --text: #f3ece2;
+    --text-muted: #a89e91;
+    --text-faint: #6b6459;
+    --accent: #e3cda0;
+    --accent-soft: rgba(227,205,160,0.14);
+    --track: #29251f;
+    --bad: #c97b62;
+    --radius-s: 10px;
+    --radius-m: 16px;
+    --radius-l: 22px;
+    --font-display: 'Fraunces', serif;
+    --font-body: 'Manrope', system-ui, -apple-system, sans-serif;
+  }
+
+  *{ box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  html, body{
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    height: 100%;
+    overscroll-behavior-y: none;
+  }
+
+  body{ display: flex; flex-direction: column; }
+
+  button{ font-family: inherit; border: none; background: none; color: inherit; cursor: pointer; }
+  input{ font-family: inherit; }
+
+  ::selection{ background: var(--accent-soft); color: var(--text); }
+  :focus-visible{ outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+  }
+
+  #app{
+    flex: 1 1 auto;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    max-width: 460px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 28px 18px calc(36px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .header{ margin-bottom: 22px; }
+  .header-title{
+    font-family: var(--font-display);
+    font-style: italic;
+    font-weight: 500;
+    font-size: 32px;
+    color: var(--text);
+    letter-spacing: 0.2px;
+  }
+  .header-sub{
+    font-size: 13px;
+    color: var(--text-faint);
+    margin-top: 2px;
+  }
+
+  .week-nav{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-m);
+    padding: 12px 8px;
+    margin-bottom: 20px;
+  }
+  .week-nav-btn{
+    width: 38px; height: 38px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 50%;
+    color: var(--text-muted);
+    font-size: 18px;
+  }
+  .week-nav-btn:active{ background: var(--card-2); }
+  .week-nav-btn:disabled{ opacity: 0.25; }
+  .week-label{
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+    text-align: center;
+  }
+  .week-label-tag{
+    display: block;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--accent);
+    letter-spacing: 0.5px;
+    margin-top: 1px;
+  }
+
+  .habit-list{ display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px; }
+
+  .habit-card{
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-l);
+    padding: 16px;
+  }
+  .habit-head{
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 14px;
+    gap: 10px;
+  }
+  .habit-name{
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text);
+    overflow-wrap: anywhere;
+  }
+  .habit-goal{
+    font-size: 12px;
+    color: var(--text-faint);
+    margin-top: 2px;
+  }
+  .habit-delete{
+    flex-shrink: 0;
+    width: 30px; height: 30px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: var(--radius-s);
+    color: var(--text-faint);
+    font-size: 15px;
+    transition: color .15s ease, background .15s ease;
+  }
+  .habit-delete.confirm-armed{
+    color: var(--bad);
+    background: rgba(201,123,98,0.12);
+    border: 1px solid var(--bad);
+    font-family: var(--font-body);
+    font-weight: 700;
+    font-size: 10px;
+    letter-spacing: 0.5px;
+    width: auto;
+    padding: 0 8px;
+  }
+
+  .day-labels{
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
+    margin-bottom: 6px;
+  }
+  .day-label{
+    text-align: center;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    color: var(--text-faint);
+  }
+  .day-label.is-today{ color: var(--accent); }
+
+  .day-squares{
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
+  }
+  .day-square{
+    aspect-ratio: 1;
+    border-radius: 9px;
+    background: var(--track);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    font-weight: 800;
+    color: transparent;
+    transition: background .18s ease, border-color .18s ease, box-shadow .25s ease, transform .05s ease;
+  }
+  .day-square.today-ring{ border-color: var(--text-faint); }
+  .day-square.checked{
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #241f16;
+    box-shadow: 0 6px 16px rgba(227,205,160,0.28);
+  }
+  .day-square.future{
+    opacity: 0.35;
+    pointer-events: none;
+  }
+  .day-square:active:not(.future){ transform: scale(0.9); }
+  .day-square.pop{ animation: squarePop 340ms cubic-bezier(.34,1.56,.64,1); }
+  @keyframes squarePop{
+    0%{ transform: scale(1); }
+    45%{ transform: scale(1.22); }
+    100%{ transform: scale(1); }
+  }
+
+  .add-habit-card{
+    background: var(--card);
+    border: 1px dashed var(--border);
+    border-radius: var(--radius-l);
+    overflow: hidden;
+  }
+  .add-habit-toggle{
+    width: 100%;
+    text-align: left;
+    padding: 16px;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .add-habit-form{
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height .22s ease;
+  }
+  .add-habit-form.open{ max-height: 260px; }
+  .add-habit-inner{ padding: 0 16px 16px; }
+  .field-label{
+    font-size: 11px;
+    color: var(--text-faint);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 6px;
+    display: block;
+  }
+  .text-input{
+    width: 100%;
+    background: var(--card-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-s);
+    color: var(--text);
+    font-size: 15px;
+    padding: 12px 14px;
+    margin-bottom: 14px;
+  }
+  .goal-row{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--card-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-s);
+    padding: 10px 14px;
+    margin-bottom: 16px;
+  }
+  .goal-label{ font-size: 14px; color: var(--text-muted); }
+  .goal-stepper{ display: flex; align-items: center; gap: 14px; }
+  .goal-btn{
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    background: var(--card);
+    border: 1px solid var(--border);
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .goal-value{ font-size: 15px; font-weight: 700; min-width: 20px; text-align: center; }
+  .btn-primary{
+    width: 100%;
+    background: var(--accent);
+    color: #241f16;
+    font-weight: 800;
+    font-size: 14px;
+    padding: 13px;
+    border-radius: var(--radius-s);
+    letter-spacing: 0.2px;
+  }
+  .btn-primary:active{ transform: scale(0.98); }
+
+  .empty-state{
+    text-align: center;
+    color: var(--text-faint);
+    font-size: 13px;
+    padding: 28px 10px;
+  }
+
+  .summary-card{
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-l);
+    padding: 22px 18px;
+    margin-top: 6px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+  .pie-wrap{
+    position: relative;
+    width: 108px;
+    height: 108px;
+    flex-shrink: 0;
+  }
+  .pie{
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: conic-gradient(var(--accent) calc(var(--pct) * 1%), var(--track) 0);
+    transition: background 0.4s ease;
+  }
+  .pie-hole{
+    position: absolute;
+    top: 14px; left: 14px; right: 14px; bottom: 14px;
+    background: var(--card);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+  }
+  .pie-pct{
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 24px;
+    color: var(--text);
+  }
+  .summary-text-title{
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+  }
+  .summary-text-detail{
+    font-size: 13px;
+    color: var(--text-faint);
+    line-height: 1.5;
+  }
+  .summary-text-detail b{ color: var(--text); font-weight: 700; }
+</style>
+</head>
+<body>
+
+<div id="app">
+  <div class="header">
+    <div class="header-title">Habits</div>
+    <div class="header-sub" id="todayLabel"></div>
+  </div>
+
+  <div class="week-nav">
+    <button class="week-nav-btn" id="prevWeek" aria-label="Previous week">‹</button>
+    <div class="week-label" id="weekLabel"></div>
+    <button class="week-nav-btn" id="nextWeek" aria-label="Next week">›</button>
+  </div>
+
+  <div class="habit-list" id="habitList"></div>
+
+  <div class="add-habit-card">
+    <button class="add-habit-toggle" id="toggleAddHabit">+ Add a habit</button>
+    <div class="add-habit-form" id="addHabitForm">
+      <div class="add-habit-inner">
+        <label class="field-label">Habit name</label>
+        <input class="text-input" id="newHabitName" placeholder="e.g. Drink water" maxlength="30">
+        <div class="goal-row">
+          <div class="goal-label">Days per week</div>
+          <div class="goal-stepper">
+            <button class="goal-btn" id="goalMinus">–</button>
+            <div class="goal-value" id="goalValue">7</div>
+            <button class="goal-btn" id="goalPlus">+</button>
+          </div>
+        </div>
+        <button class="btn-primary" id="saveHabit">Add habit</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="summary-card" id="summaryCard"></div>
+</div>
+
+<script>
+(function(){
+  const STORAGE_KEY = 'habit-tracker-data';
+  let data = { habits: [], checks: [] };
+  let weekOffset = 0; // 0 = current week, -1 = last week, etc.
+  let addFormOpen = false;
+  let newHabitGoal = 7;
+
+  function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+
+  function todayISO(){
+    const d = new Date();
+    return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+  }
+
+  function isoOf(d){
+    return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+  }
+
+  // week starts on Sunday
+  function sundayOf(dateObj){
+    const d = new Date(dateObj);
+    d.setDate(d.getDate() - d.getDay());
+    d.setHours(0,0,0,0);
+    return d;
+  }
+
+  function weekDates(offset){
+    const base = sundayOf(new Date());
+    base.setDate(base.getDate() + offset*7);
+    const days = [];
+    for(let i=0;i<7;i++){
+      const d = new Date(base);
+      d.setDate(d.getDate()+i);
+      days.push(isoOf(d));
+    }
+    return days;
+  }
+
+  function loadData(){
+    try{
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if(raw){
+        data = JSON.parse(raw);
+        if(!data.habits) data.habits = [];
+        if(!data.checks) data.checks = [];
+      }
+    } catch(e){
+      console.error('failed to load habit data', e);
+      data = { habits: [], checks: [] };
+    }
+    render();
+  }
+
+  function saveData(){
+    try{
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    } catch(e){
+      console.error('failed to save habit data', e);
+    }
+  }
+
+  function isChecked(habitId, dateISO){
+    return data.checks.some(c => c.habitId === habitId && c.date === dateISO);
+  }
+
+  function toggleCheck(habitId, dateISO){
+    const existing = data.checks.find(c => c.habitId === habitId && c.date === dateISO);
+    if(existing){
+      data.checks = data.checks.filter(c => c !== existing);
+    } else {
+      data.checks.push({ id: uid(), habitId, date: dateISO });
+    }
+  }
+
+  function armConfirmDelete(btn, onConfirm){
+    let armed = false;
+    let timer = null;
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if(!armed){
+        armed = true;
+        btn.textContent = 'SURE?';
+        btn.classList.add('confirm-armed');
+        timer = setTimeout(() => {
+          armed = false;
+          btn.textContent = '✕';
+          btn.classList.remove('confirm-armed');
+        }, 2500);
+      } else {
+        clearTimeout(timer);
+        onConfirm();
+      }
+    });
+  }
+
+  const DAY_INITIALS = ['S','M','T','W','T','F','S'];
+
+  function render(){
+    const today = todayISO();
+    document.getElementById('todayLabel').textContent = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+
+    const days = weekDates(weekOffset);
+    const weekLabelEl = document.getElementById('weekLabel');
+    const startLbl = new Date(days[0]+'T00:00:00').toLocaleDateString('en-US', {month:'short', day:'numeric'});
+    const endLbl = new Date(days[6]+'T00:00:00').toLocaleDateString('en-US', {month:'short', day:'numeric'});
+    weekLabelEl.innerHTML = `${startLbl} – ${endLbl}${weekOffset===0 ? '<span class="week-label-tag">THIS WEEK</span>' : ''}`;
+    document.getElementById('nextWeek').disabled = weekOffset >= 0;
+
+    renderHabitList(days, today);
+    renderSummary(days);
+  }
+
+  function renderHabitList(days, today){
+    const wrap = document.getElementById('habitList');
+    wrap.innerHTML = '';
+
+    if(data.habits.length === 0){
+      const empty = document.createElement('div');
+      empty.className = 'empty-state';
+      empty.textContent = 'No habits yet — add your first one below.';
+      wrap.appendChild(empty);
+      return;
+    }
+
+    data.habits.forEach(habit => {
+      const card = document.createElement('div');
+      card.className = 'habit-card';
+
+      const head = document.createElement('div');
+      head.className = 'habit-head';
+      head.innerHTML = `
+        <div>
+          <div class="habit-name">${habit.name}</div>
+          <div class="habit-goal">${habit.goal}x / week</div>
+        </div>
+      `;
+      const del = document.createElement('button');
+      del.className = 'habit-delete';
+      del.textContent = '✕';
+      armConfirmDelete(del, () => {
+        data.habits = data.habits.filter(h => h.id !== habit.id);
+        data.checks = data.checks.filter(c => c.habitId !== habit.id);
+        saveData();
+        render();
+      });
+      head.appendChild(del);
+      card.appendChild(head);
+
+      const labels = document.createElement('div');
+      labels.className = 'day-labels';
+      days.forEach((d, i) => {
+        const lbl = document.createElement('div');
+        lbl.className = 'day-label' + (d === today ? ' is-today' : '');
+        lbl.textContent = DAY_INITIALS[i];
+        labels.appendChild(lbl);
+      });
+      card.appendChild(labels);
+
+      const squares = document.createElement('div');
+      squares.className = 'day-squares';
+      days.forEach(d => {
+        const sq = document.createElement('button');
+        const checked = isChecked(habit.id, d);
+        const isFuture = d > today;
+        sq.className = 'day-square' + (checked ? ' checked' : '') + (isFuture ? ' future' : '') + (d === today ? ' today-ring' : '');
+        sq.textContent = checked ? '✓' : '';
+        sq.disabled = isFuture;
+        sq.addEventListener('click', () => {
+          toggleCheck(habit.id, d);
+          saveData();
+          sq.classList.add('pop');
+          sq.addEventListener('animationend', () => sq.classList.remove('pop'), { once: true });
+          const nowChecked = isChecked(habit.id, d);
+          sq.classList.toggle('checked', nowChecked);
+          sq.textContent = nowChecked ? '✓' : '';
+          renderSummary(days);
+        });
+        squares.appendChild(sq);
+      });
+      card.appendChild(squares);
+
+      wrap.appendChild(card);
+    });
+  }
+
+  function renderSummary(days){
+    const wrap = document.getElementById('summaryCard');
+    wrap.innerHTML = '';
+
+    if(data.habits.length === 0){
+      wrap.style.display = 'none';
+      return;
+    }
+    wrap.style.display = 'flex';
+
+    let totalGoal = 0, totalDone = 0;
+    data.habits.forEach(h => {
+      totalGoal += h.goal;
+      const doneCount = days.filter(d => isChecked(h.id, d)).length;
+      totalDone += Math.min(doneCount, h.goal);
+    });
+    const pct = totalGoal > 0 ? Math.round((totalDone / totalGoal) * 100) : 0;
+
+    const pieWrap = document.createElement('div');
+    pieWrap.className = 'pie-wrap';
+    pieWrap.innerHTML = `
+      <div class="pie" style="--pct:${pct}"></div>
+      <div class="pie-hole"><div class="pie-pct">${pct}%</div></div>
+    `;
+    wrap.appendChild(pieWrap);
+
+    const text = document.createElement('div');
+    text.innerHTML = `
+      <div class="summary-text-title">Weekly goals hit</div>
+      <div class="summary-text-detail"><b>${totalDone}</b> of <b>${totalGoal}</b> goal check-ins this week.</div>
+    `;
+    wrap.appendChild(text);
+  }
+
+  document.getElementById('prevWeek').addEventListener('click', () => {
+    weekOffset -= 1;
+    render();
+  });
+  document.getElementById('nextWeek').addEventListener('click', () => {
+    if(weekOffset < 0){ weekOffset += 1; render(); }
+  });
+
+  document.getElementById('toggleAddHabit').addEventListener('click', () => {
+    addFormOpen = !addFormOpen;
+    document.getElementById('addHabitForm').classList.toggle('open', addFormOpen);
+  });
+
+  document.getElementById('goalMinus').addEventListener('click', () => {
+    newHabitGoal = Math.max(1, newHabitGoal - 1);
+    document.getElementById('goalValue').textContent = newHabitGoal;
+  });
+  document.getElementById('goalPlus').addEventListener('click', () => {
+    newHabitGoal = Math.min(7, newHabitGoal + 1);
+    document.getElementById('goalValue').textContent = newHabitGoal;
+  });
+
+  document.getElementById('saveHabit').addEventListener('click', () => {
+    const nameInput = document.getElementById('newHabitName');
+    const name = nameInput.value.trim();
+    if(!name) return;
+    data.habits.push({ id: uid(), name, goal: newHabitGoal, createdAt: todayISO() });
+    saveData();
+    nameInput.value = '';
+    newHabitGoal = 7;
+    document.getElementById('goalValue').textContent = 7;
+    addFormOpen = false;
+    document.getElementById('addHabitForm').classList.remove('open');
+    render();
+  });
+
+  loadData();
+})();
+</script>
+</body>
+</html>
