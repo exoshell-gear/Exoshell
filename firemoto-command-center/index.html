@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Firemoto — Command Center</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Armata&family=Montserrat:ital,wght@0,400;0,500;0,600;0,700;0,800;1,700&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+  :root{
+    /* ---- color tokens ---- */
+    --bg:            #141313;
+    --panel:         #1c1a1a;
+    --panel-raised:  #221f1f;
+    --border:        #2b2828;
+    --border-soft:   #232020;
+    --text:          #ededed;
+    --text-dim:      #9a9a9a;
+    --text-faint:    #6b6b6b;
+
+    --lime:          #d0eb29;
+    --lime-dim:      #a8bc22;
+    --red:           #ff3b3b;
+    --red-dim:       #7a1e1e;
+    --amber:         #e8a93c;
+    --amber-dim:     #5c4419;
+    --cyan:          #5fc2d6;
+    --cyan-dim:      #234146;
+    --sage:          #6fb98f;
+    --sage-dim:      #253f30;
+
+    /* ---- type ---- */
+    --display: 'Armata', sans-serif;
+    --body: 'Montserrat', sans-serif;
+    --mono: 'JetBrains Mono', monospace;
+
+    --radius: 3px;
+  }
+
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; }
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:var(--body);
+    font-size:14px;
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  ::selection{ background:var(--lime); color:#141313; }
+  button{ font-family:inherit; cursor:pointer; }
+  input, textarea, select{ font-family:inherit; }
+  :focus-visible{ outline:2px solid var(--lime); outline-offset:2px; }
+
+  /* ================= LAYOUT ================= */
+  .app{ max-width:1180px; margin:0 auto; padding:0 28px 120px; }
+
+  /* ---- header / mission strip ---- */
+  header.mission{
+    position:sticky; top:0; z-index:40;
+    background:linear-gradient(180deg, var(--bg) 82%, rgba(20,19,19,0));
+    padding:26px 0 18px;
+    margin-bottom:6px;
+  }
+  .mission-top{
+    display:flex; align-items:baseline; justify-content:space-between; gap:20px;
+    flex-wrap:wrap;
+  }
+  .brand{ display:flex; align-items:baseline; gap:10px; }
+  .brand .mark{ font-family:var(--display); font-size:15px; letter-spacing:2px; color:var(--text-faint); text-transform:uppercase; }
+  .brand h1{
+    font-family:var(--display); font-size:26px; margin:0; color:var(--text);
+    letter-spacing:0.5px;
+  }
+  .brand h1 span{ color:var(--lime); }
+
+  .readouts{ display:flex; gap:0; align-items:stretch; }
+  .readout{
+    font-family:var(--mono);
+    padding:2px 18px; border-left:1px solid var(--border);
+    display:flex; flex-direction:column; gap:2px; min-width:84px;
+  }
+  .readout:first-child{ border-left:none; }
+  .readout .n{ font-size:20px; font-weight:600; color:var(--text); line-height:1; }
+  .readout .n.warn{ color:var(--amber); }
+  .readout .n.crit{ color:var(--red); }
+  .readout .l{ font-size:9px; letter-spacing:1.2px; text-transform:uppercase; color:var(--text-faint); }
+
+  .mission-controls{
+    display:flex; gap:10px; align-items:center; margin-top:18px; flex-wrap:wrap;
+  }
+  .controls-row{ display:flex; gap:10px; align-items:center; flex:1; min-width:0; }
+  .search-wrap{ position:relative; flex:1; min-width:200px; max-width:340px; }
+  .search-wrap svg{ position:absolute; left:11px; top:50%; transform:translateY(-50%); opacity:0.4; pointer-events:none; }
+  #search{
+    width:100%; background:var(--panel); border:1px solid var(--border); color:var(--text);
+    border-radius:var(--radius); padding:9px 12px 9px 34px; font-size:13px;
+  }
+  #search::placeholder{ color:var(--text-faint); }
+
+  .filter-pills{ display:flex; gap:6px; flex-wrap:wrap; }
+  .pill{
+    background:var(--panel); border:1px solid var(--border); color:var(--text-dim);
+    padding:8px 13px; border-radius:20px; font-size:11px; font-weight:600;
+    letter-spacing:0.4px; text-transform:uppercase; transition:all .15s ease;
+  }
+  .pill:hover{ border-color:var(--text-faint); color:var(--text); }
+  .pill.active{ background:var(--lime); border-color:var(--lime); color:#141313; }
+
+  .btn-add{
+    margin-left:auto; flex-shrink:0;
+    background:var(--lime); color:#141313; border:none; border-radius:var(--radius);
+    padding:9px 16px; font-size:12px; font-weight:700; letter-spacing:0.4px;
+    display:flex; align-items:center; gap:7px;
+    transition:background .15s ease, transform .1s ease;
+  }
+  .btn-add:active{ transform:scale(0.97); }
+  .btn-add:hover{ background:#e2ff3d; }
+
+  /* ---- group sections ---- */
+  .group{ margin-top:30px; }
+  .group-head{
+    display:flex; align-items:center; gap:10px; margin-bottom:10px; padding:0 2px;
+  }
+  .group-head .dot{ width:7px; height:7px; border-radius:50%; }
+  .group-head h2{
+    font-family:var(--mono); font-size:11px; font-weight:600; letter-spacing:2px;
+    text-transform:uppercase; margin:0; color:var(--text-dim);
+  }
+  .group-head .count{ font-family:var(--mono); font-size:11px; color:var(--text-faint); }
+  .group-head .rule{ flex:1; height:1px; background:var(--border-soft); }
+
+  .dot-now{ background:var(--red); box-shadow:0 0 8px var(--red); }
+  .dot-high{ background:var(--amber); }
+  .dot-medium{ background:var(--cyan); }
+  .dot-low{ background:var(--text-faint); }
+  .dot-done{ background:var(--sage); }
+
+  /* ---- front row (card) ---- */
+  .front{
+    background:var(--panel); border:1px solid var(--border); border-radius:var(--radius);
+    padding:16px 18px; margin-bottom:8px; cursor:pointer; position:relative;
+    transition:border-color .15s ease, transform .12s cubic-bezier(.2,.8,.3,1), box-shadow .15s ease;
+    animation:rise .32s cubic-bezier(.2,.8,.3,1) backwards;
+  }
+  .front:hover{ border-color:#3a3636; transform:translateY(-1px); box-shadow:0 6px 20px -8px rgba(0,0,0,0.5); }
+  .front:active{ transform:translateY(0) scale(0.997); }
+
+  @keyframes rise{
+    from{ opacity:0; transform:translateY(6px); }
+    to{ opacity:1; transform:translateY(0); }
+  }
+  .front.is-now{ border-left:3px solid var(--red); }
+  .front.is-high{ border-left:3px solid var(--amber); }
+  .front.is-medium{ border-left:3px solid var(--cyan); }
+  .front.is-low{ border-left:3px solid var(--border); }
+  .front.is-done{ border-left:3px solid var(--sage); opacity:0.55; }
+  .front.is-done:hover{ opacity:0.85; }
+
+  .front-top{ display:flex; justify-content:space-between; align-items:flex-start; gap:16px; }
+  .front-name{ font-size:15px; font-weight:700; color:var(--text); margin:0 0 3px; }
+  .front-goal{ font-size:12.5px; color:var(--text-dim); margin:0; max-width:56ch; }
+
+  .front-meta{ display:flex; flex-direction:column; align-items:flex-end; gap:6px; flex-shrink:0; }
+  .status-chip{
+    font-size:10px; font-weight:700; letter-spacing:0.5px; text-transform:uppercase;
+    padding:4px 9px; border-radius:12px; white-space:nowrap; font-family:var(--mono);
+  }
+  .alert-chip{
+    font-size:9.5px; font-weight:700; letter-spacing:0.6px; text-transform:uppercase;
+    padding:3px 8px; border-radius:10px; font-family:var(--mono);
+    display:flex; align-items:center; gap:4px;
+  }
+  .alert-overdue{ background:var(--red-dim); color:#ff8a8a; }
+  .alert-due{ background:var(--amber-dim); color:#ffd591; }
+  .alert-stale{ background:var(--border-soft); color:var(--text-faint); border:1px dashed #3a3636; }
+
+  .front-bottom{
+    display:flex; justify-content:space-between; align-items:center;
+    margin-top:12px; gap:16px;
+  }
+  .next-action{
+    font-size:12px; color:var(--text); display:flex; align-items:center; gap:6px;
+    overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  }
+  .next-action b{ color:var(--lime); font-weight:700; font-size:10px; text-transform:uppercase; letter-spacing:0.5px; flex-shrink:0; }
+  .blocker-flag{ color:var(--red); flex-shrink:0; display:flex; align-items:center; gap:4px; font-size:11px; }
+
+  /* pulse strip — signature element */
+  .pulse{
+    display:flex; align-items:center; gap:2px; flex-shrink:0; width:120px;
+  }
+  .pulse-track{
+    flex:1; height:3px; background:var(--border-soft); border-radius:2px; position:relative; overflow:visible;
+  }
+  .pulse-fill{ height:100%; border-radius:2px; }
+  .pulse-dot{
+    width:7px; height:7px; border-radius:50%; flex-shrink:0;
+  }
+
+  /* compact rows for MEDIUM/LOW */
+  .front.compact{ padding:11px 16px; }
+  .front.compact .front-goal{ display:none; }
+  .front.compact .front-name{ font-size:13px; margin:0; }
+  .front.compact .front-bottom{ margin-top:6px; }
+
+  /* done strip */
+  .done-toggle{
+    display:flex; align-items:center; gap:8px; padding:10px 2px; color:var(--text-faint);
+    font-size:11px; font-family:var(--mono); letter-spacing:0.5px; text-transform:uppercase;
+    user-select:none;
+  }
+  .done-toggle svg{ transition:transform .15s ease; }
+  .done-toggle.open svg{ transform:rotate(90deg); }
+  .done-list{ display:none; }
+  .done-list.open{ display:block; }
+
+  .empty-state{
+    text-align:center; padding:60px 20px; color:var(--text-faint);
+  }
+  .empty-state .big{ font-family:var(--display); font-size:20px; color:var(--text-dim); margin-bottom:6px; }
+
+  /* ================= DETAIL PANEL ================= */
+  .scrim{
+    position:fixed; inset:0; background:rgba(10,9,9,0.6); backdrop-filter:blur(2px);
+    opacity:0; pointer-events:none; transition:opacity .18s ease; z-index:60;
+  }
+  .scrim.open{ opacity:1; pointer-events:auto; }
+
+  .panel{
+    position:fixed; top:0; right:0; height:100%; width:440px; max-width:92vw;
+    background:var(--panel); border-left:1px solid var(--border);
+    box-shadow:-24px 0 48px -16px rgba(0,0,0,0.45);
+    transform:translateX(100%); transition:transform .22s cubic-bezier(.2,.8,.3,1);
+    z-index:61; display:flex; flex-direction:column;
+  }
+  .panel.open{ transform:translateX(0); }
+
+  .panel-head{
+    padding:20px 22px; border-bottom:1px solid var(--border-soft);
+    display:flex; justify-content:space-between; align-items:flex-start; gap:12px;
+  }
+  .panel-head .eyebrow{ font-family:var(--mono); font-size:10px; letter-spacing:1.5px; text-transform:uppercase; color:var(--text-faint); margin-bottom:6px; }
+  .panel-head h3{ font-family:var(--display); font-size:20px; margin:0; color:var(--text); }
+  .panel-close{
+    background:none; border:1px solid var(--border); color:var(--text-dim);
+    width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    flex-shrink:0;
+  }
+  .panel-close:hover{ border-color:var(--text-dim); color:var(--text); }
+
+  .panel-body{ padding:20px 22px; overflow-y:auto; flex:1; }
+  .field{ margin-bottom:18px; }
+  .field label{
+    display:block; font-family:var(--mono); font-size:10px; letter-spacing:1px; text-transform:uppercase;
+    color:var(--text-faint); margin-bottom:6px;
+  }
+  .field input[type=text], .field textarea, .field select, .field input[type=date]{
+    width:100%; background:var(--panel-raised); border:1px solid var(--border); color:var(--text);
+    border-radius:var(--radius); padding:9px 11px; font-size:13px;
+    transition:border-color .15s ease, box-shadow .15s ease;
+  }
+  .field input[type=text]:focus-visible, .field textarea:focus-visible,
+  .field select:focus-visible, .field input[type=date]:focus-visible{
+    outline:none; border-color:var(--lime); box-shadow:0 0 0 3px rgba(208,235,41,0.12);
+  }
+  .field textarea{ resize:vertical; min-height:64px; font-family:var(--body); line-height:1.5; }
+  .field-row{ display:flex; gap:12px; }
+  .field-row .field{ flex:1; }
+
+  .panel-footer{
+    padding:16px 22px; border-top:1px solid var(--border-soft); display:flex; gap:10px;
+  }
+  .btn-save{
+    flex:1; background:var(--lime); color:#141313; border:none; border-radius:var(--radius);
+    padding:11px; font-size:13px; font-weight:700;
+  }
+  .btn-save:hover{ background:#e2ff3d; }
+  .btn-cancel{
+    background:none; border:1px solid var(--border); color:var(--text-dim); border-radius:var(--radius);
+    padding:11px 16px; font-size:13px;
+  }
+  .btn-cancel:hover{ border-color:var(--text-dim); color:var(--text); }
+
+  .meta-line{
+    font-family:var(--mono); font-size:11px; color:var(--text-faint); margin-top:2px;
+  }
+
+  .toast{
+    position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px);
+    background:var(--lime); color:#141313; padding:11px 20px; border-radius:20px;
+    font-size:12px; font-weight:700; opacity:0; pointer-events:none; transition:all .2s ease;
+    z-index:80; font-family:var(--mono); letter-spacing:0.3px;
+  }
+  .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+
+  /* ================= MOBILE ================= */
+  @media (max-width: 720px){
+    .app{ padding:0 16px 100px; }
+    header.mission{ padding:16px 0 12px; }
+    .brand h1{ font-size:20px; }
+    .brand .mark{ font-size:13px; }
+
+    .mission-top{ flex-direction:column; align-items:stretch; gap:2px; }
+    .readouts{ width:100%; justify-content:space-between; margin-top:16px; }
+    .readout{ padding:0 8px 0 0; min-width:auto; align-items:flex-start; border-left:none; }
+    .readout .n{ font-size:18px; }
+
+    .mission-controls{
+      display:flex; flex-direction:column; gap:10px; margin-top:16px;
+    }
+    .search-wrap{ max-width:none; width:100%; }
+    #search{ padding:11px 12px 11px 34px; }
+    .controls-row{ display:flex; gap:8px; align-items:center; }
+    .filter-pills{
+      display:flex; gap:6px; flex-wrap:nowrap; overflow-x:auto;
+      -webkit-overflow-scrolling:touch; flex:1; padding-bottom:2px;
+    }
+    .pill{ flex-shrink:0; padding:9px 14px; }
+    .btn-add{ margin-left:0; flex-shrink:0; padding:10px 14px; }
+    .btn-add span.label{ display:none; }
+
+    .group-head{ margin-bottom:8px; }
+
+    .front{ padding:14px 15px; }
+    .front-top{ flex-direction:column; gap:8px; }
+    .front-meta{ flex-direction:row; align-items:center; width:100%; justify-content:space-between; }
+    .front-bottom{ flex-wrap:wrap; gap:10px; }
+    .pulse{ width:46px; }
+    .next-action{ flex:1; min-width:100px; }
+
+    .panel{ width:100%; max-width:100%; top:auto; bottom:0; height:90vh; border-left:none;
+      border-top:1px solid var(--border); border-radius:16px 16px 0 0;
+      transform:translateY(100%);
+    }
+    .panel.open{ transform:translateY(0); }
+    .panel::before{
+      content:''; position:absolute; top:8px; left:50%; transform:translateX(-50%);
+      width:36px; height:4px; border-radius:2px; background:var(--border);
+    }
+    .panel-head{ padding-top:26px; }
+    .field-row{ flex-direction:column; gap:0; }
+    .btn-save, .btn-cancel{ padding:13px; }
+  }
+
+  .panel-body{ scrollbar-width:thin; scrollbar-color:var(--border) transparent; }
+  .panel-body::-webkit-scrollbar{ width:6px; }
+  .panel-body::-webkit-scrollbar-track{ background:transparent; }
+  .panel-body::-webkit-scrollbar-thumb{ background:var(--border); border-radius:3px; }
+  .panel-body::-webkit-scrollbar-thumb:hover{ background:#3a3636; }
+
+  .filter-pills{ scrollbar-width:none; }
+  .filter-pills::-webkit-scrollbar{ display:none; }
+
+  @media (prefers-reduced-motion: reduce){
+    .front{ animation:none; }
+    *{ transition-duration:0.001ms !important; animation-duration:0.001ms !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <header class="mission">
+    <div class="mission-top">
+      <div class="brand">
+        <span class="mark">FIREMOTO</span>
+        <h1>Command <span>Center</span></h1>
+      </div>
+      <div class="readouts" id="readouts"></div>
+    </div>
+    <div class="mission-controls">
+      <div class="search-wrap">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" id="search" placeholder="Search…" autocomplete="off">
+      </div>
+      <div class="controls-row">
+        <div class="filter-pills" id="filterPills"></div>
+        <button class="btn-add" id="btnAdd">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          <span class="label">Add front</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main id="main"></main>
+</div>
+
+<div class="scrim" id="scrim"></div>
+<div class="panel" id="panel">
+  <div class="panel-head">
+    <div>
+      <div class="eyebrow" id="panelEyebrow">Front detail</div>
+      <h3 id="panelTitle">—</h3>
+      <div class="meta-line" id="panelMeta"></div>
+    </div>
+    <button class="panel-close" id="panelClose">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <div class="panel-body">
+    <div class="field"><label for="f-name">Front name</label><input type="text" id="f-name"></div>
+    <div class="field"><label for="f-goal">Goal</label><textarea id="f-goal" rows="2"></textarea></div>
+    <div class="field-row">
+      <div class="field"><label for="f-status">Status</label><select id="f-status"></select></div>
+      <div class="field"><label for="f-priority">Priority</label><select id="f-priority"></select></div>
+    </div>
+    <div class="field"><label for="f-next">Next action</label><textarea id="f-next" rows="2"></textarea></div>
+    <div class="field-row">
+      <div class="field"><label for="f-deadline">Deadline</label><input type="text" id="f-deadline" placeholder="This week"></div>
+      <div class="field"><label for="f-deadlineDate">Exact date</label><input type="date" id="f-deadlineDate"></div>
+    </div>
+    <div class="field"><label for="f-blocker">Blocker</label><input type="text" id="f-blocker" placeholder="What's in the way"></div>
+    <div class="field"><label for="f-note">Update note</label><textarea id="f-note" rows="3"></textarea></div>
+  </div>
+  <div class="panel-footer"><button class="btn-cancel" id="btnCancel">Cancel</button><button class="btn-save" id="btnSave">Save changes</button></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const NOW = new Date('2026-08-22T09:00:00');
+const Q4_START = new Date('2026-10-01T00:00:00');
+let fronts = [
+  {id:'email-campaigns',front:'Customer email campaigns',goal:'Keep revenue flowing through the list without burning it out on constant discounting.',status:'Needs action',nextAction:'Send a non-sale revenue email — test product story, proof, or bestseller angle',deadline:'This week',deadlineDate:'2026-08-23',blocker:'Last 2 sale campaigns barely converted',priority:'NOW',lastUpdated:'2026-08-19',updatedBy:'Reesh',updateNote:'Need revenue fast. Avoid immediately repeating another sale campaign.',staleAfterDays:4},
+  {id:'customer-service',front:'Customer service',goal:'Close the response-time gap that is driving disputes, and clear the current backlog.',status:'Nearly finished',nextAction:'Finish current cleanup and close remaining urgent cases',deadline:'ASAP',deadlineDate:'2026-08-22',blocker:'',priority:'NOW',lastUpdated:'2026-08-21',updatedBy:'Reesh',updateNote:'Finishing cleanup now.',staleAfterDays:2},
+  {id:'email-flows',front:'Email flows',goal:'Get welcome, cart, post-purchase, browse, and winback flows live in Klaviyo.',status:'In progress',nextAction:'Email marketer starts milestone 1',deadline:'Milestone 2 in ~17 days',deadlineDate:'2026-09-08',blocker:'Cash timing for second milestone',priority:'HIGH',lastUpdated:'2026-08-20',updatedBy:'Reesh',updateNote:'Milestone 1 paid at $690 (23 emails, trimmed from 25). Onboarding completed.',staleAfterDays:6},
+  {id:'affiliate-recruitment',front:'Affiliate recruitment + product seeding',goal:'Build a real bench of creators posting Firemoto content through Q4.',status:'Building',nextAction:'Add creator candidates, choose first wave of 5–6, send product ASAP',deadline:'Mid-September',deadlineDate:'2026-09-15',blocker:'Need more strong candidates beyond Britty + Spunky',priority:'HIGH',lastUpdated:'2026-08-18',updatedBy:'Reesh',updateNote:'Goal is to have seeded creators posting throughout Q4.',staleAfterDays:6},
+  {id:'affiliate-email-system',front:'Affiliate email system',goal:'Turn the affiliate flow into a real relationship engine, not just an ROI chase.',status:'In progress',nextAction:'Write evergreen emails 4–7: local leaders, YouTube creators, photographer recruitment',deadline:'',deadlineDate:null,blocker:'',priority:'MEDIUM',lastUpdated:'2026-08-03',updatedBy:'Reesh',updateNote:'Emails 1–6 and the Day-13-onward cadence are live. Evergreen relationship sequence still needs to be written.',staleAfterDays:10},
+  {id:'supplier-finances',front:'Current supplier finances',goal:'Get MIRS payments and balances fully reconciled — no surprises mid-production.',status:'Needs action',nextAction:'Finish current financial dealings',deadline:'This week',deadlineDate:'2026-08-24',blocker:'Cash flow',priority:'HIGH',lastUpdated:'2026-08-20',updatedBy:'Reesh',updateNote:'',staleAfterDays:4},
+  {id:'new-supplier-search',front:'New supplier search',goal:'Line up a backup manufacturer so MIRS is never a single point of failure again.',status:'In progress',nextAction:'Jonzy sends the sourcing outreach email to the supplier shortlist',deadline:'Before Q4 if possible',deadlineDate:'2026-09-30',blocker:'Need a confirmed shortlist to actually contact',priority:'MEDIUM',lastUpdated:'2026-08-22',updatedBy:'Reesh',updateNote:'Outreach template drafted — AA rating, cost per unit, dropship capability, DDP shipping, ranked by importance.',staleAfterDays:8},
+  {id:'q4-product-design',front:'Q4 product design',goal:'Lock the Q4 lineup early enough that lead times do not eat the season.',status:'Needs action',nextAction:'Lock concepts and move highest-priority products into sampling',deadline:'September',deadlineDate:'2026-09-30',blocker:'Lead times',priority:'HIGH',lastUpdated:'2026-08-15',updatedBy:'Reesh',updateNote:'',staleAfterDays:7},
+  {id:'q4-sales-calendar',front:'Q4 sales calendar',goal:'Have the major promo dates and offers locked before Q4 actually starts.',status:'Not started',nextAction:'Choose major Q4 promo dates and offers',deadline:'Before October 1',deadlineDate:'2026-09-30',blocker:'',priority:'MEDIUM',lastUpdated:'2026-08-05',updatedBy:'Reesh',updateNote:'',staleAfterDays:10},
+  {id:'returns-exchanges',front:'Returns / exchanges',goal:'Stand up a real return path so the no-return-address workaround stops bleeding money.',status:'Exploring options',nextAction:'Vet 3PL leads from Reddit outreach — confirm pricing, volume fit, and insurance',deadline:'Before Q4',deadlineDate:'2026-09-30',blocker:'No US return address yet — interim keep-it policy in effect',priority:'HIGH',lastUpdated:'2026-08-20',updatedBy:'Reesh',updateNote:'Master Emergency SOP in effect in the meantime. Sourcing a dedicated small-scale returns partner.',staleAfterDays:6},
+  {id:'discord',front:'Discord community',goal:'Hand Discord day-to-day management fully to Jonzy so GroupRide keeps its daily pulse.',status:'Needs action',nextAction:'Resolve the access issue Jonzy reported and confirm the handover actually happened',deadline:'Overdue — originally Aug 5',deadlineDate:'2026-08-05',blocker:'Access/login issue reported by Jonzy on Aug 12, still unresolved',priority:'HIGH',lastUpdated:'2026-08-18',updatedBy:'Jonzy',updateNote:'Task tracker shows this overdue since Aug 5. Still not started as of Aug 20 per Jonzy\'s own tracker.',staleAfterDays:5},
+  {id:'ads',front:'Ads',goal:'Keep the funnel warm without adding fuel to a payment processor risk that is already critical.',status:'Waiting on execution',nextAction:'Resume sales-focused ad spend once dispute rate drops back under the critical line',deadline:'',deadlineDate:null,blocker:'Dispute rate at 9.26%, over 6x the critical threshold — sales ads paused',priority:'MEDIUM',lastUpdated:'2026-08-20',updatedBy:'Reesh',updateNote:'Affiliate recruitment ads still running. Sales/retargeting ads paused pending chargeback resolution.',staleAfterDays:6}
+];
+const STATUS_OPTIONS=['Not started','Planned','Needs action','In progress','Building','Exploring options','Waiting on execution','Mixed','Nearly finished','Done'];
+const PRIORITY_OPTIONS=['NOW','HIGH','MEDIUM','LOW'];
+const PRIORITY_ORDER={NOW:0,HIGH:1,MEDIUM:2,LOW:3};
+let state={query:'',filter:'ALL',openId:null,isNew:false,showDone:false};
+function daysBetween(a,b){return Math.round((b-a)/86400000)}
+function computeAlert(f){if(f.status==='Done')return{type:null};if(f.deadlineDate){const d=new Date(f.deadlineDate+'T00:00:00');const diff=daysBetween(NOW,d);if(diff<0)return{type:'overdue',label:'OVERDUE',days:Math.abs(diff)};if(diff<=5)return{type:'due',label:`DUE IN ${diff}D`,days:diff}}const lu=new Date(f.lastUpdated+'T00:00:00');const staleDays=daysBetween(lu,NOW);if(f.staleAfterDays&&staleDays>=f.staleAfterDays)return{type:'stale',label:`STALE ${staleDays}D`,days:staleDays};return{type:null}}
+function pulseState(f){const alert=computeAlert(f);if(f.status==='Done')return{color:'var(--sage)',ratio:1};if(alert.type==='overdue')return{color:'var(--red)',ratio:1};if(alert.type==='due')return{color:'var(--amber)',ratio:1-(alert.days/5)};if(alert.type==='stale')return{color:'var(--text-faint)',ratio:.3};return{color:'var(--cyan)',ratio:.65}}
+function statusColor(status){if(status==='Done')return{bg:'var(--sage-dim)',fg:'#a8e0bf'};if(['Needs action','Not started'].includes(status))return{bg:'var(--red-dim)',fg:'#ff9d9d'};if(['Nearly finished','In progress','Building'].includes(status))return{bg:'var(--cyan-dim)',fg:'#a6e3f0'};return{bg:'var(--amber-dim)',fg:'#ffd591'}}
+function sortFronts(list){return[...list].sort((a,b)=>{const pa=PRIORITY_ORDER[a.priority]??9,pb=PRIORITY_ORDER[b.priority]??9;if(pa!==pb)return pa-pb;const aa=computeAlert(a),ab=computeAlert(b);const weight=t=>t==='overdue'?0:t==='due'?1:t==='stale'?2:3;return weight(aa.type)-weight(ab.type)})}
+function matchesQuery(f,q){if(!q)return true;const hay=[f.front,f.goal,f.nextAction,f.blocker,f.updateNote].join(' ').toLowerCase();return hay.includes(q.toLowerCase())}
+function matchesFilter(f,filter){if(filter==='ALL')return true;if(filter==='DONE')return f.status==='Done';return f.priority===filter}
+function timeAgo(iso){const d=new Date(iso+'T00:00:00');const days=daysBetween(d,NOW);if(days<=0)return'today';if(days===1)return'1 day ago';return`${days} days ago`}
+function renderReadouts(){const daysToQ4=daysBetween(NOW,Q4_START),active=fronts.filter(f=>f.status!=='Done').length,urgent=fronts.filter(f=>f.status!=='Done'&&(f.priority==='NOW'||computeAlert(f).type==='overdue')).length,warnings=fronts.filter(f=>['overdue','stale'].includes(computeAlert(f).type)).length;document.getElementById('readouts').innerHTML=`<div class="readout"><div class="n">${daysToQ4}</div><div class="l">Days to Q4</div></div><div class="readout"><div class="n">${active}</div><div class="l">Active fronts</div></div><div class="readout"><div class="n ${urgent>0?'crit':''}">${urgent}</div><div class="l">Urgent</div></div><div class="readout"><div class="n ${warnings>0?'warn':''}">${warnings}</div><div class="l">Warnings</div></div>`}
+function renderPills(){const defs=[{key:'ALL',label:'All'},{key:'NOW',label:'Now'},{key:'HIGH',label:'High'},{key:'MEDIUM',label:'Medium'},{key:'LOW',label:'Low'},{key:'DONE',label:'Done'}],el=document.getElementById('filterPills');el.innerHTML=defs.map(d=>`<button class="pill ${state.filter===d.key?'active':''}" data-filter="${d.key}">${d.label}</button>`).join('');el.querySelectorAll('.pill').forEach(btn=>btn.addEventListener('click',()=>{state.filter=btn.dataset.filter;render()}))}
+let cardIndex=0;
+function escapeHtml(s){const d=document.createElement('div');d.textContent=s??'';return d.innerHTML}
+function frontCardHTML(f,compact){const delay=Math.min(cardIndex++*22,220),alert=computeAlert(f),pulse=pulseState(f),sc=statusColor(f.status),alertHTML=alert.type?`<span class="alert-chip alert-${alert.type}">${alert.label}</span>`:'',blockerHTML=f.blocker?`<span class="blocker-flag" title="${escapeHtml(f.blocker)}"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 9v4M12 17h.01M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>Blocked</span>`:'<span></span>';return`<div class="front is-${f.priority.toLowerCase()} ${f.status==='Done'?'is-done':''} ${compact?'compact':''}" data-id="${f.id}" style="animation-delay:${delay}ms"><div class="front-top"><div><p class="front-name">${escapeHtml(f.front)}</p><p class="front-goal">${escapeHtml(f.goal)}</p></div><div class="front-meta">${alertHTML}<span class="status-chip" style="background:${sc.bg};color:${sc.fg}">${escapeHtml(f.status)}</span></div></div><div class="front-bottom"><div class="next-action"><b>Next</b>${escapeHtml(f.nextAction||'—')}</div><div class="pulse" title="Last updated ${timeAgo(f.lastUpdated)}"><div class="pulse-track"><div class="pulse-fill" style="width:${Math.round(pulse.ratio*100)}%;background:${pulse.color}"></div></div><div class="pulse-dot" style="background:${pulse.color};box-shadow:0 0 6px ${pulse.color}"></div></div>${blockerHTML}</div></div>`}
+function render(){cardIndex=0;renderReadouts();renderPills();const q=state.query.trim(),visible=fronts.filter(f=>matchesQuery(f,q)&&matchesFilter(f,state.filter)),groups=[{key:'NOW',label:'Right now',dot:'dot-now'},{key:'HIGH',label:'High',dot:'dot-high'},{key:'MEDIUM',label:'Medium',dot:'dot-medium'},{key:'LOW',label:'Low',dot:'dot-low'}],main=document.getElementById('main');if(visible.length===0){main.innerHTML='<div class="empty-state"><div class="big">Nothing here</div>Clear the search or filter.</div>';return}let html='';const activeVisible=visible.filter(f=>f.status!=='Done'),doneVisible=visible.filter(f=>f.status==='Done');groups.forEach(g=>{const items=sortFronts(activeVisible.filter(f=>f.priority===g.key));if(!items.length)return;const compact=g.key==='MEDIUM'||g.key==='LOW';html+=`<div class="group"><div class="group-head"><span class="dot ${g.dot}"></span><h2>${g.label}</h2><span class="count">${items.length}</span><span class="rule"></span></div>${items.map(f=>frontCardHTML(f,compact)).join('')}</div>`});if(doneVisible.length>0||state.filter==='DONE'){html+=`<div class="group"><div class="done-toggle ${state.showDone?'open':''}" id="doneToggle"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="9 18 15 12 9 6"/></svg><span class="dot dot-done"></span> Completed (${doneVisible.length})</div><div class="done-list ${state.showDone||state.filter==='DONE'?'open':''}" id="doneList">${sortFronts(doneVisible).map(f=>frontCardHTML(f,true)).join('')}</div></div>`}main.innerHTML=html;main.querySelectorAll('.front').forEach(card=>card.addEventListener('click',()=>openFront(card.dataset.id)));const dt=document.getElementById('doneToggle');if(dt)dt.addEventListener('click',()=>{state.showDone=!state.showDone;render()})}
+function populateSelects(){document.getElementById('f-status').innerHTML=STATUS_OPTIONS.map(o=>`<option value="${o}">${o}</option>`).join('');document.getElementById('f-priority').innerHTML=PRIORITY_OPTIONS.map(o=>`<option value="${o}">${o}</option>`).join('')}populateSelects();
+function openFront(id){state.openId=id;state.isNew=false;const f=fronts.find(x=>x.id===id);fillPanel(f);document.getElementById('panelEyebrow').textContent='Front detail';document.getElementById('panelMeta').textContent=`Last updated ${timeAgo(f.lastUpdated)} · ${f.updatedBy||'unknown'}`;showPanel()}
+function openNewFront(){state.openId=null;state.isNew=true;fillPanel({front:'',goal:'',status:'Not started',priority:'MEDIUM',nextAction:'',deadline:'',deadlineDate:'',blocker:'',updateNote:''});document.getElementById('panelEyebrow').textContent='New front';document.getElementById('panelMeta').textContent='';showPanel()}
+function fillPanel(f){document.getElementById('panelTitle').textContent=f.front||'New front';document.getElementById('f-name').value=f.front||'';document.getElementById('f-goal').value=f.goal||'';document.getElementById('f-status').value=f.status||'Not started';document.getElementById('f-priority').value=f.priority||'MEDIUM';document.getElementById('f-next').value=f.nextAction||'';document.getElementById('f-deadline').value=f.deadline||'';document.getElementById('f-deadlineDate').value=f.deadlineDate||'';document.getElementById('f-blocker').value=f.blocker||'';document.getElementById('f-note').value=f.updateNote||''}
+function showPanel(){document.getElementById('panel').classList.add('open');document.getElementById('scrim').classList.add('open')}
+function hidePanel(){document.getElementById('panel').classList.remove('open');document.getElementById('scrim').classList.remove('open')}
+function saveFront(){const data={front:document.getElementById('f-name').value.trim(),goal:document.getElementById('f-goal').value.trim(),status:document.getElementById('f-status').value,priority:document.getElementById('f-priority').value,nextAction:document.getElementById('f-next').value.trim(),deadline:document.getElementById('f-deadline').value.trim(),deadlineDate:document.getElementById('f-deadlineDate').value||null,blocker:document.getElementById('f-blocker').value.trim(),updateNote:document.getElementById('f-note').value.trim()};if(!data.front){showToast('Name it first');return}if(state.isNew){const id=data.front.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'')||('front-'+Date.now());fronts.push({id,...data,lastUpdated:NOW.toISOString().slice(0,10),updatedBy:'Reesh',staleAfterDays:7});showToast('Front added')}else{const f=fronts.find(x=>x.id===state.openId);Object.assign(f,data);f.lastUpdated=NOW.toISOString().slice(0,10);showToast('Changes saved')}hidePanel();render()}
+let toastTimer;function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),2200)}
+document.getElementById('search').addEventListener('input',e=>{state.query=e.target.value;render()});document.getElementById('btnAdd').addEventListener('click',openNewFront);document.getElementById('panelClose').addEventListener('click',hidePanel);document.getElementById('btnCancel').addEventListener('click',hidePanel);document.getElementById('btnSave').addEventListener('click',saveFront);document.getElementById('scrim').addEventListener('click',hidePanel);document.addEventListener('keydown',e=>{if(e.key==='Escape')hidePanel()});render();
+</script>
+</body>
+</html>
