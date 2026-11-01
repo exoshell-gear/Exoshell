@@ -111,7 +111,7 @@
     .tier-copy .quantity { margin-top: 3px; color: #53564f; font-size:16px !important; font-weight: 700; }
     .tier-total { grid-area: total; justify-self: start; white-space: nowrap; font-size:18px !important; font-weight: 800; }
     .tier-unit { grid-area: unit; color: var(--muted); font-size:15px !important; }
-    .tier-benefit { grid-area: benefit; display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+    .tier-benefit { grid-area: benefit; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; gap: 5px; }
     .tier-benefit small { margin: 0; color: var(--olive); font-size:15px !important; font-weight: 800; }
     .tier-benefit .shipping { color: var(--muted); font-weight: 400; }
     .tier-flag { display:inline-flex; align-items:center; justify-content:center; padding:4px 8px; border-radius:999px; background: var(--olive); color:#fff; font-size:12px !important; font-weight:800; white-space:nowrap; }
@@ -195,6 +195,7 @@
       .tier { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "copy total" "unit total" "benefit benefit"; min-height: 112px; padding: 13px 15px; column-gap: 8px; row-gap: 4px; }
       .tier[aria-pressed="true"] { padding: 11px 13px; }
       .tier-total { justify-self: end; }
+      .tier-benefit { flex-direction: row; justify-content: space-between; align-items: center; gap: 8px; }
       .tier-copy strong { font-size:22px !important; }
       .tier-copy .quantity { font-size:18px !important; }
       .tier-total { font-size:21px !important; }
