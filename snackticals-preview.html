@@ -72,7 +72,7 @@
     .hero-points { display: grid; gap: 8px; margin: 20px 0 23px; padding: 0; list-style: none; font-size:16px !important; font-weight: 800; }
     .hero-points li::before { content: "•"; margin-right: 10px; color: var(--olive); }
     .buybox { padding: 20px; border: 1px solid #dfded3; border-radius: var(--radius); background: #faf9f5; }
-    .buybox h2 { margin: 0 0 14px; font-size:20px !important; }
+    .buybox h2 { margin: 0 0 14px; font-size:24px !important; }
     .flavor-select { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
     .flavor-button {
       min-height: 56px;
@@ -81,7 +81,7 @@
       border-radius: 8px;
       background: white;
       color: var(--ink);
-      font-size:17px !important;
+      font-size:22px !important;
       font-weight: 800;
     }
     .flavor-button[aria-pressed="true"] { border: 2px solid var(--olive); padding: 7px 9px; background: var(--olive-soft) !important; color: var(--olive) !important; }
@@ -91,7 +91,7 @@
     .tiers { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
     .tier {
       position: relative;
-      min-height: 166px;
+      min-height: 180px;
       padding: 19px 12px 13px;
       text-align: left;
       border: 1px solid var(--line);
@@ -101,9 +101,9 @@
     }
     .tier[aria-pressed="true"] { border: 2px solid var(--olive); padding: 16px 9px 10px; background: #f1f4ef !important; }
     .tier strong, .tier em, .tier small { display: block; font-style: normal; }
-    .tier strong { font-size:20px !important; }
-    .tier .quantity { margin-top: 4px; color: #53564f; font-size:16px !important; font-weight: 700; }
-    .tier small { margin-top: 8px; color: var(--muted); font-size:14px !important; }
+    .tier strong { font-size:24px !important; }
+    .tier .quantity { margin-top: 4px; color: #53564f; font-size:19px !important; font-weight: 700; }
+    .tier small { margin-top: 8px; color: var(--muted); font-size:16px !important; }
     .tier .savings { font-weight: 800; color: var(--olive); }
     .tier-flag { position: absolute; left: 8px; right: 8px; top: -12px; padding: 4px 6px; border-radius: 999px; background: var(--olive); color: #fff; font-size:11px !important; font-weight: 800; text-align: center; letter-spacing: .04em; }
     .order-total { display: flex; justify-content: space-between; gap: 10px; margin: 15px 0 16px; font-size:16px !important; }
@@ -184,12 +184,12 @@
       .hero-points { gap: 6px; margin: 16px 0 20px; font-size:14px !important; }
       .buybox { padding: 15px; }
       .tier-heading { align-items: start; flex-direction: column; gap: 2px; }
-      .tiers { gap: 6px; }
-      .tier { padding: 18px 7px 11px; min-height: 162px; }
-      .tier[aria-pressed="true"] { padding: 17px 6px 10px; }
-      .tier strong { font-size:17px !important; }
-      .tier .quantity { font-size:14px !important; }
-      .tier small { font-size:12px !important; }
+      .tiers { grid-template-columns: 1fr; gap: 10px; }
+      .tier { padding: 17px 14px 14px; min-height: 0; }
+      .tier[aria-pressed="true"] { padding: 16px 13px 13px; }
+      .tier strong { font-size:22px !important; }
+      .tier .quantity { font-size:18px !important; }
+      .tier small { font-size:15px !important; }
       .tier-flag { font-size:10px !important; left: 4px; right: 4px; }
       .tabs { gap: 5px; }
       .tab { flex: 1; padding: 11px 6px; font-size:15px !important; }
