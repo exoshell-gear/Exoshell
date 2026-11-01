@@ -211,20 +211,41 @@
       .flavor-button { min-height: 58px; padding: 9px 5px; font-size:19px !important; }
       .flavor-button[aria-pressed="true"] { padding: 8px 4px; }
     }
+
+    /* Full square assets remain uncropped on every screen. */
+    .main-photo { display:block; width:100%; aspect-ratio:1; padding:0; border:0; border-radius:12px; overflow:hidden; background:#ded4bc; cursor:zoom-in; touch-action:pan-y; }
+    .main-photo img { display:block; width:100%; height:auto; aspect-ratio:1; object-fit:contain; }
+    .thumbs { display:flex; gap:9px; overflow-x:auto; padding:4px 3px 8px; margin-top:5px; }
+    .thumb { flex:1 0 52px; padding:0; overflow:hidden; border-radius:7px; max-width:88px; min-height:52px; }
+    .thumb img { display:block; width:100%; height:auto; aspect-ratio:1; object-fit:contain; }
+    .gallery-nav { display:flex; justify-content:space-between; align-items:center; gap:8px; margin-top:8px; }
+    .gallery-nav button { width:48px; min-height:44px; border:1px solid var(--line); background:#fff; border-radius:7px; color:var(--ink); font-size:24px; }
+    .gallery-nav span { font-size:16px; color:#53564f; }
+    .gallery button:focus-visible, .image-viewer button:focus-visible { outline:3px solid #a44639; outline-offset:3px; }
+    .image-viewer { width:100vw; height:100dvh; max-width:none; max-height:none; margin:0; padding:12px; border:0; background:#141613; color:white; }
+    .image-viewer::backdrop { background:#141613; }
+    .viewer-top { display:flex; align-items:center; justify-content:space-between; gap:16px; font-size:18px; }
+    .viewer-top button { min-height:48px; padding:8px 20px; color:white; background:#354d3d; border:1px solid #a6b0a8; border-radius:6px; font-size:18px; }
+    .viewer-image { display:block; width:100%; height:calc(100dvh - 150px); object-fit:contain; touch-action:pan-y pinch-zoom; }
+    .viewer-nav { justify-content:center; gap:24px; }
+    .editorial-image { display:block; width:100%; height:auto; border-radius:16px; }
+    .feature-photo .editorial-image { max-width:720px; margin:auto; }
   </style>
 </head>
 <body>
   <main>
     <div class="wrap product">
       <section class="gallery" aria-label="Product image gallery">
-        <div class="placeholder main-photo" id="mainPhoto" role="img" aria-label="Main product photo placeholder">Main product image placeholder</div>
-        <div class="thumbs" aria-label="Gallery images">
-          <button class="thumb" type="button" data-label="Front of package" aria-pressed="true">Package front</button>
-          <button class="thumb" type="button" data-label="Back of package" aria-pressed="false">Package back</button>
-          <button class="thumb" type="button" data-label="Chicken · honey seasoned · no heat" aria-pressed="false">Chicken · no heat</button>
-          <button class="thumb" type="button" data-label="Original · pork and beef · no heat" aria-pressed="false">Original · no heat</button>
-          <button class="thumb" type="button" data-label="Jalapeño · pork and beef · medium heat · 🌶️" aria-pressed="false">Jalapeño · 🌶️</button>
-        </div>
+        <button class="main-photo" id="openGallery" type="button" aria-label="Enlarge product image">
+          <img id="mainPhoto" src="assets/snackticals/01-product.svg" alt="Two red Jalapeño Snackticals sticks, front and reverse, on coyote MOLLE nylon." width="1254" height="1254" fetchpriority="high">
+        </button>
+        <div class="gallery-nav"><button type="button" id="galleryPrev" aria-label="Previous image">&#8592;</button><span id="galleryStatus" aria-live="polite">1 / 6 · Tap to enlarge</span><button type="button" id="galleryNext" aria-label="Next image">&#8594;</button></div>
+        <div class="thumbs" aria-label="Gallery images"><button class="thumb" type="button" data-index="0" data-src="assets/snackticals/01-product.svg" data-alt="Two red Jalapeño Snackticals sticks, front and reverse, on coyote MOLLE nylon." aria-label="Show image 1: Product front and back" aria-pressed="true"><img src="assets/snackticals/01-product.svg" alt="" width="1254" height="1254" loading="lazy" decoding="async"></button>
+<button class="thumb" type="button" data-index="1" data-src="assets/snackticals/02-nutrition.svg" data-alt="Jalapeño nutrition per 25g stick: 5g protein, 80 calories and 0g sugar." aria-label="Show image 2: Nutrition" aria-pressed="false"><img src="assets/snackticals/02-nutrition.svg" alt="" width="1254" height="1254" loading="lazy" decoding="async"></button>
+<button class="thumb" type="button" data-index="2" data-src="assets/snackticals/03-edc.svg" data-alt="Red Jalapeño stick alongside a folding knife, watch, compass and flashlight on military kit." aria-label="Show image 3: Everyday carry" aria-pressed="false"><img src="assets/snackticals/03-edc.svg" alt="" width="1254" height="1254" loading="lazy" decoding="async"></button>
+<button class="thumb" type="button" data-index="3" data-src="assets/snackticals/04-ingredients.svg" data-alt="Pork and beef with jalapeño and garlic. Medium heat." aria-label="Show image 4: Taste and ingredients" aria-pressed="false"><img src="assets/snackticals/04-ingredients.svg" alt="" width="1254" height="1254" loading="lazy" decoding="async"></button>
+<button class="thumb" type="button" data-index="4" data-src="assets/snackticals/05-veteran-owned.svg" data-alt="Veteran-owned Snackticals. A person in tactical kit holds an opened red stick." aria-label="Show image 5: Veteran owned" aria-pressed="false"><img src="assets/snackticals/05-veteran-owned.svg" alt="" width="1254" height="1254" loading="lazy" decoding="async"></button>
+<button class="thumb" type="button" data-index="5" data-src="assets/snackticals/06-kit-bag.svg" data-alt="20 sticks per box. Free U.S. shipping on 3 or more boxes. Money-back guarantee. Two sticks packed in a kit bag." aria-label="Show image 6: Box and delivery" aria-pressed="false"><img src="assets/snackticals/06-kit-bag.svg" alt="" width="1254" height="1254" loading="lazy" decoding="async"></button></div>
       </section>
 
       <section class="details" aria-labelledby="product-title">
@@ -287,11 +308,11 @@
     </section>
 
     <div class="wrap feature-photo">
-      <div class="placeholder wide-photo" role="img" aria-label="Product photo placeholder">Product photo placeholder</div>
+      <img class="editorial-image" src="assets/snackticals/03-edc.svg" alt="Red Jalapeño stick alongside a folding knife, watch, compass and flashlight on military kit." width="1254" height="1254" loading="lazy" decoding="async">
     </div>
 
     <section class="wrap section lifestyle">
-      <div class="placeholder life-photo" role="img" aria-label="Lifestyle photo placeholder">Lifestyle photo placeholder</div>
+      <img class="editorial-image" src="assets/snackticals/05-veteran-owned.svg" alt="Veteran-owned Snackticals. A person in tactical kit holds an opened red stick." width="1254" height="1254" loading="lazy" decoding="async">
       <div class="life-copy">
         <p class="eyebrow">Snackticals Meat Sticks</p>
         <h2>Keep a few close.</h2>
@@ -351,6 +372,11 @@
     </section>
     <div class="footer-space"></div>
   </main>
+<dialog class="image-viewer" id="imageViewer" aria-label="Enlarged product photos">
+    <div class="viewer-top"><span id="viewerStatus">Image 1 of 6</span><button type="button" id="closeViewer">Close &#215;</button></div>
+    <img class="viewer-image" id="viewerImage" alt="">
+    <div class="gallery-nav viewer-nav"><button type="button" id="viewerPrev" aria-label="Previous image">&#8592;</button><button type="button" id="viewerNext" aria-label="Next image">&#8594;</button></div>
+  </dialog>
   <script>
     (function () {
       var selectedFlavor = "Chicken";
@@ -378,11 +404,49 @@
           updateOrder();
         });
       });
-      document.querySelectorAll(".thumb").forEach(function (button) {
-        button.addEventListener("click", function () {
-          document.querySelectorAll(".thumb").forEach(function (b) { b.setAttribute("aria-pressed", String(b === button)); });
-          document.getElementById("mainPhoto").textContent = button.dataset.label + " image placeholder";
-        });
+      var thumbs = Array.from(document.querySelectorAll('.thumb'));
+      var currentImage = 0;
+      var mainPhoto = document.getElementById('mainPhoto');
+      var viewer = document.getElementById('imageViewer');
+      var viewerImage = document.getElementById('viewerImage');
+      function showImage(index) {
+        currentImage = (index + thumbs.length) % thumbs.length;
+        var selected = thumbs[currentImage];
+        mainPhoto.src = selected.dataset.src;
+        mainPhoto.alt = selected.dataset.alt;
+        if (viewer.open) { viewerImage.src = selected.dataset.src; viewerImage.alt = selected.dataset.alt; }
+        thumbs.forEach(function(button,i) { button.setAttribute('aria-pressed',String(i === currentImage)); });
+        document.getElementById('galleryStatus').textContent = (currentImage + 1) + ' / ' + thumbs.length + ' · Tap to enlarge';
+        document.getElementById('viewerStatus').textContent = 'Image ' + (currentImage + 1) + ' of ' + thumbs.length;
+      }
+      thumbs.forEach(function(button,i) { button.addEventListener('click',function() { showImage(i); }); });
+      ['galleryPrev','viewerPrev'].forEach(function(id) { document.getElementById(id).addEventListener('click',function(){ showImage(currentImage - 1); }); });
+      ['galleryNext','viewerNext'].forEach(function(id) { document.getElementById(id).addEventListener('click',function(){ showImage(currentImage + 1); }); });
+      document.getElementById('openGallery').addEventListener('click',function() {
+        if (Date.now() < suppressClickUntil) return;
+        viewer.showModal(); document.body.style.overflow = 'hidden'; showImage(currentImage);
+      });
+      document.getElementById('closeViewer').addEventListener('click',function(){viewer.close();});
+      viewer.addEventListener('close',function(){document.body.style.overflow = '';document.getElementById('openGallery').focus();});
+      function arrowKeys(event) {
+        if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') {
+          event.preventDefault(); showImage(currentImage + (event.key === 'ArrowRight' ? 1 : -1));
+        }
+      }
+      document.querySelector('.gallery').addEventListener('keydown',arrowKeys);
+      viewer.addEventListener('keydown',arrowKeys);
+      var suppressClickUntil = 0;
+      [document.getElementById('openGallery'),viewerImage].forEach(function(node) {
+        var start = null;
+        node.addEventListener('touchstart',function(event){start = event.touches.length === 1 ? {x:event.touches[0].clientX,y:event.touches[0].clientY} : null;},{passive:true});
+        node.addEventListener('touchend',function(event){
+          if (!start || !event.changedTouches.length) return;
+          var dx = event.changedTouches[0].clientX - start.x;
+          var dy = event.changedTouches[0].clientY - start.y;
+          if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy)*1.5) { suppressClickUntil=Date.now()+500; showImage(currentImage+(dx<0?1:-1)); }
+          start=null;
+        },{passive:true});
+        node.addEventListener('touchcancel',function(){start=null;},{passive:true});
       });
       document.querySelectorAll(".tab").forEach(function (button) {
         button.addEventListener("click", function () {
