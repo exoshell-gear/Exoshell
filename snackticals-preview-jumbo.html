@@ -1,0 +1,403 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Full-size Snackticals meat sticks for the long shift.">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Snackticals Meat Sticks | Product Page Concept</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #20241e;
+      --muted: #6d7068;
+      --line: #dedbd0;
+      --soft: #eeefe9;
+      --white: #fff;
+      --cta: #354d3d;
+      --olive: #354d3d;
+      --olive-soft: #edf1eb;
+      --red: #a44639;
+      --paper: #f5f3ec;
+      --radius: 16px;
+      --page: 1180px;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--paper) !important;
+      color: var(--ink);
+      font-family: "Arial Narrow", "Roboto Condensed", Arial, Helvetica, sans-serif;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+    button, select { font: inherit; }
+    button { cursor: pointer; }
+    .wrap { width: min(var(--page), calc(100% - 48px)); margin: 0 auto; }
+    .product { display: grid; grid-template-columns: minmax(0, 1.04fr) minmax(380px, .96fr); gap: 42px; padding: 34px; align-items: start; margin-top: 24px; margin-bottom: 24px; background: var(--white); border: 1px solid #e4e0d6; border-radius: 22px; box-shadow: 0 14px 40px rgba(36, 38, 31, .055); }
+    .gallery { min-width: 0; }
+    .placeholder {
+      display: grid;
+      place-items: center;
+      text-align: center;
+      color: #777a71;
+      background: #efeee8 !important;
+      border: 1px dashed #cfccbf;
+      border-radius: var(--radius);
+      font-size:12px !important;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+    .main-photo { aspect-ratio: 1 / 1; width: 100%; padding: 24px; }
+    .thumbs { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; margin-top: 12px; }
+    .thumb {
+      min-width: 0;
+      aspect-ratio: 1 / 1;
+      padding: 8px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--white);
+      color: var(--muted);
+      font-size:13px !important;
+      font-weight: 700;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+    .thumb[aria-pressed="true"] { outline: 2px solid var(--olive); outline-offset: 1px; color: var(--olive); background: var(--olive-soft); }
+    .details { min-width: 0; }
+    .eyebrow { margin: 0 0 10px; color: var(--red); font-size:11px !important; font-weight: 800; letter-spacing: .13em; text-transform: uppercase; }
+    h1 { max-width: 570px; margin: 0; font-size:clamp(38px, 4.2vw, 56px) !important; line-height: .98; letter-spacing: -.055em; font-weight: 900; }
+    .hero-points { display: grid; gap: 8px; margin: 20px 0 23px; padding: 0; list-style: none; font-size:16px !important; font-weight: 800; }
+    .hero-points li::before { content: "•"; margin-right: 10px; color: var(--olive); }
+    .buybox { padding: 20px; border: 1px solid #dfded3; border-radius: var(--radius); background: #faf9f5; }
+    .buybox h2 { margin: 0 0 14px; font-size:24px !important; }
+    .flavor-select { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .flavor-button {
+      min-height: 56px;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: white;
+      color: var(--ink);
+      font-size:22px !important;
+      font-weight: 800;
+    }
+    .flavor-button[aria-pressed="true"] { border: 2px solid var(--olive); padding: 7px 9px; background: var(--olive-soft) !important; color: var(--olive) !important; }
+    .tier-heading { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; margin: 22px 0 12px; }
+    .tier-heading h2 { margin: 0; font-size:20px !important; }
+    .tier-heading span { color: var(--muted); font-size:15px !important; }
+    .tiers { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .tier {
+      position: relative;
+      min-height: 180px;
+      padding: 19px 12px 13px;
+      text-align: left;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      background: #fff;
+      color: var(--ink);
+    }
+    .tier[aria-pressed="true"] { border: 2px solid var(--olive); padding: 16px 9px 10px; background: #f1f4ef !important; }
+    .tier:nth-child(2)[aria-pressed="true"] { padding-top: 37px; }
+    .tier strong, .tier em, .tier small { display: block; font-style: normal; }
+    .tier strong { font-size:24px !important; }
+    .tier .quantity { margin-top: 4px; color: #53564f; font-size:19px !important; font-weight: 700; }
+    .tier small { margin-top: 8px; color: var(--muted); font-size:16px !important; }
+    .tier .savings { font-weight: 800; color: var(--olive); }
+    .tier:nth-child(2) { padding-top: 38px; }
+    .tier-flag { position: absolute; left: 8px; right: 8px; top: -12px; padding: 4px 6px; border-radius: 999px; background: var(--olive); color: #fff; font-size:11px !important; font-weight: 800; text-align: center; letter-spacing: .04em; }
+    .order-total { display: flex; justify-content: space-between; gap: 10px; margin: 15px 0 16px; font-size:16px !important; }
+    .order-total strong { font-size:21px !important; }
+    .add-button { width: 100%; min-height: 54px; border: 0; border-radius: 9px; background: var(--cta) !important; color: white !important; font-size:17px !important; font-weight: 800; letter-spacing: .08em; box-shadow: 0 5px 0 #263a2d; transition: transform .15s ease, box-shadow .15s ease, background .15s ease; }
+    .add-button:hover { background: #2b4233; transform: translateY(-1px); box-shadow: 0 6px 0 #263a2d; }
+    .add-button:active { transform: translateY(2px); box-shadow: 0 3px 0 #263a2d; }
+    .product-stats { margin: 13px 0 0; color: var(--muted); font-size:14px !important; text-align: center; }
+    .notice { display: none; margin: 12px 0 0; padding: 10px 12px; border-radius: 8px; background: var(--soft); color: var(--ink); font-size:13px !important; }
+    .notice.visible { display: block; }
+    .proof { border-top: 1px solid #e5e2d8; border-bottom: 1px solid #e5e2d8; background: #efeee7 !important; }
+    .proof-heading { margin: 0; padding-top: 21px; text-align: center; font-size:18px !important; letter-spacing: -.02em; }
+    .proof-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; padding: 24px 0; }
+    .proof-item { font-size:14px !important; font-weight: 700; text-align: center; }
+    .proof-item small { display: block; margin-top: 4px; color: var(--muted); font-size:13px !important; font-weight: 400; }
+    .feature-photo { padding: 32px 0 0; }
+    .wide-photo { aspect-ratio: 2.5 / 1; }
+    .section { padding: 58px 0; }
+    .section-head { max-width: 700px; margin-bottom: 24px; }
+    .section h2 { margin: 0 0 8px; font-size:clamp(27px, 3vw, 38px) !important; line-height: 1.08; letter-spacing: -.035em; }
+    .section-intro { margin: 0; color: var(--muted); font-size:18px !important; }
+    .nutrition { border-top: 1px solid #e1dfd5; background: #eeeee8 !important; }
+    .nutrition-layout { display: grid; grid-template-columns: minmax(0, .8fr) minmax(320px, 1fr); gap: 42px; align-items: start; }
+    .tabs { display: flex; gap: 7px; margin: 0 0 13px; }
+    .tab {
+      padding: 9px 13px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: #fff;
+      color: var(--ink);
+      font-size:13px !important;
+      font-weight: 700;
+    }
+    .tab[aria-selected="true"] { background: var(--olive) !important; color: white !important; border-color: var(--olive) !important; }
+    .facts { max-width: 460px; padding: 17px 18px; border: 2px solid var(--olive); background: white; }
+    .facts h3 { margin: 0; padding-bottom: 5px; border-bottom: 8px solid var(--olive); font-size:25px !important; }
+    .serving { margin: 5px 0; padding-bottom: 5px; border-bottom: 1px solid var(--olive); font-size:12px !important; }
+    .calories { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 4px solid var(--ink); font-size:21px !important; font-weight: 700; }
+    .facts-row { display: flex; justify-content: space-between; gap: 10px; padding: 6px 0; border-bottom: 1px solid #bfc1bc; font-size:15px !important; }
+    .facts-note { margin: 11px 0 0; color: var(--muted); font-size:14px !important; }
+    .ingredients-note { max-width: 670px; margin: 18px 0 0; color: #53564f; font-size:13px !important; }
+    .lifestyle { display: grid; grid-template-columns: 1.1fr .9fr; gap: 42px; align-items: center; }
+    .life-photo { aspect-ratio: 4 / 3; }
+    .life-copy p { max-width: 440px; color: #53564f; }
+    .faq { border-top: 1px solid var(--line); }
+    .faq-list { max-width: 820px; border-top: 1px solid var(--line); }
+    details { border-bottom: 1px solid var(--line); }
+    summary { padding: 17px 34px 17px 0; cursor: pointer; list-style: none; font-size:18px !important; font-weight: 700; position: relative; }
+    summary::-webkit-details-marker { display: none; }
+    summary::after { content: "+"; position: absolute; right: 4px; top: 12px; color: var(--muted); font-size:22px !important; font-weight: 400; }
+    details[open] summary::after { content: "−"; }
+    details p { max-width: 720px; margin: -4px 0 17px; color: #53564f; font-size:16px !important; }
+    .reviews { padding-top: 42px; border-top: 1px solid var(--line); }
+    .review-placeholder { display: grid; place-items: center; min-height: 150px; padding: 20px; border: 1px dashed #c5c7bd; border-radius: var(--radius); color: var(--muted); background: #f7f7f1; text-align: center; font-size:16px !important; }
+    .footer-space { height: 34px; border-top: 1px solid var(--line); }
+    @media (max-width: 820px) {
+      .wrap { width: min(100% - 32px, 620px); }
+      .product { grid-template-columns: 1fr; gap: 24px; padding: 22px; margin-top: 16px; margin-bottom: 16px; }
+      .main-photo { aspect-ratio: 1 / .9; }
+      .details { order: 2; }
+      .gallery { order: 1; }
+      .proof-row { grid-template-columns: repeat(2, 1fr); gap: 18px 10px; }
+      .feature-photo { padding-top: 30px; }
+      .wide-photo { aspect-ratio: 1.5 / 1; }
+      .section { padding: 42px 0; }
+      .nutrition-layout { grid-template-columns: 1fr; gap: 24px; }
+      .lifestyle { grid-template-columns: 1fr; gap: 22px; }
+      .life-photo { order: 1; }
+      .life-copy { order: 2; }
+    }
+    @media (max-width: 520px) {
+      .wrap { width: calc(100% - 24px); }
+      .product { gap: 18px; padding: 14px; border-radius: 17px; }
+      .thumbs { gap: 7px; }
+      .thumb { padding: 5px; font-size:12px !important; }
+      h1 { font-size:35px !important; }
+      .pitch { font-size:17px !important; }
+      .hero-points { gap: 6px; margin: 16px 0 20px; font-size:14px !important; }
+      .buybox { padding: 15px; }
+      .tier-heading { align-items: start; flex-direction: column; gap: 2px; }
+      .tiers { grid-template-columns: 1fr; gap: 10px; }
+      .tier { padding: 17px 14px 14px; min-height: 0; }
+      .tier[aria-pressed="true"] { padding: 16px 13px 13px; }
+      .tier:nth-child(2) { padding-top: 38px; }
+      .tier:nth-child(2)[aria-pressed="true"] { padding-top: 37px; }
+      .tier strong { font-size:22px !important; }
+      .tier .quantity { font-size:18px !important; }
+      .tier small { font-size:15px !important; }
+      .tier-flag { font-size:10px !important; left: 4px; right: 4px; }
+      .tabs { gap: 5px; }
+      .tab { flex: 1; padding: 11px 6px; font-size:15px !important; }
+      .facts { padding: 14px; }
+      .proof-item { font-size:13px !important; }
+      .section h2 { font-size:29px !important; }
+      .wide-photo { aspect-ratio: 1 / 1; }
+      .flavor-select { gap: 6px; }
+      .flavor-button { min-height: 58px; padding: 9px 5px; font-size:19px !important; }
+      .flavor-button[aria-pressed="true"] { padding: 8px 4px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="wrap product">
+      <section class="gallery" aria-label="Product image gallery">
+        <div class="placeholder main-photo" id="mainPhoto" role="img" aria-label="Main product photo placeholder">Main product image placeholder</div>
+        <div class="thumbs" aria-label="Gallery images">
+          <button class="thumb" type="button" data-label="Front of package" aria-pressed="true">Package front</button>
+          <button class="thumb" type="button" data-label="Back of package" aria-pressed="false">Package back</button>
+          <button class="thumb" type="button" data-label="Chicken · honey seasoned · no heat" aria-pressed="false">Chicken · no heat</button>
+          <button class="thumb" type="button" data-label="Original · pork and beef · no heat" aria-pressed="false">Original · no heat</button>
+          <button class="thumb" type="button" data-label="Jalapeño · pork and beef · medium heat · 🌶️" aria-pressed="false">Jalapeño · 🌶️</button>
+        </div>
+      </section>
+
+      <section class="details" aria-labelledby="product-title">
+        <p class="eyebrow">Snackticals Meat Sticks</p>
+        <h1 id="product-title">Full-size meat sticks for the long shift.</h1>
+        <ul class="hero-points">
+          <li>High protein &amp; low cal</li>
+          <li>Three field-ready flavors</li>
+          <li>Made in USA</li>
+        </ul>
+
+        <div class="buybox">
+          <h2>Choose your flavor</h2>
+          <div class="flavor-select" role="group" aria-label="Choose a flavor">
+            <button class="flavor-button" type="button" data-flavor="Chicken" aria-pressed="true">Chicken</button>
+            <button class="flavor-button" type="button" data-flavor="Original" aria-pressed="false">Original</button>
+            <button class="flavor-button" type="button" data-flavor="Jalapeño" aria-pressed="false">Jalapeño</button>
+          </div>
+
+          <div class="tier-heading">
+            <h2>Choose your box quantity</h2>
+            <span>Volume discounts apply automatically</span>
+          </div>
+          <div class="tiers" role="group" aria-label="Choose box quantity">
+            <button class="tier" type="button" data-boxes="1" aria-pressed="true">
+              <strong>1 box</strong>
+              <em class="quantity">20 sticks</em>
+              <small>$2.50 per stick</small>
+              <small>Shipping at checkout</small>
+            </button>
+            <button class="tier" type="button" data-boxes="3" aria-pressed="false">
+              <span class="tier-flag">FREE SHIPPING STARTS HERE</span>
+              <strong>3 boxes</strong>
+              <em class="quantity">60 sticks</em>
+              <small>$2.17 per stick</small>
+              <small class="savings">Save $19.50 total</small>
+            </button>
+            <button class="tier" type="button" data-boxes="6" aria-pressed="false">
+              <strong>6 boxes</strong>
+              <em class="quantity">120 sticks</em>
+              <small>$1.92 per stick</small>
+              <small class="savings">Save $69.00 total</small>
+            </button>
+          </div>
+          <div class="order-total"><span id="orderSummary">Chicken · 1 box · 20 sticks</span><strong id="orderPrice">$49.99</strong></div>
+          <button class="add-button" id="addButton" type="button">ADD TO CART</button>
+          <p class="product-stats">25g per stick · 5–6g protein · 50–80 calories</p>
+          <p class="notice" id="notice" role="status">Prototype preview: connect this button to the Tactical Snacks checkout before launch.</p>
+        </div>
+      </section>
+    </div>
+
+    <section class="proof">
+      <div class="wrap">
+        <h2 class="proof-heading">Ready when you need a snack.</h2>
+        <div class="proof-row">
+          <div class="proof-item">Veteran-owned</div>
+          <div class="proof-item">Made in the USA<small>Under USDA inspection</small></div>
+          <div class="proof-item">Shelf-stable<small>Refrigerate after opening</small></div>
+          <div class="proof-item">Fast shipping<small>[Add confirmed timeframe]</small></div>
+        </div>
+      </div>
+    </section>
+
+    <div class="wrap feature-photo">
+      <div class="placeholder wide-photo" role="img" aria-label="Product photo placeholder">Product photo placeholder</div>
+    </div>
+
+    <section class="wrap section lifestyle">
+      <div class="placeholder life-photo" role="img" aria-label="Lifestyle photo placeholder">Lifestyle photo placeholder</div>
+      <div class="life-copy">
+        <p class="eyebrow">Snackticals Meat Sticks</p>
+        <h2>Keep a few close.</h2>
+        <p>Long shift. Lunch pushed back. Keep a few in your work bag, locker, or desk so a snack is close when you need one.</p>
+      </div>
+    </section>
+
+    <section class="nutrition">
+      <div class="wrap section nutrition-layout">
+        <div class="section-head">
+          <h2>Know what’s in your stick.</h2>
+          <p class="section-intro">One tab for each flavor. Figures per 25g stick.</p>
+          <p class="ingredients-note" id="allergenNote">All three use a beef collagen casing. Chicken and Original contain mustard. Chicken contains honey. Jalapeño does not contain mustard.</p>
+        </div>
+        <div>
+          <div class="tabs" role="tablist" aria-label="Nutrition label by flavor">
+            <button class="tab" type="button" role="tab" id="tab-chicken" aria-selected="true" aria-controls="facts-panel" data-tab="Chicken">Chicken</button>
+            <button class="tab" type="button" role="tab" id="tab-original" aria-selected="false" aria-controls="facts-panel" data-tab="Original">Original</button>
+            <button class="tab" type="button" role="tab" id="tab-jalapeno" aria-selected="false" aria-controls="facts-panel" data-tab="Jalapeño">Jalapeño</button>
+          </div>
+          <div class="facts" id="facts-panel" role="tabpanel" aria-labelledby="tab-chicken">
+            <h3>Nutrition Facts</h3>
+            <p class="serving" id="servingSize">Serving size 1 stick (25g)</p>
+            <div class="calories"><span>Calories</span><span id="calories">50</span></div>
+            <div class="facts-row"><span>Total Fat</span><strong id="fat">2g</strong></div>
+            <div class="facts-row"><span>Saturated Fat</span><strong id="satFat">1g</strong></div>
+            <div class="facts-row"><span>Cholesterol</span><strong id="cholesterol">30mg</strong></div>
+            <div class="facts-row"><span>Sodium</span><strong id="sodium">370mg</strong></div>
+            <div class="facts-row"><span>Total Carbohydrate</span><strong id="carbs">&lt;1g</strong></div>
+            <div class="facts-row"><span>Total Sugars</span><strong id="sugar">1g</strong></div>
+            <div class="facts-row"><span>Protein</span><strong id="protein">6g</strong></div>
+            <p class="facts-note">See the package for the full nutrition and ingredient statement.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="faq">
+      <div class="wrap section">
+        <div class="section-head"><h2>Questions?</h2></div>
+        <div class="faq-list">
+          <details><summary>How many sticks come in a box?</summary><p>Each box contains 20 individually wrapped sticks.</p></details>
+          <details><summary>Do they need refrigeration?</summary><p>Not while sealed. Refrigerate after opening.</p></details>
+          <details><summary>What’s the difference between the flavors?</summary><p>Chicken is honey-seasoned with no heat. Original is pork and beef with no heat. Jalapeño is pork and beef with medium heat.</p></details>
+          <details><summary>Are there allergens I should know about?</summary><p>All three use a beef collagen casing. Chicken and Original contain mustard. Chicken contains honey.</p></details>
+          <details><summary>What if I don’t like them?</summary><p>Orders are covered by a 90-day, 100% money-back guarantee. Contact customer support within 90 days for a refund.</p></details>
+          <details><summary>How fast will my order ship?</summary><p>[Add the confirmed processing and shipping timeframe.]</p></details>
+        </div>
+        <div class="reviews section">
+          <div class="section-head">
+            <h2>Reviews</h2>
+            <p class="section-intro">What customers are saying</p>
+          </div>
+          <div class="review-placeholder">Verified Snackticals meat stick reviews will appear here.</div>
+        </div>
+      </div>
+    </section>
+    <div class="footer-space"></div>
+  </main>
+  <script>
+    (function () {
+      var selectedFlavor = "Chicken";
+      var selectedBoxes = 1;
+      var totals = {1: 49.99, 3: 130.47, 6: 230.94};
+      var nutrition = {
+        "Chicken": {calories:"50", fat:"2g", satFat:"1g", cholesterol:"30mg", sodium:"370mg", carbs:"<1g", sugar:"1g", protein:"6g"},
+        "Original": {calories:"80", fat:"6g", satFat:"2.5g", cholesterol:"15mg", sodium:"350mg", carbs:"1g", sugar:"0g", protein:"5g"},
+        "Jalapeño": {calories:"80", fat:"6g", satFat:"2.5g", cholesterol:"15mg", sodium:"360mg", carbs:"1g", sugar:"0g", protein:"5g"}
+      };
+      function money(n) { return "$" + n.toFixed(2); }
+      function updateOrder() {
+        document.getElementById("orderSummary").textContent = selectedFlavor + " · " + selectedBoxes + (selectedBoxes === 1 ? " box" : " boxes") + " · " + (selectedBoxes * 20) + " sticks";
+        document.getElementById("orderPrice").textContent = money(totals[selectedBoxes]);
+      }
+      document.querySelectorAll(".flavor-button").forEach(function (button) {
+        button.addEventListener("click", function () {
+          selectedFlavor = button.dataset.flavor;
+          document.querySelectorAll(".flavor-button").forEach(function (b) { b.setAttribute("aria-pressed", String(b === button)); });
+          updateOrder();
+        });
+      });
+      document.querySelectorAll(".tier").forEach(function (button) {
+        button.addEventListener("click", function () {
+          selectedBoxes = Number(button.dataset.boxes);
+          document.querySelectorAll(".tier").forEach(function (b) { b.setAttribute("aria-pressed", String(b === button)); });
+          updateOrder();
+        });
+      });
+      document.querySelectorAll(".thumb").forEach(function (button) {
+        button.addEventListener("click", function () {
+          document.querySelectorAll(".thumb").forEach(function (b) { b.setAttribute("aria-pressed", String(b === button)); });
+          document.getElementById("mainPhoto").textContent = button.dataset.label + " image placeholder";
+        });
+      });
+      document.querySelectorAll(".tab").forEach(function (button) {
+        button.addEventListener("click", function () {
+          var f = nutrition[button.dataset.tab];
+          document.querySelectorAll(".tab").forEach(function (b) { b.setAttribute("aria-selected", String(b === button)); });
+          document.getElementById("facts-panel").setAttribute("aria-labelledby", button.id);
+          Object.keys(f).forEach(function (key) {
+            var node = document.getElementById(key);
+            if (node) node.textContent = f[key];
+          });
+        });
+      });
+      document.getElementById("addButton").addEventListener("click", function () {
+        document.getElementById("notice").classList.add("visible");
+      });
+    }());
+  </script>
+</body>
+</html>
