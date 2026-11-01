@@ -47,8 +47,9 @@
       text-transform: uppercase;
     }
     .main-photo { aspect-ratio: 1 / 1; width: 100%; padding: 24px; }
-    .thumbs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 12px; }
+    .thumbs { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; margin-top: 12px; }
     .thumb {
+      min-width: 0;
       aspect-ratio: 1 / 1;
       padding: 8px;
       border: 1px solid var(--line);
@@ -64,11 +65,8 @@
     .details { min-width: 0; }
     .eyebrow { margin: 0 0 10px; color: var(--muted); font-size: 12px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
     h1 { max-width: 570px; margin: 0; font-size: clamp(34px, 4vw, 52px); line-height: 1.02; letter-spacing: -.045em; }
-    .pitch { margin: 13px 0 15px; font-size: 18px; line-height: 1.35; }
-    .quick-line { margin: 0 0 23px; color: #53564f; font-size: 14px; }
-    .quick-line span + span::before { content: "·"; margin: 0 8px; color: #aaa; }
-    .benefits { display: flex; flex-wrap: wrap; gap: 9px 16px; margin: 0 0 24px; padding: 0; list-style: none; font-size: 14px; font-weight: 700; }
-    .benefits li::before { content: "✓"; margin-right: 7px; color: #53564f; }
+    .hero-points { display: grid; gap: 8px; margin: 20px 0 23px; padding: 0; list-style: none; font-size: 16px; font-weight: 700; }
+    .hero-points li::before { content: "•"; margin-right: 10px; color: #53564f; }
     .buybox { padding: 20px; border: 1px solid var(--line); border-radius: var(--radius); }
     .buybox h2 { margin: 0 0 12px; font-size: 15px; }
     .flavor-select { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
@@ -89,24 +87,25 @@
     .tiers { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
     .tier {
       position: relative;
-      min-height: 116px;
-      padding: 13px 9px 10px;
+      min-height: 145px;
+      padding: 17px 10px 11px;
       text-align: left;
       border: 1px solid var(--line);
       border-radius: 9px;
       background: #fff;
       color: var(--ink);
     }
-    .tier[aria-pressed="true"] { border: 2px solid var(--ink); padding: 12px 8px 9px; }
+    .tier[aria-pressed="true"] { border: 2px solid var(--ink); padding: 16px 9px 10px; }
     .tier strong, .tier em, .tier small { display: block; font-style: normal; }
-    .tier strong { font-size: 13px; }
-    .tier .price { margin-top: 6px; font-size: 17px; font-weight: 700; letter-spacing: -.02em; }
-    .tier small { color: var(--muted); font-size: 11px; }
-    .tier .ship { margin-top: 6px; color: #3d5746; font-weight: 700; }
+    .tier strong { font-size: 16px; }
+    .tier .quantity { margin-top: 2px; color: #53564f; font-size: 13px; font-weight: 700; }
+    .tier small { margin-top: 7px; color: var(--muted); font-size: 11px; }
+    .tier .savings { font-weight: 700; color: #3d5746; }
+    .tier-flag { position: absolute; left: 8px; right: 8px; top: -11px; padding: 2px 5px; border-radius: 999px; background: #e9ece7; color: #3d5746; font-size: 9px; font-weight: 700; text-align: center; letter-spacing: .04em; }
     .order-total { display: flex; justify-content: space-between; gap: 10px; margin: 13px 0 14px; font-size: 13px; }
     .order-total strong { font-size: 16px; }
     .add-button { width: 100%; min-height: 52px; border: 0; border-radius: 8px; background: var(--cta); color: white; font-weight: 700; letter-spacing: .02em; }
-    .fineprint { margin: 10px 0 0; color: var(--muted); font-size: 12px; text-align: center; }
+    .product-stats { margin: 11px 0 0; color: var(--muted); font-size: 12px; text-align: center; }
     .notice { display: none; margin: 12px 0 0; padding: 10px 12px; border-radius: 8px; background: var(--soft); color: var(--ink); font-size: 13px; }
     .notice.visible { display: block; }
     .proof { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
@@ -120,10 +119,6 @@
     .section-head { max-width: 700px; margin-bottom: 24px; }
     .section h2 { margin: 0 0 8px; font-size: clamp(27px, 3vw, 38px); line-height: 1.08; letter-spacing: -.035em; }
     .section-intro { margin: 0; color: var(--muted); font-size: 16px; }
-    .flavor-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
-    .flavor-card { padding: 18px; border: 1px solid var(--line); border-radius: var(--radius); }
-    .flavor-card h3 { margin: 0 0 6px; font-size: 20px; }
-    .flavor-card p { margin: 0; color: #53564f; font-size: 14px; }
     .nutrition { border-top: 1px solid var(--line); background: #f8f8f6; }
     .nutrition-layout { display: grid; grid-template-columns: minmax(0, .8fr) minmax(320px, 1fr); gap: 42px; align-items: start; }
     .tabs { display: flex; gap: 7px; margin: 0 0 13px; }
@@ -180,18 +175,16 @@
       .thumb { padding: 5px; font-size: 9px; }
       h1 { font-size: 35px; }
       .pitch { font-size: 17px; }
-      .quick-line { font-size: 12px; }
-      .quick-line span + span::before { margin: 0 5px; }
+      .hero-points { gap: 6px; margin: 16px 0 20px; font-size: 14px; }
       .buybox { padding: 15px; }
       .tier-heading { align-items: start; flex-direction: column; gap: 2px; }
       .tiers { gap: 6px; }
-      .tier { padding: 10px 7px 9px; min-height: 109px; }
-      .tier[aria-pressed="true"] { padding: 9px 6px 8px; }
-      .tier strong { font-size: 11px; }
-      .tier .price { font-size: 15px; }
-      .tier small { font-size: 10px; }
-      .flavor-grid { grid-template-columns: 1fr; gap: 9px; }
-      .flavor-card { padding: 15px; }
+      .tier { padding: 15px 6px 9px; min-height: 140px; }
+      .tier[aria-pressed="true"] { padding: 14px 5px 8px; }
+      .tier strong { font-size: 12px; }
+      .tier .quantity { font-size: 11px; }
+      .tier small { font-size: 9px; }
+      .tier-flag { font-size: 8px; left: 4px; right: 4px; }
       .tabs { gap: 5px; }
       .tab { flex: 1; padding: 9px 6px; font-size: 12px; }
       .facts { padding: 14px; }
@@ -212,19 +205,19 @@
         <div class="thumbs" aria-label="Gallery images">
           <button class="thumb" type="button" data-label="Front of package" aria-pressed="true">Package front</button>
           <button class="thumb" type="button" data-label="Back of package" aria-pressed="false">Package back</button>
-          <button class="thumb" type="button" data-label="Single wrapped stick" aria-pressed="false">Single stick</button>
-          <button class="thumb" type="button" data-label="Stick for scale" aria-pressed="false">Size reference</button>
+          <button class="thumb" type="button" data-label="Chicken · honey seasoned · no heat" aria-pressed="false">Chicken · no heat</button>
+          <button class="thumb" type="button" data-label="Original · pork and beef · no heat" aria-pressed="false">Original · no heat</button>
+          <button class="thumb" type="button" data-label="Jalapeño · pork and beef · medium heat · 🌶️" aria-pressed="false">Jalapeño · 🌶️</button>
         </div>
       </section>
 
       <section class="details" aria-labelledby="product-title">
         <p class="eyebrow">Snackticals Meat Sticks</p>
         <h1 id="product-title">Full-size meat sticks for the long shift.</h1>
-        <p class="quick-line"><span>High protein</span><span>Low cal</span><span>Three field-ready flavors</span><span>Made in USA</span></p>
-        <ul class="benefits">
-          <li>25g per stick</li>
-          <li>5–6g protein</li>
-          <li>50–80 calories</li>
+        <ul class="hero-points">
+          <li>High protein &amp; low cal</li>
+          <li>Three field-ready flavors</li>
+          <li>Made in USA</li>
         </ul>
 
         <div class="buybox">
@@ -241,27 +234,28 @@
           </div>
           <div class="tiers" role="group" aria-label="Choose box quantity">
             <button class="tier" type="button" data-boxes="1" aria-pressed="true">
-              <strong>1 box · 20 sticks</strong>
-              <em class="price">$49.99</em>
-              <small>$49.99 per box</small>
+              <strong>1 box</strong>
+              <em class="quantity">20 sticks</em>
+              <small>$2.50 per stick</small>
               <small>Shipping at checkout</small>
             </button>
             <button class="tier" type="button" data-boxes="3" aria-pressed="false">
-              <strong>3 boxes · 60 sticks</strong>
-              <em class="price">$43.49/box</em>
-              <small>13% off · $130.47 total</small>
-              <small class="ship">Free shipping</small>
+              <span class="tier-flag">FREE SHIPPING STARTS HERE</span>
+              <strong>3 boxes</strong>
+              <em class="quantity">60 sticks</em>
+              <small>$2.17 per stick</small>
+              <small class="savings">Save $19.50 total</small>
             </button>
             <button class="tier" type="button" data-boxes="6" aria-pressed="false">
-              <strong>6 boxes · 120 sticks</strong>
-              <em class="price">$38.49/box</em>
-              <small>23% off · $230.94 total</small>
-              <small class="ship">Free shipping</small>
+              <strong>6 boxes</strong>
+              <em class="quantity">120 sticks</em>
+              <small>$1.92 per stick</small>
+              <small class="savings">Save $69.00 total</small>
             </button>
           </div>
-          <div class="order-total"><span id="orderSummary">Chicken · 1 box (20 sticks)</span><strong id="orderPrice">$49.99</strong></div>
+          <div class="order-total"><span id="orderSummary">Chicken · 1 box · 20 sticks</span><strong id="orderPrice">$49.99</strong></div>
           <button class="add-button" id="addButton" type="button">ADD TO CART</button>
-          <p class="fineprint">90-day money-back guarantee</p>
+          <p class="product-stats">25g per stick · 5–6g protein · 50–80 calories</p>
           <p class="notice" id="notice" role="status">Prototype preview: connect this button to the Tactical Snacks checkout before launch.</p>
         </div>
       </section>
@@ -271,10 +265,10 @@
       <div class="wrap">
         <h2 class="proof-heading">Ready when you need a snack.</h2>
         <div class="proof-row">
-        <div class="proof-item">Veteran-owned</div>
-        <div class="proof-item">Made in the USA<small>Under USDA inspection</small></div>
-        <div class="proof-item">90-day guarantee<small>100% money back</small></div>
-        <div class="proof-item">Fast shipping<small>[Add confirmed timeframe]</small></div>
+          <div class="proof-item">Veteran-owned</div>
+          <div class="proof-item">Made in the USA<small>Under USDA inspection</small></div>
+          <div class="proof-item">Shelf-stable<small>Refrigerate after opening</small></div>
+          <div class="proof-item">Fast shipping<small>[Add confirmed timeframe]</small></div>
         </div>
       </div>
     </section>
@@ -283,23 +277,12 @@
       <div class="placeholder wide-photo" role="img" aria-label="Product photo placeholder">Product photo placeholder</div>
     </div>
 
-    <section class="wrap section" aria-labelledby="pick-title">
-      <div class="section-head">
-        <h2 id="pick-title">Pick your stick.</h2>
-      </div>
-      <div class="flavor-grid">
-        <article class="flavor-card">
-          <h3>Chicken</h3>
-          <p>50 calories · 6g protein · 1g sugar. Honey-seasoned. No heat.</p>
-        </article>
-        <article class="flavor-card">
-          <h3>Original</h3>
-          <p>80 calories · 5g protein · 0g sugar. Pork and beef. No heat.</p>
-        </article>
-        <article class="flavor-card">
-          <h3>Jalapeño</h3>
-          <p>80 calories · 5g protein · 0g sugar. Pork and beef. Medium heat.</p>
-        </article>
+    <section class="wrap section lifestyle">
+      <div class="placeholder life-photo" role="img" aria-label="Lifestyle photo placeholder">Lifestyle photo placeholder</div>
+      <div class="life-copy">
+        <p class="eyebrow">Snackticals Meat Sticks</p>
+        <h2>Keep a few close.</h2>
+        <p>Long shift. Lunch pushed back. Keep a few in your work bag, locker, or desk so a snack is close when you need one.</p>
       </div>
     </section>
 
@@ -333,15 +316,6 @@
       </div>
     </section>
 
-    <section class="wrap section lifestyle">
-      <div class="placeholder life-photo" role="img" aria-label="Lifestyle photo placeholder">Lifestyle photo placeholder</div>
-      <div class="life-copy">
-        <p class="eyebrow">Snackticals Meat Sticks</p>
-        <h2>Keep a few close.</h2>
-        <p>Long shift. Lunch pushed back. Keep a few in your work bag, locker, or desk so a snack is close when you need one.</p>
-      </div>
-    </section>
-
     <section class="faq">
       <div class="wrap section">
         <div class="section-head"><h2>Questions?</h2></div>
@@ -368,7 +342,6 @@
     (function () {
       var selectedFlavor = "Chicken";
       var selectedBoxes = 1;
-      var unitPrices = {1: 49.99, 3: 43.49, 6: 38.49};
       var totals = {1: 49.99, 3: 130.47, 6: 230.94};
       var nutrition = {
         "Chicken": {calories:"50", fat:"2g", satFat:"1g", cholesterol:"30mg", sodium:"370mg", carbs:"<1g", sugar:"1g", protein:"6g"},
@@ -377,7 +350,7 @@
       };
       function money(n) { return "$" + n.toFixed(2); }
       function updateOrder() {
-        document.getElementById("orderSummary").textContent = selectedFlavor + " · " + selectedBoxes + (selectedBoxes === 1 ? " box" : " boxes") + " (" + (selectedBoxes * 20) + " sticks)";
+        document.getElementById("orderSummary").textContent = selectedFlavor + " · " + selectedBoxes + (selectedBoxes === 1 ? " box" : " boxes") + " · " + (selectedBoxes * 20) + " sticks";
         document.getElementById("orderPrice").textContent = money(totals[selectedBoxes]);
       }
       document.querySelectorAll(".flavor-button").forEach(function (button) {
