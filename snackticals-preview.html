@@ -91,25 +91,30 @@
     .tiers { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
     .tier {
       position: relative;
-      min-height: 180px;
-      padding: 19px 12px 13px;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-areas: "copy" "total" "unit" "benefit";
+      align-items: center;
+      row-gap: 4px;
+      min-height: 142px;
+      padding: 13px 12px;
       text-align: left;
       border: 1px solid var(--line);
       border-radius: 9px;
       background: #fff;
       color: var(--ink);
     }
-    .tier[aria-pressed="true"] { border: 2px solid var(--olive); padding: 16px 9px 10px; background: #f1f4ef !important; }
-    .tier:nth-child(2)[aria-pressed="true"] { padding-top: 37px; }
-    .tier strong, .tier em, .tier small { display: block; font-style: normal; }
-    .tier strong { font-size:24px !important; }
-    .tier .quantity { margin-top: 4px; color: #53564f; font-size:19px !important; font-weight: 700; }
-    .tier small { margin-top: 8px; color: var(--muted); font-size:16px !important; }
-    .tier .savings { font-weight: 800; color: var(--olive); }
-    .tier:nth-child(2) { padding-top: 38px; }
-    .tier-flag { position: absolute; left: 8px; right: 8px; top: -12px; padding: 4px 6px; border-radius: 999px; background: var(--olive); color: #fff; font-size:11px !important; font-weight: 800; text-align: center; letter-spacing: .04em; }
-    .order-total { display: flex; justify-content: space-between; gap: 10px; margin: 15px 0 16px; font-size:16px !important; }
-    .order-total strong { font-size:21px !important; }
+    .tier[aria-pressed="true"] { border: 3px solid var(--olive); padding: 13px 10px; background: #f1f4ef !important; }
+    .tier-copy { grid-area: copy; }
+    .tier-copy strong, .tier-copy em { display: block; font-style: normal; }
+    .tier-copy strong { font-size:20px !important; line-height:1.15; }
+    .tier-copy .quantity { margin-top: 3px; color: #53564f; font-size:16px !important; font-weight: 700; }
+    .tier-total { grid-area: total; justify-self: start; white-space: nowrap; font-size:18px !important; font-weight: 800; }
+    .tier-unit { grid-area: unit; color: var(--muted); font-size:15px !important; }
+    .tier-benefit { grid-area: benefit; display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+    .tier-benefit small { margin: 0; color: var(--olive); font-size:15px !important; font-weight: 800; }
+    .tier-benefit .shipping { color: var(--muted); font-weight: 400; }
+    .tier-flag { display:inline-flex; align-items:center; justify-content:center; padding:4px 8px; border-radius:999px; background: var(--olive); color:#fff; font-size:12px !important; font-weight:800; white-space:nowrap; }
     .add-button { width: 100%; min-height: 54px; border: 0; border-radius: 9px; background: var(--cta) !important; color: white !important; font-size:17px !important; font-weight: 800; letter-spacing: .08em; box-shadow: 0 5px 0 #263a2d; transition: transform .15s ease, box-shadow .15s ease, background .15s ease; }
     .add-button:hover { background: #2b4233; transform: translateY(-1px); box-shadow: 0 6px 0 #263a2d; }
     .add-button:active { transform: translateY(2px); box-shadow: 0 3px 0 #263a2d; }
@@ -186,15 +191,15 @@
       .hero-points { gap: 6px; margin: 16px 0 20px; font-size:14px !important; }
       .buybox { padding: 15px; }
       .tier-heading { align-items: start; flex-direction: column; gap: 2px; }
-      .tiers { grid-template-columns: 1fr; gap: 10px; }
-      .tier { padding: 17px 14px 14px; min-height: 0; }
-      .tier[aria-pressed="true"] { padding: 16px 13px 13px; }
-      .tier:nth-child(2) { padding-top: 38px; }
-      .tier:nth-child(2)[aria-pressed="true"] { padding-top: 37px; }
-      .tier strong { font-size:22px !important; }
-      .tier .quantity { font-size:18px !important; }
-      .tier small { font-size:15px !important; }
-      .tier-flag { font-size:10px !important; left: 4px; right: 4px; }
+      .tiers { grid-template-columns: 1fr; gap: 9px; }
+      .tier { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "copy total" "unit total" "benefit benefit"; min-height: 112px; padding: 13px 15px; column-gap: 8px; row-gap: 4px; }
+      .tier[aria-pressed="true"] { padding: 11px 13px; }
+      .tier-total { justify-self: end; }
+      .tier-copy strong { font-size:22px !important; }
+      .tier-copy .quantity { font-size:18px !important; }
+      .tier-total { font-size:21px !important; }
+      .tier-unit, .tier-benefit small { font-size:16px !important; }
+      .tier-flag { font-size:13px !important; }
       .tabs { gap: 5px; }
       .tab { flex: 1; padding: 11px 6px; font-size:15px !important; }
       .facts { padding: 14px; }
@@ -240,30 +245,27 @@
 
           <div class="tier-heading">
             <h2>Choose your box quantity</h2>
-            <span>Volume discounts apply automatically</span>
           </div>
           <div class="tiers" role="group" aria-label="Choose box quantity">
             <button class="tier" type="button" data-boxes="1" aria-pressed="true">
-              <strong>1 box</strong>
-              <em class="quantity">20 sticks</em>
-              <small>$2.50 per stick</small>
-              <small>Shipping at checkout</small>
+              <span class="tier-copy"><strong>1 box</strong><em class="quantity">20 sticks</em></span>
+              <strong class="tier-total">$49.99</strong>
+              <span class="tier-unit">$2.50 per stick</span>
+              <span class="tier-benefit"><small class="shipping">Shipping at checkout</small></span>
             </button>
             <button class="tier" type="button" data-boxes="3" aria-pressed="false">
-              <span class="tier-flag">FREE SHIPPING STARTS HERE</span>
-              <strong>3 boxes</strong>
-              <em class="quantity">60 sticks</em>
-              <small>$2.17 per stick</small>
-              <small class="savings">Save $19.50 total</small>
+              <span class="tier-copy"><strong>3 boxes</strong><em class="quantity">60 sticks</em></span>
+              <strong class="tier-total">$130.47</strong>
+              <span class="tier-unit">$2.17 per stick</span>
+              <span class="tier-benefit"><small>Save $19.50 total</small><span class="tier-flag">FREE SHIPPING</span></span>
             </button>
             <button class="tier" type="button" data-boxes="6" aria-pressed="false">
-              <strong>6 boxes</strong>
-              <em class="quantity">120 sticks</em>
-              <small>$1.92 per stick</small>
-              <small class="savings">Save $69.00 total</small>
+              <span class="tier-copy"><strong>6 boxes</strong><em class="quantity">120 sticks</em></span>
+              <strong class="tier-total">$230.94</strong>
+              <span class="tier-unit">$1.92 per stick</span>
+              <span class="tier-benefit"><small>Save $69.00 total</small><span class="tier-flag">FREE SHIPPING</span></span>
             </button>
           </div>
-          <div class="order-total"><span id="orderSummary">Chicken · 1 box · 20 sticks</span><strong id="orderPrice">$49.99</strong></div>
           <button class="add-button" id="addButton" type="button">ADD TO CART</button>
           <p class="product-stats">25g per stick · 5–6g protein · 50–80 calories</p>
           <p class="notice" id="notice" role="status">Prototype preview: connect this button to the Tactical Snacks checkout before launch.</p>
@@ -352,17 +354,15 @@
     (function () {
       var selectedFlavor = "Chicken";
       var selectedBoxes = 1;
-      var totals = {1: 49.99, 3: 130.47, 6: 230.94};
       var nutrition = {
         "Chicken": {calories:"50", fat:"2g", satFat:"1g", cholesterol:"30mg", sodium:"370mg", carbs:"<1g", sugar:"1g", protein:"6g"},
         "Original": {calories:"80", fat:"6g", satFat:"2.5g", cholesterol:"15mg", sodium:"350mg", carbs:"1g", sugar:"0g", protein:"5g"},
         "Jalapeño": {calories:"80", fat:"6g", satFat:"2.5g", cholesterol:"15mg", sodium:"360mg", carbs:"1g", sugar:"0g", protein:"5g"}
       };
-      function money(n) { return "$" + n.toFixed(2); }
       function updateOrder() {
-        document.getElementById("orderSummary").textContent = selectedFlavor + " · " + selectedBoxes + (selectedBoxes === 1 ? " box" : " boxes") + " · " + (selectedBoxes * 20) + " sticks";
-        document.getElementById("orderPrice").textContent = money(totals[selectedBoxes]);
+        document.getElementById("addButton").setAttribute("aria-label", "Add " + selectedFlavor + " · " + selectedBoxes + (selectedBoxes === 1 ? " box" : " boxes") + " to cart");
       }
+      updateOrder();
       document.querySelectorAll(".flavor-button").forEach(function (button) {
         button.addEventListener("click", function () {
           selectedFlavor = button.dataset.flavor;
